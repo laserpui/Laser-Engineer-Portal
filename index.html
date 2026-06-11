@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="th" class="dark">
 <head>
+    <script>
+        if (localStorage.getItem('sidebar_collapsed') === 'true' && window.innerWidth >= 768) {
+            document.documentElement.classList.add('sidebar-collapsed-pref');
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Laser Engineer Portal</title>
@@ -173,6 +178,17 @@
         .shake-error {
             animation: shake 0.2s ease-in-out 2;
         }
+
+        /* Prevent flashing on page load if sidebar was collapsed */
+        html.sidebar-collapsed-pref #desktop-sidebar {
+            width: 0 !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            overflow: hidden !important;
+        }
+        html.sidebar-collapsed-pref #sidebar-expand-btn {
+            display: flex !important;
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-[#070b13] text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans select-none relative">
@@ -185,7 +201,14 @@
     <div class="flex-1 flex flex-col md:flex-row relative z-10 w-full min-h-screen">
         
         <!-- Sidebar Navigation (Desktop) -->
-        <aside class="hidden md:flex flex-col w-64 shrink-0 glass-sidebar sticky top-0 h-screen z-30 transition-all duration-300">
+        <aside id="desktop-sidebar" class="hidden md:flex flex-col w-64 shrink-0 glass-sidebar sticky top-0 h-screen z-30 transition-all duration-300 relative">
+            <!-- Collapse Sidebar Button -->
+            <button id="sidebar-collapse-btn" onclick="toggleSidebar()" class="absolute top-4 right-4 p-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-200 dark:bg-slate-900/60 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white border border-slate-200/50 dark:border-slate-800/50 transition-all duration-200 hover:scale-105 active:scale-95 z-40" title="ปิดแถบด้านข้าง">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                </svg>
+            </button>
+            
             <!-- Sidebar Header with Logo -->
             <div class="p-6 flex flex-col items-center border-b border-slate-200/50 dark:border-slate-800/40 select-none">
                 <img src="./Laser Engineer_Logo_PNG-01.png" alt="Laser Engineer Logo" class="h-20 w-auto object-contain mb-3 transition-transform hover:scale-105 duration-300">
@@ -231,7 +254,14 @@
         </aside>
 
         <!-- Main Content Area -->
-        <main class="flex-1 flex flex-col min-w-0 min-h-screen">
+        <main class="flex-1 flex flex-col min-w-0 min-h-screen relative">
+            
+            <!-- Expand Sidebar Button (Floating) -->
+            <button id="sidebar-expand-btn" onclick="toggleSidebar()" class="hidden fixed top-6 left-6 z-40 p-2.5 rounded-2xl bg-white/80 dark:bg-[#090d16]/80 backdrop-blur-md shadow-glass-light dark:shadow-glass-dark border border-slate-200/50 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 scale-90 hover:scale-100 active:scale-95" title="เปิดแถบด้านข้าง">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                </svg>
+            </button>
             
             <!-- Top Mobile Header -->
             <header class="md:hidden flex items-center justify-between p-4 glass-panel border-b border-slate-200/50 dark:border-slate-800/40 sticky top-0 z-30 shrink-0">
@@ -2968,9 +2998,70 @@
         }
 
         // ==========================================================
+        // COLLAPSIBLE SIDEBAR LOGIC
+        // ==========================================================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('desktop-sidebar');
+            const expandBtn = document.getElementById('sidebar-expand-btn');
+            
+            if (!sidebar || !expandBtn) return;
+            
+            // If preference class is still on html tag, resolve it first
+            if (document.documentElement.classList.contains('sidebar-collapsed-pref')) {
+                document.documentElement.classList.remove('sidebar-collapsed-pref');
+                sidebar.classList.add('w-0', 'opacity-0', 'invisible', 'overflow-hidden');
+                sidebar.classList.remove('w-64');
+                expandBtn.classList.remove('hidden');
+            }
+
+            const isCollapsed = sidebar.classList.contains('w-0');
+            
+            if (isCollapsed) {
+                // Expand Sidebar
+                sidebar.classList.remove('w-0', 'opacity-0', 'invisible', 'overflow-hidden');
+                sidebar.classList.add('w-64');
+                
+                // Smoothly transition expand button out
+                expandBtn.classList.add('scale-90', 'opacity-0');
+                setTimeout(() => {
+                    expandBtn.classList.add('hidden');
+                }, 300);
+                
+                localStorage.setItem('sidebar_collapsed', 'false');
+                showToast('เปิดแถบด้านข้างเรียบร้อย', 'info');
+            } else {
+                // Collapse Sidebar
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-0', 'opacity-0', 'invisible', 'overflow-hidden');
+                
+                // Smoothly transition expand button in
+                expandBtn.classList.remove('hidden');
+                // Force layout reflow
+                expandBtn.offsetHeight;
+                expandBtn.classList.remove('scale-90', 'opacity-0');
+                
+                localStorage.setItem('sidebar_collapsed', 'true');
+                showToast('ปิดแถบด้านข้างเพื่อเพิ่มพื้นที่แสดงผล', 'info');
+            }
+        }
+
+        // ==========================================================
         // 11. LOAD LOGIC & EVENT LISTENERS
         // ==========================================================
         window.addEventListener('DOMContentLoaded', () => {
+            // Sync sidebar state from local storage preferences immediately
+            if (document.documentElement.classList.contains('sidebar-collapsed-pref')) {
+                const sidebar = document.getElementById('desktop-sidebar');
+                const expandBtn = document.getElementById('sidebar-expand-btn');
+                if (sidebar && expandBtn) {
+                    sidebar.classList.remove('w-64');
+                    sidebar.classList.add('w-0', 'opacity-0', 'invisible', 'overflow-hidden');
+                    expandBtn.classList.remove('hidden');
+                    expandBtn.classList.remove('scale-90', 'opacity-0');
+                }
+                document.documentElement.classList.remove('sidebar-collapsed-pref');
+            }
+
             // Initialize dynamic spreadsheet configurations
             initializeSpreadsheetConfigs();
 
