@@ -222,10 +222,11 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                     หน้าแรก (Dashboard)
                 </button>
-                <button onclick="switchTab('ar')" id="side-nav-ar" class="nav-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
+                <a href="./บันทึกรายงานต่างๆ/รายการลูกหนี้ Service/index.html" target="_blank" id="side-nav-ar" class="nav-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 no-underline">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    ลูกหนี้คงเหลือ (AR Report)
-                </button>
+                    รายการลูกหนี้ Service
+                    <svg class="w-3 h-3 ml-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
                 <button onclick="switchTab('parts')" id="side-nav-parts" class="nav-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                     รายการอะไหล่ (Spare Parts)
@@ -238,6 +239,24 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                     เครื่องคำนวณ (Calculators)
                 </button>
+
+                <!-- Divider -->
+                <div class="my-2 border-t border-slate-200/40 dark:border-slate-800/40"></div>
+                <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 select-none">บันทึกรายงาน</p>
+
+                <!-- รายงาน คชจ. Service -->
+                <a href="./บันทึกรายงานต่างๆ/รายงาน คชจ. Service/index.html" target="_blank" class="nav-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 no-underline">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    รายงาน คชจ. Service
+                    <svg class="w-3 h-3 ml-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+
+                <!-- รายงานทำงานวันหยุด -->
+                <a href="./บันทึกรายงานต่างๆ/รายงานทำงานวันหยุด/index.html" target="_blank" class="nav-btn flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 no-underline">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    รายงานทำงานวันหยุด
+                    <svg class="w-3 h-3 ml-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
             </nav>
             
             <!-- Sidebar Footer -->
@@ -297,21 +316,21 @@
                     </div>
 
                     <!-- Quick Navigation Cards Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                        
-                        <!-- Accounts Receivable Card -->
-                        <div onclick="switchTab('ar')" class="glass-panel rounded-3xl p-6 shadow-glass-light dark:shadow-glass-dark hover:shadow-glow-blue border border-slate-200/20 hover:border-blue-500/20 cursor-pointer group hover:translate-y-[-4px] transition-all duration-300 flex flex-col justify-between min-h-[170px]">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+                        <!-- รายการลูกหนี้ Service Card (external link replacing old AR) -->
+                        <a href="./บันทึกรายงานต่างๆ/รายการลูกหนี้ Service/index.html" target="_blank" class="glass-panel rounded-3xl p-6 shadow-glass-light dark:shadow-glass-dark hover:shadow-glow-blue border border-slate-200/20 hover:border-blue-500/20 cursor-pointer group hover:translate-y-[-4px] transition-all duration-300 flex flex-col justify-between min-h-[170px] no-underline">
                             <div class="flex justify-between items-start">
                                 <div class="p-3.5 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 </div>
-                                <span class="text-[10px] font-tech text-slate-400 bg-slate-100 dark:bg-slate-900 border border-slate-200/40 dark:border-slate-800/40 px-2 py-0.5 rounded-md">Realtime</span>
+                                <span class="text-[10px] font-tech text-blue-500 bg-blue-50 dark:bg-blue-900/20 border border-blue-200/40 dark:border-blue-800/40 px-2 py-0.5 rounded-md">AR Service</span>
                             </div>
                             <div class="mt-4">
-                                <h3 class="font-bold text-slate-700 dark:text-slate-300 text-sm mb-1 group-hover:text-blue-500 dark:group-hover:text-blue-400">ระบบรายงานลูกหนี้คงเหลือ</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">รายงานความเคลื่อนไหวยอดค้างชำระ ดึงรายงานตรงจากบัญชีการเงินออนไลน์</p>
+                                <h3 class="font-bold text-slate-700 dark:text-slate-300 text-sm mb-1 group-hover:text-blue-500 dark:group-hover:text-blue-400">รายการลูกหนี้ Service</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">บันทึกและติดตามรายการลูกหนี้ค้างชำระ Service พร้อมฟิลเตอร์และ Export ข้อมูลได้ทันที</p>
                             </div>
-                        </div>
+                        </a>
 
                         <!-- Spare Parts Card -->
                         <div onclick="switchTab('parts')" class="glass-panel rounded-3xl p-6 shadow-glass-light dark:shadow-glass-dark hover:shadow-glow-orange border border-slate-200/20 hover:border-orange-500/20 cursor-pointer group hover:translate-y-[-4px] transition-all duration-300 flex flex-col justify-between min-h-[170px]">
@@ -355,20 +374,40 @@
                             </div>
                         </div>
 
+                        <!-- รายงาน คชจ. Service Card -->
+                        <a href="./บันทึกรายงานต่างๆ/รายงาน คชจ. Service/index.html" target="_blank" class="glass-panel rounded-3xl p-6 shadow-glass-light dark:shadow-glass-dark border border-slate-200/20 hover:border-rose-500/20 cursor-pointer group hover:translate-y-[-4px] transition-all duration-300 flex flex-col justify-between min-h-[170px] no-underline" style="--tw-shadow-glow: 0 0 20px rgba(244,63,94,0.25);">
+                            <div class="flex justify-between items-start">
+                                <div class="p-3.5 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                </div>
+                                <span class="text-[10px] font-tech text-rose-500 bg-rose-50 dark:bg-rose-900/20 border border-rose-200/40 dark:border-rose-800/40 px-2 py-0.5 rounded-md">คชจ. Service</span>
+                            </div>
+                            <div class="mt-4">
+                                <h3 class="font-bold text-slate-700 dark:text-slate-300 text-sm mb-1 group-hover:text-rose-500 dark:group-hover:text-rose-400">รายงานค่าใช้จ่าย Service</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">บันทึกและวิเคราะห์ค่าใช้จ่ายของทีม Service พร้อม Dashboard สรุปผลแบบ Real-time</p>
+                            </div>
+                        </a>
+
+                        <!-- รายงานทำงานวันหยุด Card -->
+                        <a href="./บันทึกรายงานต่างๆ/รายงานทำงานวันหยุด/index.html" target="_blank" class="glass-panel rounded-3xl p-6 shadow-glass-light dark:shadow-glass-dark border border-slate-200/20 hover:border-amber-500/20 cursor-pointer group hover:translate-y-[-4px] transition-all duration-300 flex flex-col justify-between min-h-[170px] no-underline">
+                            <div class="flex justify-between items-start">
+                                <div class="p-3.5 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <span class="text-[10px] font-tech text-amber-600 bg-amber-50 dark:bg-amber-900/20 border border-amber-200/40 dark:border-amber-800/40 px-2 py-0.5 rounded-md">วันหยุด</span>
+                            </div>
+                            <div class="mt-4">
+                                <h3 class="font-bold text-slate-700 dark:text-slate-300 text-sm mb-1 group-hover:text-amber-500 dark:group-hover:text-amber-400">รายงานทำงานวันหยุด</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">บันทึกรายการทำงานในวันหยุด คำนวณค่าตอบแทน และสรุปรายงานประจำเดือน</p>
+                            </div>
+                        </a>
+
                     </div>
 
                     <!-- Connection Status Panel -->
                     <div class="glass-panel rounded-3xl p-6 shadow-glass-light dark:shadow-glass-dark">
                         <h3 class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">สถานะการเชื่อมต่อข้อมูลหลัก (Database Status)</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <!-- AR sheet status -->
-                            <div onclick="openConfigModal('ar')" class="flex items-center gap-3.5 bg-slate-100/50 dark:bg-slate-900/30 border border-slate-200/20 dark:border-slate-800/40 rounded-2xl p-4 cursor-pointer hover:bg-slate-200/30 dark:hover:bg-slate-900/50 transition-colors" title="คลิกเพื่อตั้งค่าสเปรดชีตรายงานลูกหนี้">
-                                <div id="ar-status-indicator" class="h-3.5 w-3.5 rounded-full bg-slate-400 animate-pulse"></div>
-                                <div class="text-xs">
-                                    <div class="font-bold text-slate-700 dark:text-slate-300">รายงานลูกหนี้คงเหลือ</div>
-                                    <div id="ar-status-text" class="text-slate-500 dark:text-slate-400 font-tech">รอการเรียกข้อมูล...</div>
-                                </div>
-                            </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Spare Parts status -->
                             <div onclick="openConfigModal('parts')" class="flex items-center gap-3.5 bg-slate-100/50 dark:bg-slate-900/30 border border-slate-200/20 dark:border-slate-800/40 rounded-2xl p-4 cursor-pointer hover:bg-slate-200/30 dark:hover:bg-slate-900/50 transition-colors" title="คลิกเพื่อตั้งค่าสเปรดชีตอะไหล่">
                                 <div id="parts-status-indicator" class="h-3.5 w-3.5 rounded-full bg-slate-400 animate-pulse"></div>
@@ -385,6 +424,30 @@
                                     <div id="products-status-text" class="text-slate-500 dark:text-slate-400 font-tech">รอการเรียกข้อมูล...</div>
                                 </div>
                             </div>
+                        </div>
+                        <!-- Report Links Row -->
+                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <a href="./บันทึกรายงานต่างๆ/รายการลูกหนี้ Service/index.html" target="_blank" class="flex items-center gap-2.5 bg-blue-50/60 dark:bg-blue-900/10 border border-blue-200/30 dark:border-blue-800/30 rounded-2xl p-3 hover:bg-blue-100/50 dark:hover:bg-blue-900/20 transition-colors no-underline group">
+                                <div class="h-2.5 w-2.5 rounded-full bg-blue-500 shrink-0"></div>
+                                <div class="text-xs">
+                                    <div class="font-bold text-blue-700 dark:text-blue-400 group-hover:text-blue-600">รายการลูกหนี้ Service</div>
+                                    <div class="text-blue-500/70 font-tech">เปิดแอปพลิเคชัน ↗</div>
+                                </div>
+                            </a>
+                            <a href="./บันทึกรายงานต่างๆ/รายงาน คชจ. Service/index.html" target="_blank" class="flex items-center gap-2.5 bg-rose-50/60 dark:bg-rose-900/10 border border-rose-200/30 dark:border-rose-800/30 rounded-2xl p-3 hover:bg-rose-100/50 dark:hover:bg-rose-900/20 transition-colors no-underline group">
+                                <div class="h-2.5 w-2.5 rounded-full bg-rose-500 shrink-0"></div>
+                                <div class="text-xs">
+                                    <div class="font-bold text-rose-700 dark:text-rose-400 group-hover:text-rose-600">รายงาน คชจ. Service</div>
+                                    <div class="text-rose-500/70 font-tech">เปิดแอปพลิเคชัน ↗</div>
+                                </div>
+                            </a>
+                            <a href="./บันทึกรายงานต่างๆ/รายงานทำงานวันหยุด/index.html" target="_blank" class="flex items-center gap-2.5 bg-amber-50/60 dark:bg-amber-900/10 border border-amber-200/30 dark:border-amber-800/30 rounded-2xl p-3 hover:bg-amber-100/50 dark:hover:bg-amber-900/20 transition-colors no-underline group">
+                                <div class="h-2.5 w-2.5 rounded-full bg-amber-500 shrink-0"></div>
+                                <div class="text-xs">
+                                    <div class="font-bold text-amber-700 dark:text-amber-400 group-hover:text-amber-600">รายงานทำงานวันหยุด</div>
+                                    <div class="text-amber-500/70 font-tech">เปิดแอปพลิเคชัน ↗</div>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </section>
@@ -1012,10 +1075,10 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 <span>หน้าแรก</span>
             </button>
-            <button onclick="switchTab('ar')" id="mobile-nav-ar" class="flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-slate-400 transition-colors">
+            <a href="./บันทึกรายงานต่างๆ/รายการลูกหนี้ Service/index.html" target="_blank" id="mobile-nav-ar" class="flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-slate-400 transition-colors no-underline">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 <span>ลูกหนี้</span>
-            </button>
+            </a>
             <button onclick="switchTab('parts')" id="mobile-nav-parts" class="flex flex-col items-center justify-center gap-1 text-[10px] font-bold text-slate-400 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                 <span>อะไหล่</span>
@@ -1323,7 +1386,6 @@
             // Update Mobile title
             const tabTitles = {
                 dashboard: 'Dashboard',
-                ar: 'AR Report',
                 parts: 'Spare Parts',
                 products: 'Product Info',
                 calc: 'Calculators'
@@ -1333,13 +1395,12 @@
             AppState.currentTab = tabId;
             
             // Auto Trigger Loader on page activation if not done already
-            if (tabId === 'ar' && AppState.ar.status === 'idle') loadARData();
             if (tabId === 'parts' && AppState.parts.status === 'idle') loadPartsData();
             if (tabId === 'products' && AppState.products.status === 'idle') loadProductsData();
         }
 
         function updateNavActiveStates(activeTabId) {
-            const tabs = ['dashboard', 'ar', 'parts', 'products', 'calc'];
+            const tabs = ['dashboard', 'parts', 'products', 'calc'];
             
             tabs.forEach(tab => {
                 const desktopBtn = document.getElementById(`side-nav-${tab}`);
