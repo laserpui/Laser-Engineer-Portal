@@ -81,13 +81,31 @@ window.DASHBOARD_CONFIG = {
       frequent: true
     },
     {
-      id: "holiday-work",
-      name: "รายงานทำงานวันหยุด",
-      category: "reports",
-      path: "บันทึกรายงานต่างๆ/รายงานทำงานวันหยุด/index.html",
-      icon: "calendar",
-      description: "ระบบบันทึกรายงานการทำงานนอกเวลาและวันหยุดสำหรับทีมวิศวกรเลเซอร์",
-      frequent: false
+      "id": "holiday-work",
+      "name": "รายงานทำงานวันหยุด",
+      "category": "reports",
+      "path": "บันทึกรายงานต่างๆ/รายงานทำงานวันหยุด/index.html",
+      "icon": "calendar",
+      "description": "ระบบบันทึกรายงานการทำงานนอกเวลาและวันหยุดสำหรับทีมวิศวกรเลเซอร์",
+      "frequent": false
+    },
+    {
+      "id": "provincial-trip",
+      "name": "ระบบบันทึกเวรทริปต่างจังหวัด",
+      "category": "reports",
+      "path": "บันทึกรายงานต่างๆ/เวรทริปต่างจังหวัด/index.html",
+      "icon": "calendar",
+      "description": "ระบบบันทึกการเดินทางต่างจังหวัดและจัดตารางเวรหมุนเวียนคิวพนักงานอัตโนมัติ สำหรับทีม Laser Engineer",
+      "frequent": true
+    },
+    {
+      "id": "provincial-trip-admin",
+      "name": "จัดการเวรทริปต่างจังหวัด (Admin)",
+      "category": "reports",
+      "path": "บันทึกรายงานต่างๆ/เวรทริปต่างจังหวัด/admin.html",
+      "icon": "user-check",
+      "description": "ระบบจัดการลำดับคิวและบันทึกเวรเดินทางต่างจังหวัดสำหรับผู้ดูแลระบบ",
+      "frequent": false
     }
   ]
 };
