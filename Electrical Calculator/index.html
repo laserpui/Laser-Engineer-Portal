@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElectroOptic Dual Calculator — Professional Dashboard</title>
+    <meta name="description" content="เครื่องคำนวณไฟฟ้าและพลังงานเลเซอร์ระดับมืออาชีพ รองรับ Ohm's Law, Power Factor และ Laser Fluence">
+    <!-- Google Fonts: Sarabun + Noto Sans Thai -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'Noto Sans Thai', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ===========================
+           ROOT VARIABLES & TYPOGRAPHY
+        =========================== */
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Sarabun', 'Noto Sans Thai', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.6s ease, color 0.3s ease;
+        }
+
+        /* ===========================
+           GRADIENT BACKGROUND: ฟ้า → เหลือง → แดง
+        =========================== */
+        .bg-hero {
+            background: linear-gradient(135deg,
+                #0ea5e9 0%,
+                #0284c7 10%,
+                #0369a1 18%,
+                #1e40af 26%,
+                #2563eb 34%,
+                #f59e0b 54%,
+                #d97706 62%,
+                #ef4444 76%,
+                #dc2626 88%,
+                #b91c1c 100%
+            );
+        }
+
+        .dark body {
+            color: #f1f5f9;
+        }
+
+        /* ===========================
+           GLASSMORPHISM CARDS
+        =========================== */
+        .glass {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.15),
+                0 2px 8px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass:hover {
+            background: rgba(255, 255, 255, 0.17);
+            box-shadow:
+                0 16px 48px rgba(0, 0, 0, 0.2),
+                0 4px 16px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Dark mode glass */
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 2px 8px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.07);
+        }
+        .dark .glass:hover {
+            background: rgba(15, 23, 42, 0.7);
+            box-shadow:
+                0 20px 56px rgba(0, 0, 0, 0.5),
+                0 4px 16px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Static glass (no hover lift) */
+        .glass-static {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+        .dark .glass-static {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        /* ===========================
+           SCROLLBAR
+        =========================== */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 99px;
+        }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.5); }
+
+        /* ===========================
+           TAB CONTENT TRANSITIONS
+        =========================== */
+        .tab-content { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; }
+        .tab-content.active { display: block; opacity: 1; transform: translateY(0); }
+
+        /* ===========================
+           INPUT FIELD STYLING
+        =========================== */
+        .input-field {
+            background: rgba(255, 255, 255, 0.10);
+            border: 1.5px solid rgba(255, 255, 255, 0.20);
+            backdrop-filter: blur(8px);
+            color: inherit;
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            transition: all 0.25s ease;
+            outline: none;
+        }
+        .input-field::placeholder { color: rgba(255,255,255,0.4); font-family: 'Sarabun', sans-serif; font-weight: 400; }
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .dark .input-field {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            color: #f1f5f9;
+        }
+        .dark .input-field::placeholder { color: rgba(148,163,184,0.6); }
+        .dark .input-field:focus {
+            background: rgba(15, 23, 42, 0.7);
+            border-color: rgba(96, 165, 250, 0.5);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .dark .input-field[readonly] { background: rgba(15,23,42,0.35); color: rgba(148,163,184,0.7); cursor: not-allowed; }
+        .input-field[readonly] { background: rgba(0,0,0,0.08); cursor: not-allowed; color: rgba(255,255,255,0.5); }
+
+        /* Input wrapper card */
+        .input-card {
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.15);
+            border-radius: 1.25rem;
+            padding: 1rem 1.25rem;
+            transition: all 0.25s ease;
+        }
+        .input-card:focus-within {
+            background: rgba(255,255,255,0.14);
+            border-color: rgba(255,255,255,0.35);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
+        }
+        .dark .input-card { background: rgba(15,23,42,0.45); border-color: rgba(255,255,255,0.07); }
+        .dark .input-card:focus-within { background: rgba(15,23,42,0.65); border-color: rgba(96,165,250,0.4); }
+
+        /* ===========================
+           BUTTON STYLES
+        =========================== */
+        .btn-primary {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            font-family: 'Sarabun', sans-serif; font-weight: 700; font-size: 0.95rem;
+            padding: 0.875rem 1.5rem; border-radius: 1rem; border: none; cursor: pointer;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.15) 100%);
+            color: white; border: 1.5px solid rgba(255,255,255,0.4);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3);
+            transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+            letter-spacing: 0.01em;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.25) 100%);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
+            transform: translateY(-1px);
+        }
+        .btn-primary:active { transform: scale(0.98) translateY(0); }
+
+        .btn-elec { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-color: rgba(59,130,246,0.5); }
+        .btn-elec:hover { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); box-shadow: 0 8px 24px rgba(59,130,246,0.4); }
+
+        .btn-laser { background: linear-gradient(135deg, #f97316 0%, #dc2626 100%); border-color: rgba(249,115,22,0.5); }
+        .btn-laser:hover { background: linear-gradient(135deg, #fb923c 0%, #ef4444 100%); box-shadow: 0 8px 24px rgba(249,115,22,0.4); }
+
+        .btn-ghost {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            font-family: 'Sarabun', sans-serif; font-weight: 600; font-size: 0.9rem;
+            padding: 0.875rem 1.25rem; border-radius: 1rem; cursor: pointer;
+            background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85);
+            border: 1.5px solid rgba(255,255,255,0.2);
+            transition: all 0.25s ease;
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.35); }
+        .dark .btn-ghost { background: rgba(15,23,42,0.5); color: #94a3b8; border-color: rgba(255,255,255,0.08); }
+        .dark .btn-ghost:hover { background: rgba(30,41,59,0.8); color: #e2e8f0; }
+
+        /* ===========================
+           TAB SWITCHER
+        =========================== */
+        .tab-rail {
+            position: relative;
+            display: flex;
+            padding: 5px;
+            border-radius: 1.25rem;
+            background: rgba(255,255,255,0.12);
+            border: 1.5px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(12px);
+        }
+        .dark .tab-rail {
+            background: rgba(15,23,42,0.5);
+            border-color: rgba(255,255,255,0.07);
+        }
+        .tab-slider {
+            position: absolute;
+            top: 5px; bottom: 5px;
+            border-radius: 1rem;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+            z-index: 0;
+        }
+        .dark .tab-slider { background: #1e3a8a; box-shadow: 0 4px 16px rgba(59,130,246,0.25); }
+        .tab-btn {
+            position: relative; z-index: 1; flex: 1;
+            padding: 0.625rem 1rem; font-weight: 700;
+            font-size: 0.85rem; border-radius: 1rem;
+            border: none; background: transparent; cursor: pointer;
+            transition: color 0.3s ease; font-family: 'Sarabun', sans-serif;
+            letter-spacing: 0.01em;
+            color: rgba(255,255,255,0.6);
+        }
+        .tab-btn.active-elec { color: #1d4ed8; }
+        .tab-btn.active-laser { color: #dc2626; }
+        .dark .tab-btn { color: rgba(148,163,184,0.8); }
+        .dark .tab-btn.active-elec { color: #93c5fd; }
+        .dark .tab-btn.active-laser { color: #fca5a5; }
+
+        /* ===========================
+           RESULT ROW
+        =========================== */
+        .result-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 1rem; padding: 0.75rem 1rem;
+            transition: all 0.2s ease;
+        }
+        .result-row:hover {
+            background: rgba(255,255,255,0.18);
+            transform: translateX(2px);
+        }
+        .dark .result-row { background: rgba(15,23,42,0.4); border-color: rgba(255,255,255,0.06); }
+        .dark .result-row:hover { background: rgba(30,41,59,0.7); }
+
+        /* ===========================
+           HISTORY CARD
+        =========================== */
+        .history-card {
+            position: relative;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            cursor: pointer; transition: all 0.2s ease;
+            display: flex; flex-direction: column; gap: 0.375rem;
+        }
+        .history-card:hover {
+            background: rgba(255,255,255,0.14);
+            border-color: rgba(255,255,255,0.25);
+        }
+        .dark .history-card { background: rgba(15,23,42,0.4); border-color: rgba(255,255,255,0.06); }
+        .dark .history-card:hover { background: rgba(30,41,59,0.65); }
+
+        /* ===========================
+           BADGE
+        =========================== */
+        .badge {
+            display: inline-flex; align-items: center;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px; font-weight: 700; font-size: 0.7rem;
+            letter-spacing: 0.04em; text-transform: uppercase;
+        }
+        .badge-blue { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+        .badge-orange { background: rgba(249,115,22,0.2); color: #fdba74; border: 1px solid rgba(249,115,22,0.3); }
+        .badge-emerald { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+        .badge-pink { background: rgba(236,72,153,0.2); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.3); }
+        .badge-purple { background: rgba(139,92,246,0.2); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
+
+        /* ===========================
+           GLOW ORBS
+        =========================== */
+        .orb {
+            position: fixed; border-radius: 50%;
+            pointer-events: none; z-index: 0;
+            animation: orb-drift 18s ease-in-out infinite alternate;
+        }
+        @keyframes orb-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -20px) scale(1.08); }
+            100% { transform: translate(-20px, 15px) scale(0.95); }
+        }
+
+        /* ===========================
+           ANIMATIONS
+        =========================== */
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        .animate-fade-up { animation: fade-in-up 0.5s ease both; }
+        .shake-error { animation: shake 0.2s ease-in-out 2; }
+        .pulse-dot {
+            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        /* ===========================
+           STAT CARD
+        =========================== */
+        .stat-card {
+            border-radius: 1.5rem; padding: 1.25rem 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            backdrop-filter: blur(16px);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            background: rgba(255,255,255,0.16);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+        }
+        .dark .stat-card { background: rgba(15,23,42,0.5); border-color: rgba(255,255,255,0.07); }
+
+        /* ===========================
+           FORMULA BOX
+        =========================== */
+        .formula-box {
+            background: rgba(0,0,0,0.12);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 1rem; padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .dark .formula-box { background: rgba(0,0,0,0.3); }
+
+        /* ===========================
+           THEME TOGGLE
+        =========================== */
+        .theme-toggle {
+            width: 2.5rem; height: 2.5rem; border-radius: 0.75rem;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25);
+            cursor: pointer; transition: all 0.25s ease; color: white;
+        }
+        .theme-toggle:hover { background: rgba(255,255,255,0.25); transform: rotate(15deg); }
+        .dark .theme-toggle { background: rgba(15,23,42,0.6); border-color: rgba(255,255,255,0.08); }
+
+        /* ===========================
+           LABEL COLOR ACCENTS
+        =========================== */
+        .label-v { color: #93c5fd; } /* blue-300 */
+        .label-i { color: #6ee7b7; } /* emerald-300 */
+        .label-r { color: #fdba74; } /* orange-300 */
+        .label-p { color: #f9a8d4; } /* pink-300 */
+        .label-s { color: #c4b5fd; } /* purple-300 */
+        .label-e { color: #93c5fd; }
+        .label-d { color: #fdba74; }
+        .label-f { color: #6ee7b7; }
+
+        /* ===========================
+           SECTION DIVIDER
+        =========================== */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            margin: 1.5rem 0;
+        }
+        .dark .divider { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); }
+
+        /* Responsive text */
+        @media (max-width: 640px) {
+            .resp-title { font-size: 1.25rem; }
+        }
+
+        /* Icon wrapper */
+        .icon-wrap {
+            width: 2.5rem; height: 2.5rem; border-radius: 0.75rem;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.15); flex-shrink: 0;
+        }
+        .icon-wrap-lg {
+            width: 3.5rem; height: 3.5rem; border-radius: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<!-- ==================== BODY ==================== -->
+<body class="text-white min-h-screen">
+
+    <!-- Gradient Background Layer -->
+    <div class="fixed inset-0 bg-hero opacity-90 dark:opacity-80 -z-10"></div>
+    <!-- Dark overlay for dark mode -->
+    <div class="fixed inset-0 bg-slate-900/50 opacity-0 dark:opacity-60 -z-10 transition-opacity duration-500"></div>
+
+    <!-- Decorative Orbs -->
+    <div class="orb w-96 h-96 top-[-80px] left-[-80px]"
+         style="background: radial-gradient(circle, rgba(14,165,233,0.35), transparent 70%); filter: blur(60px);"></div>
+    <div class="orb w-[500px] h-[500px] bottom-[-120px] right-[-120px]"
+         style="background: radial-gradient(circle, rgba(239,68,68,0.35), transparent 70%); filter: blur(80px); animation-delay: -9s;"></div>
+    <div class="orb w-72 h-72 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+         style="background: radial-gradient(circle, rgba(245,158,11,0.2), transparent 70%); filter: blur(80px); animation-delay: -4s;"></div>
+
+    <!-- ==================== MAIN WRAPPER ==================== -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 flex flex-col min-h-screen">
+
+        <!-- ========== HEADER ========== -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 animate-fade-up">
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-4">
+                <div id="logo-icon" class="icon-wrap-lg bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 transition-all duration-500">
+                    <!-- Lightning bolt icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="resp-title text-2xl font-extrabold tracking-tight drop-shadow-md">
+                        ElectroOptic Calc
+                    </h1>
+                    <p class="text-xs font-medium opacity-75 mt-0.5 font-mono tracking-widest uppercase">Dual-Engine Professional Calculator</p>
+                </div>
+            </div>
+
+            <!-- Header Right: Status Badge -->
+            <div class="flex items-center self-end sm:self-center">
+                <div class="glass-static rounded-full px-4 py-2 flex items-center gap-2 text-xs font-semibold">
+                    <span class="pulse-dot bg-emerald-400 shadow-sm shadow-emerald-400"></span>
+                    <span class="opacity-90">ระบบพร้อมใช้งาน</span>
+                </div>
+            </div>
+        </header>
+
+
+
+        <!-- ========== TAB SWITCHER ========== -->
+        <div class="flex justify-center mb-8 animate-fade-up" style="animation-delay:0.15s">
+            <div class="tab-rail w-full max-w-lg">
+                <div id="tab-slider" class="tab-slider" style="left:5px; width: calc(50% - 5px);"></div>
+                <button onclick="switchTab('electrical')" id="tab-btn-electrical" class="tab-btn active-elec">
+                    <span class="flex items-center justify-center gap-2">
+                        <!-- Bolt icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        Ohm's &amp; Power Law
+                    </span>
+                </button>
+                <button onclick="switchTab('energy')" id="tab-btn-energy" class="tab-btn">
+                    <span class="flex items-center justify-center gap-2">
+                        <!-- Laser/crosshair icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+                        </svg>
+                        Laser Energy Calc
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ========== MAIN GRID LAYOUT ========== -->
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1">
+
+            <!-- ===== LEFT PANEL: Calculator Inputs ===== -->
+            <section class="lg:col-span-7 space-y-6">
+
+                <!-- ---- ELECTRICAL CALCULATOR TAB ---- -->
+                <div id="tab-electrical" class="tab-content active animate-fade-up" style="animation-delay:0.2s">
+                    <div class="glass rounded-3xl p-6 md:p-8">
+                        <!-- Card Header -->
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="icon-wrap-lg bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30">
+                                    <!-- Electrical plug icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-extrabold drop-shadow-sm">เครื่องคำนวณไฟฟ้า</h2>
+                                    <p class="text-xs opacity-65 font-mono mt-0.5">Electrical Calculator — Ohm's Law</p>
+                                </div>
+                            </div>
+                            <span class="badge badge-blue self-start">⚡ Ohm's Law</span>
+                        </div>
+
+                        <!-- Instruction -->
+                        <div class="formula-box mb-6 text-sm opacity-80 flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 opacity-70 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span style="font-family:'Sarabun',sans-serif;">ป้อนค่าที่ทราบ <strong>อย่างน้อย 2 ค่า</strong> แล้วกดคำนวณเพื่อหาค่าที่เหลือ</span>
+                        </div>
+
+                        <form id="elec-form" class="space-y-5">
+                            <!-- 2-col grid for inputs -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                                <!-- Voltage V -->
+                                <div class="input-card">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label for="elec-v" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-70">
+                                            <!-- Voltage icon (wave) -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                            </svg>
+                                            แรงดันไฟฟ้า
+                                        </label>
+                                        <span class="label-v font-extrabold font-mono text-sm">V</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" id="elec-v" placeholder="0.00" step="any" min="0" class="input-field pr-16">
+                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-50 font-mono">โวลต์</span>
+                                    </div>
+                                </div>
+
+                                <!-- Current I -->
+                                <div class="input-card">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label for="elec-i" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-70">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+                                            </svg>
+                                            กระแสไฟฟ้า
+                                        </label>
+                                        <span class="label-i font-extrabold font-mono text-sm">I</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" id="elec-i" placeholder="0.00" step="any" min="0" class="input-field pr-16">
+                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-50 font-mono">แอมป์</span>
+                                    </div>
+                                </div>
+
+                                <!-- Resistance R -->
+                                <div class="input-card">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label for="elec-r" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-70">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-orange-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                                            </svg>
+                                            ความต้านทาน
+                                        </label>
+                                        <span class="label-r font-extrabold font-mono text-sm">R</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" id="elec-r" placeholder="0.00" step="any" min="0" class="input-field pr-14">
+                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-50 font-mono">Ω</span>
+                                    </div>
+                                </div>
+
+                                <!-- Power P -->
+                                <div class="input-card">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label for="elec-p" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-70">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-pink-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+                                            </svg>
+                                            กำลังไฟฟ้าจริง
+                                        </label>
+                                        <span class="label-p font-extrabold font-mono text-sm">P</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" id="elec-p" placeholder="0.00" step="any" min="0" class="input-field pr-16">
+                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-50 font-mono">วัตต์</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Power Factor Section -->
+                            <div class="input-card">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                    <h3 class="text-xs font-bold uppercase tracking-wider opacity-75">Power Factor Extension</h3>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="elec-pf" class="text-xs opacity-60 mb-1 block">Power Factor (PF)</label>
+                                        <input type="number" id="elec-pf" value="0.8" step="0.05" max="1" min="0.1" class="input-field text-center">
+                                    </div>
+                                    <div>
+                                        <label for="elec-va" class="text-xs opacity-60 mb-1 block">กำลังไฟฟ้าปรากฏ (S) — VA</label>
+                                        <input type="text" id="elec-va" placeholder="—" class="input-field text-center" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="flex flex-col sm:flex-row gap-3 pt-1">
+                                <button type="button" onclick="calculateElectrical()" class="btn-primary btn-elec flex-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                    คำนวณค่า
+                                </button>
+                                <button type="button" onclick="resetElectrical()" class="btn-ghost">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                    </svg>
+                                    รีเซ็ต
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ---- LASER ENERGY CALCULATOR TAB ---- -->
+                <div id="tab-energy" class="tab-content animate-fade-up" style="animation-delay:0.2s">
+                    <div class="glass rounded-3xl p-6 md:p-8">
+                        <!-- Card Header -->
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="icon-wrap-lg bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-500/30">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-extrabold drop-shadow-sm">เครื่องคำนวณเลเซอร์</h2>
+                                    <p class="text-xs opacity-65 font-mono mt-0.5">Laser Energy Calculator — Fluence</p>
+                                </div>
+                            </div>
+                            <span class="badge badge-orange self-start">🔴 Laser Optics</span>
+                        </div>
+
+                        <!-- Instruction -->
+                        <div class="formula-box mb-6 text-sm opacity-80 flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 opacity-70 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span style="font-family:'Sarabun',sans-serif;">ป้อนค่าที่ทราบ <strong>อย่างน้อย 2 ค่า</strong> เพื่อคำนวณหาค่า Fluence / Energy / Diameter</span>
+                        </div>
+
+                        <form id="energy-form" class="space-y-5">
+                            <div class="space-y-4">
+
+                                <!-- Energy E -->
+                                <div class="input-card">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label for="ener-j" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-70">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                            </svg>
+                                            Energy — พลังงาน
+                                        </label>
+                                        <span class="label-e font-extrabold font-mono text-sm">E</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" id="ener-j" placeholder="0.0000" step="any" min="0" class="input-field pr-16">
+                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-50 font-mono">จูล (J)</span>
+                                    </div>
+                                </div>
+
+                                <!-- Diameter D -->
+                                <div class="input-card">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label for="ener-d" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-70">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-orange-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10"/>
+                                                <line x1="2" y1="12" x2="22" y2="12"/>
+                                            </svg>
+                                            Diameter — เส้นผ่านศูนย์กลาง
+                                        </label>
+                                        <span class="label-d font-extrabold font-mono text-sm">D</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" id="ener-d" placeholder="0.0000" step="any" min="0" class="input-field pr-16">
+                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-50 font-mono">mm</span>
+                                    </div>
+                                </div>
+
+                                <!-- Fluence F -->
+                                <div class="input-card">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label for="ener-f" class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-70">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                                            </svg>
+                                            Fluence — ความหนาแน่นพลังงาน
+                                        </label>
+                                        <span class="label-f font-extrabold font-mono text-sm">F</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" id="ener-f" placeholder="0.0000" step="any" min="0" class="input-field pr-24">
+                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-50 font-mono">J/cm²</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="flex flex-col sm:flex-row gap-3 pt-1">
+                                <button type="button" onclick="calculateEnergy()" class="btn-primary btn-laser flex-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+                                    </svg>
+                                    คำนวณค่า
+                                </button>
+                                <button type="button" onclick="resetEnergy()" class="btn-ghost">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                    </svg>
+                                    รีเซ็ต
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ===== RIGHT PANEL: Results & Tools ===== -->
+            <aside class="lg:col-span-5 space-y-6">
+
+                <!-- ---- RESULT CARD ---- -->
+                <div id="result-box" class="glass rounded-3xl p-6 transition-all duration-300">
+                    <!-- Header row -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="icon-wrap bg-white/15">
+                                <!-- Chart bar icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-xs font-bold uppercase tracking-widest opacity-70">ผลการคำนวณ</h3>
+                        </div>
+                        <div id="result-glow-badge" class="badge badge-blue hidden">⚡ Electrical</div>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div id="result-empty" class="py-12 flex flex-col items-center justify-center text-center">
+                        <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4 border border-white/15">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <p class="text-sm opacity-50">กรอกค่าแล้วกดคำนวณเพื่อดูผล</p>
+                    </div>
+
+                    <!-- Populated results -->
+                    <div id="result-display" class="hidden space-y-3">
+                        <div id="result-rows" class="space-y-2.5"></div>
+
+                        <div class="divider"></div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="opacity-50">คลิกไอคอน 📋 เพื่อคัดลอกแต่ละค่า</span>
+                            <button onclick="copyAllResults()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 font-semibold transition-all active:scale-95">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                                </svg>
+                                คัดลอกทั้งหมด
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ---- FORMULA DIAGRAM CARD ---- -->
+                <div class="glass rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="icon-wrap bg-white/15">
+                                <!-- Diagram/chart icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-xs font-bold uppercase tracking-widest opacity-70">ผังสูตร Interactive</h3>
+                        </div>
+                        <span id="formula-badge" class="badge badge-blue font-mono">V = I × R</span>
+                    </div>
+
+                    <!-- SVG Visualizer -->
+                    <div class="flex items-center justify-center p-4 rounded-2xl bg-white/5 border border-white/10 min-h-[200px]">
+
+                        <!-- Electrical Ohm's Law Triangle -->
+                        <div id="vis-electrical" class="w-full max-w-[260px]">
+                            <svg viewBox="0 0 200 185" class="w-full h-auto overflow-visible">
+                                <defs>
+                                    <filter id="glow-v"><feGaussianBlur stdDeviation="3" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
+                                    <filter id="glow-i"><feGaussianBlur stdDeviation="3" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
+                                    <filter id="glow-r"><feGaussianBlur stdDeviation="3" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
+                                </defs>
+                                <!-- Triangle -->
+                                <polygon points="100,18 182,152 18,152" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.2)" stroke-width="2.5" stroke-linejoin="round"/>
+                                <!-- Division lines -->
+                                <line x1="59" y1="85" x2="141" y2="85" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+                                <line x1="100" y1="85" x2="100" y2="152" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+                                <!-- V circle -->
+                                <circle cx="100" cy="51" r="18" id="circle-v" fill="rgba(59,130,246,0.15)" stroke="#60a5fa" stroke-width="2.5"/>
+                                <text x="100" y="57" font-family="JetBrains Mono" font-size="15" font-weight="700" text-anchor="middle" fill="#93c5fd">V</text>
+                                <!-- I circle -->
+                                <circle cx="60" cy="120" r="18" id="circle-i" fill="rgba(16,185,129,0.15)" stroke="#34d399" stroke-width="2.5"/>
+                                <text x="60" y="126" font-family="JetBrains Mono" font-size="15" font-weight="700" text-anchor="middle" fill="#6ee7b7">I</text>
+                                <!-- R circle -->
+                                <circle cx="140" cy="120" r="18" id="circle-r" fill="rgba(249,115,22,0.15)" stroke="#fb923c" stroke-width="2.5"/>
+                                <text x="140" y="126" font-family="JetBrains Mono" font-size="15" font-weight="700" text-anchor="middle" fill="#fdba74">R</text>
+                                <!-- Formula text -->
+                                <rect x="25" y="162" width="150" height="20" rx="6" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                                <text x="100" y="175" id="vis-formula-text" font-family="JetBrains Mono" font-size="9.5" font-weight="500" text-anchor="middle" fill="rgba(255,255,255,0.6)">คำนวณโดย: V = I × R</text>
+                            </svg>
+                        </div>
+
+                        <!-- Laser Fluence Diagram -->
+                        <div id="vis-energy" class="w-full max-w-[260px] hidden">
+                            <svg viewBox="0 0 200 185" class="w-full h-auto overflow-visible">
+                                <!-- Laser source -->
+                                <rect x="8" y="68" width="32" height="44" rx="5" fill="rgba(239,68,68,0.12)" stroke="#f87171" stroke-width="1.5"/>
+                                <rect x="16" y="76" width="16" height="28" rx="2" fill="rgba(239,68,68,0.2)" stroke="#ef4444" stroke-width="1"/>
+                                <text x="24" y="100" font-family="JetBrains Mono" font-size="7" font-weight="700" text-anchor="middle" fill="#fca5a5">LASER</text>
+                                <!-- Focus lens -->
+                                <path d="M100,48 C112,68 112,112 100,132 C88,112 88,68 100,48 Z" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.5)" stroke-width="2"/>
+                                <!-- Beam lines -->
+                                <line x1="40" y1="78" x2="94" y2="68" stroke="#f87171" stroke-width="2" stroke-opacity="0.8"/>
+                                <line x1="40" y1="102" x2="94" y2="112" stroke="#f87171" stroke-width="2" stroke-opacity="0.8"/>
+                                <line x1="40" y1="90" x2="94" y2="90" stroke="#f87171" stroke-width="1" stroke-dasharray="3,3" stroke-opacity="0.5"/>
+                                <!-- Converging -->
+                                <line x1="106" y1="68" x2="162" y2="90" stroke="#ef4444" stroke-width="2"/>
+                                <line x1="106" y1="112" x2="162" y2="90" stroke="#ef4444" stroke-width="2"/>
+                                <!-- Spot -->
+                                <circle cx="162" cy="90" r="9" id="vis-spot" fill="#dc2626" stroke="#f97316" stroke-width="2.5" opacity="0.9">
+                                    <animate attributeName="opacity" values="0.7;1;0.7" dur="1.5s" repeatCount="indefinite"/>
+                                </circle>
+                                <!-- Labels -->
+                                <rect x="33" y="22" width="48" height="18" rx="5" fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.35)" stroke-width="1"/>
+                                <text x="57" y="35" font-family="JetBrains Mono" font-size="9" font-weight="700" text-anchor="middle" fill="#93c5fd">Energy (J)</text>
+                                <rect x="128" y="22" width="62" height="18" rx="5" fill="rgba(249,115,22,0.15)" stroke="rgba(249,115,22,0.35)" stroke-width="1"/>
+                                <text x="159" y="35" font-family="JetBrains Mono" font-size="9" font-weight="700" text-anchor="middle" fill="#fdba74">Diameter (mm)</text>
+                                <rect x="88" y="148" width="80" height="18" rx="5" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.35)" stroke-width="1"/>
+                                <text x="128" y="161" font-family="JetBrains Mono" font-size="9" font-weight="700" text-anchor="middle" fill="#6ee7b7">Fluence (J/cm²)</text>
+                                <!-- Dashed line D -->
+                                <line x1="162" y1="43" x2="162" y2="78" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="3,2"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Formula reference -->
+                    <div class="mt-4 formula-box">
+                        <h4 class="text-xs font-bold uppercase tracking-wider opacity-70 mb-2 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                            ความหมายพารามิเตอร์
+                        </h4>
+                        <div id="formula-detail-text" class="text-xs opacity-70 leading-relaxed space-y-1" style="font-family:'Sarabun',sans-serif;"></div>
+                    </div>
+                </div>
+
+
+            </aside>
+        </main>
+
+        <!-- ========== FOOTER ========== -->
+        <footer class="mt-12 py-6 border-t border-white/10 text-center">
+            <p class="text-xs opacity-40 font-mono">© 2026 ElectroOptic Dual Calculator · พัฒนาด้วย Glassmorphism SaaS Design · Responsive for all devices</p>
+        </footer>
+
+    </div>
+
+    <!-- ========== TOAST SYSTEM ========== -->
+    <div id="toast-box" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        /* ===== STATE ===== */
+        let currentTab = 'electrical';
+        let currentTheme = 'dark';
+        let lastResults = null;
+
+        /* ===== FORMULA DESCRIPTIONS ===== */
+        const FORMULA_INFO = {
+            electrical: `
+                <p>• <strong>V</strong> = แรงดันไฟฟ้า (Voltage) หน่วย โวลต์ [V]</p>
+                <p>• <strong>I</strong> = กระแสไฟฟ้า (Current) หน่วย แอมแปร์ [A]</p>
+                <p>• <strong>R</strong> = ความต้านทาน (Resistance) หน่วย โอห์ม [Ω]</p>
+                <p>• <strong>P</strong> = กำลังไฟฟ้าจริง (Active Power) หน่วย วัตต์ [W]</p>
+                <p>• <strong>S</strong> = กำลังไฟฟ้าปรากฏ (Apparent Power) = P / PF [VA]</p>
+            `,
+            energy: `
+                <p>• <strong>E</strong> = พลังงานเลเซอร์ (Energy) หน่วย จูล [J]</p>
+                <p>• <strong>D</strong> = เส้นผ่านศูนย์กลางลำแสง (Diameter) หน่วย มิลลิเมตร [mm]</p>
+                <p>• <strong>F</strong> = ความหนาแน่นพลังงาน (Fluence) = E / Area [J/cm²]</p>
+                <p>• <strong>Area</strong> = π × (D/2/10)² ตารางเซนติเมตร [cm²]</p>
+            `
+        };
+
+        /* ===== FORMAT UTILS ===== */
+        function fmtVal(val, d = 3) {
+            if (val === undefined || val === null || isNaN(val) || !isFinite(val)) return '';
+            return parseFloat(val.toFixed(d));
+        }
+        function fmtDisp(val, d = 4) {
+            if (val === undefined || val === null || isNaN(val) || !isFinite(val)) return '—';
+            return val.toFixed(d).replace(/\.?0+$/, '');
+        }
+
+        /* ===== INIT ===== */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme
+            if (localStorage.getItem('theme') === 'light') setLightTheme();
+            else setDarkTheme();
+
+            updateFormulaDetail();
+        });
+
+        /* ===== TAB SWITCHING ===== */
+        function switchTab(tab) {
+            if (tab === currentTab) return;
+            currentTab = tab;
+
+            const slider = document.getElementById('tab-slider');
+            const btnElec = document.getElementById('tab-btn-electrical');
+            const btnEner = document.getElementById('tab-btn-energy');
+            const tabElec = document.getElementById('tab-electrical');
+            const tabEner = document.getElementById('tab-energy');
+            const visElec = document.getElementById('vis-electrical');
+            visEner = document.getElementById('vis-energy');
+            const badge = document.getElementById('formula-badge');
+            const logo = document.getElementById('logo-icon');
+
+            if (tab === 'electrical') {
+                slider.style.left = '5px';
+                slider.style.width = 'calc(50% - 5px)';
+
+                btnElec.classList.add('active-elec');
+                btnElec.classList.remove('active-laser');
+                btnEner.classList.remove('active-elec', 'active-laser');
+
+                tabElec.classList.add('active');
+                tabEner.classList.remove('active');
+                visElec.classList.remove('hidden');
+                visEner.classList.add('hidden');
+
+                badge.textContent = 'V = I × R';
+                badge.className = 'badge badge-blue font-mono';
+                logo.className = 'icon-wrap-lg bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 transition-all duration-500';
+            } else {
+                slider.style.left = '50%';
+                slider.style.width = 'calc(50% - 5px)';
+
+                btnEner.classList.add('active-laser');
+                btnEner.classList.remove('active-elec');
+                btnElec.classList.remove('active-elec', 'active-laser');
+
+                tabEner.classList.add('active');
+                tabElec.classList.remove('active');
+                visEner.classList.remove('hidden');
+                visElec.classList.add('hidden');
+
+                badge.textContent = 'F = E / A';
+                badge.className = 'badge badge-orange font-mono';
+                logo.className = 'icon-wrap-lg bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-500/30 transition-all duration-500';
+            }
+
+            hideResults();
+            updateFormulaDetail();
+        }
+
+        function updateFormulaDetail() {
+            document.getElementById('formula-detail-text').innerHTML = FORMULA_INFO[currentTab];
+        }
+
+        /* ===== THEME ===== */
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) setLightTheme();
+            else setDarkTheme();
+        }
+        function setLightTheme() {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('theme-sun').classList.add('hidden');
+            document.getElementById('theme-moon').classList.remove('hidden');
+            localStorage.setItem('theme', 'light');
+            currentTheme = 'light';
+        }
+        function setDarkTheme() {
+            document.documentElement.classList.add('dark');
+            document.getElementById('theme-sun').classList.remove('hidden');
+            document.getElementById('theme-moon').classList.add('hidden');
+            localStorage.setItem('theme', 'dark');
+            currentTheme = 'dark';
+        }
+
+        /* ===== ELECTRICAL CALC ===== */
+        function calculateElectrical() {
+            let v = parseFloat(document.getElementById('elec-v').value);
+            let i = parseFloat(document.getElementById('elec-i').value);
+            let r = parseFloat(document.getElementById('elec-r').value);
+            let p = parseFloat(document.getElementById('elec-p').value);
+            let pf = parseFloat(document.getElementById('elec-pf').value) || 0.8;
+
+            const known = [v, i, r, p].filter(x => !isNaN(x)).length;
+            if (known < 2) {
+                shakeForm('elec-form');
+                showToast('กรุณากรอกข้อมูลอย่างน้อย 2 ช่อง', 'error');
+                return;
+            }
+
+            const calc = [];
+            if (isNaN(v)) {
+                if (!isNaN(i) && !isNaN(r)) { v = i * r; calc.push('V'); }
+                else if (!isNaN(p) && !isNaN(i)) { v = p / i; calc.push('V'); }
+                else if (!isNaN(p) && !isNaN(r)) { v = Math.sqrt(p * r); calc.push('V'); }
+            }
+            if (isNaN(i)) {
+                if (!isNaN(v) && !isNaN(r)) { i = v / r; calc.push('I'); }
+                else if (!isNaN(p) && !isNaN(v)) { i = p / v; calc.push('I'); }
+                else if (!isNaN(p) && !isNaN(r)) { i = Math.sqrt(p / r); calc.push('I'); }
+            }
+            if (isNaN(r)) {
+                if (!isNaN(v) && !isNaN(i)) { r = v / i; calc.push('R'); }
+                else if (!isNaN(v) && !isNaN(p)) { r = (v * v) / p; calc.push('R'); }
+                else if (!isNaN(p) && !isNaN(i)) { r = p / (i * i); calc.push('R'); }
+            }
+            if (isNaN(p)) {
+                if (!isNaN(v) && !isNaN(i)) { p = v * i; calc.push('P'); }
+                else if (!isNaN(i) && !isNaN(r)) { p = i * i * r; calc.push('P'); }
+                else if (!isNaN(v) && !isNaN(r)) { p = v * v / r; calc.push('P'); }
+            }
+
+            const va = p / pf;
+
+            document.getElementById('elec-v').value = fmtVal(v);
+            document.getElementById('elec-i').value = fmtVal(i);
+            document.getElementById('elec-r').value = fmtVal(r);
+            document.getElementById('elec-p').value = fmtVal(p);
+            document.getElementById('elec-va').value = fmtVal(va);
+
+            highlightOhmDiagram(calc);
+
+            const results = [
+                { name: 'Voltage — แรงดันไฟฟ้า', val: v, unit: 'V', label: 'V', colorClass: 'label-v' },
+                { name: 'Current — กระแสไฟฟ้า', val: i, unit: 'A', label: 'I', colorClass: 'label-i' },
+                { name: 'Resistance — ความต้านทาน', val: r, unit: 'Ω', label: 'R', colorClass: 'label-r' },
+                { name: 'Power — กำลังไฟฟ้าจริง', val: p, unit: 'W', label: 'P', colorClass: 'label-p' },
+                { name: 'Apparent Power — กำลังปรากฏ', val: va, unit: 'VA', label: 'S', colorClass: 'label-s' }
+            ];
+
+            showResults(results, 'electrical');
+            lastResults = results;
+            showToast('คำนวณไฟฟ้าเสร็จแล้ว ✓');
+        }
+
+        function highlightOhmDiagram(calc) {
+            ['v','i','r'].forEach(k => document.getElementById('circle-'+k).setAttribute('stroke-width','2.5'));
+            if (calc.includes('V')) { document.getElementById('circle-v').setAttribute('stroke-width','5'); document.getElementById('vis-formula-text').textContent = 'คำนวณ: V = I × R'; }
+            if (calc.includes('I')) { document.getElementById('circle-i').setAttribute('stroke-width','5'); document.getElementById('vis-formula-text').textContent = 'คำนวณ: I = V / R'; }
+            if (calc.includes('R')) { document.getElementById('circle-r').setAttribute('stroke-width','5'); document.getElementById('vis-formula-text').textContent = 'คำนวณ: R = V / I'; }
+            if (calc.includes('P')) document.getElementById('vis-formula-text').textContent = 'คำนวณ: P = V × I';
+        }
+
+        function resetElectrical() {
+            document.getElementById('elec-form').reset();
+            document.getElementById('elec-pf').value = 0.8;
+            document.getElementById('elec-va').value = '';
+            ['v','i','r'].forEach(k => document.getElementById('circle-'+k).setAttribute('stroke-width','2.5'));
+            document.getElementById('vis-formula-text').textContent = 'คำนวณโดย: V = I × R';
+            hideResults();
+            showToast('รีเซ็ตฟอร์มไฟฟ้าแล้ว', 'info');
+        }
+
+        /* ===== LASER ENERGY CALC ===== */
+        function calculateEnergy() {
+            let energy = parseFloat(document.getElementById('ener-j').value);
+            let diameter = parseFloat(document.getElementById('ener-d').value);
+            let fluence = parseFloat(document.getElementById('ener-f').value);
+
+            const known = [energy, diameter, fluence].filter(x => !isNaN(x)).length;
+            if (known < 2) {
+                shakeForm('energy-form');
+                showToast('กรุณากรอกข้อมูลอย่างน้อย 2 ช่อง', 'error');
+                return;
+            }
+
+            if (!isNaN(energy) && !isNaN(diameter)) {
+                const r = diameter / 2 / 10;
+                fluence = energy / (Math.PI * r * r);
+                document.getElementById('ener-f').value = fmtVal(fluence, 4);
+            } else if (!isNaN(fluence) && !isNaN(diameter)) {
+                const r = diameter / 2 / 10;
+                energy = fluence * Math.PI * r * r;
+                document.getElementById('ener-j').value = fmtVal(energy, 4);
+            } else if (!isNaN(fluence) && !isNaN(energy)) {
+                const area = energy / fluence;
+                diameter = 2 * 10 * Math.sqrt(area / Math.PI);
+                document.getElementById('ener-d').value = fmtVal(diameter, 4);
+            }
+
+            // animate spot
+            if (isFinite(fluence) && fluence > 0) {
+                const rate = Math.min(10, Math.max(1, fluence / 5));
+                document.getElementById('vis-spot').parentElement.querySelectorAll('animate').forEach(a => a.setAttribute('dur', `${1.2/rate}s`));
+            }
+
+            const results = [
+                { name: 'Laser Energy — พลังงาน', val: energy, unit: 'J', label: 'E', colorClass: 'label-e' },
+                { name: 'Beam Diameter — ขนาดลำแสง', val: diameter, unit: 'mm', label: 'D', colorClass: 'label-d' },
+                { name: 'Fluence — ความหนาแน่น', val: fluence, unit: 'J/cm²', label: 'F', colorClass: 'label-f' }
+            ];
+
+            showResults(results, 'energy');
+            lastResults = results;
+            showToast('คำนวณเลเซอร์เสร็จแล้ว ✓');
+        }
+
+        function resetEnergy() {
+            document.getElementById('energy-form').reset();
+            hideResults();
+            showToast('รีเซ็ตฟอร์มเลเซอร์แล้ว', 'info');
+        }
+
+        /* ===== FORM SHAKE ===== */
+        function shakeForm(id) {
+            const f = document.getElementById(id);
+            f.classList.add('shake-error');
+            setTimeout(() => f.classList.remove('shake-error'), 500);
+        }
+
+        /* ===== RESULTS UI ===== */
+        function showResults(results, type) {
+            const box = document.getElementById('result-box');
+            const empty = document.getElementById('result-empty');
+            const display = document.getElementById('result-display');
+            const rows = document.getElementById('result-rows');
+            const badge = document.getElementById('result-glow-badge');
+
+            rows.innerHTML = '';
+            results.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'result-row';
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="font-extrabold font-mono text-lg ${item.colorClass}">${item.label}</span>
+                        <div>
+                            <div class="text-xs opacity-60 leading-none mb-0.5" style="font-family:'Sarabun',sans-serif;">${item.name}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-mono font-bold text-base ${item.colorClass}">${fmtDisp(item.val, 4)} <span class="text-xs opacity-60 ml-0.5">${item.unit}</span></span>
+                        <button onclick="copyToClipboard('${fmtDisp(item.val, 4)}', '${item.name}')"
+                            class="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/25 border border-white/15 transition-all active:scale-90" title="คัดลอก">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                rows.appendChild(row);
+            });
+
+            empty.classList.add('hidden');
+            display.classList.remove('hidden');
+
+            badge.classList.remove('hidden');
+            if (type === 'electrical') {
+                badge.textContent = '⚡ Electrical';
+                badge.className = 'badge badge-blue';
+            } else {
+                badge.textContent = '🔴 Laser';
+                badge.className = 'badge badge-orange';
+            }
+        }
+
+        function hideResults() {
+            document.getElementById('result-empty').classList.remove('hidden');
+            document.getElementById('result-display').classList.add('hidden');
+            document.getElementById('result-glow-badge').classList.add('hidden');
+        }
+
+
+
+        /* ===== CLIPBOARD ===== */
+        function copyToClipboard(text, label) {
+            navigator.clipboard.writeText(text)
+                .then(() => showToast(`คัดลอก ${label}: ${text} ✓`))
+                .catch(() => showToast('คัดลอกไม่สำเร็จ', 'error'));
+        }
+
+        function copyAllResults() {
+            const display = document.getElementById('result-display');
+            if (display.classList.contains('hidden') || !lastResults) return;
+            const label = currentTab === 'electrical' ? 'Electrical Calculation' : 'Laser Optics';
+            let text = `[${label}]\n`;
+            lastResults.forEach(d => {
+                text += `• ${d.name} (${d.label}): ${fmtDisp(d.val, 4)} ${d.unit}\n`;
+            });
+            navigator.clipboard.writeText(text)
+                .then(() => showToast('คัดลอกผลทั้งหมดแล้ว ✓'))
+                .catch(() => showToast('คัดลอกไม่สำเร็จ', 'error'));
+        }
+
+        /* ===== TOAST ===== */
+        function showToast(msg, type = 'success') {
+            const box = document.getElementById('toast-box');
+            const toast = document.createElement('div');
+
+            let bgStyle = 'background:rgba(15,23,42,0.92); border-color:rgba(255,255,255,0.12);';
+            let iconSvg = `<svg class="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+
+            if (type === 'error') {
+                bgStyle = 'background:rgba(127,29,29,0.9); border-color:rgba(239,68,68,0.3);';
+                iconSvg = `<svg class="w-5 h-5 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+            } else if (type === 'info') {
+                bgStyle = 'background:rgba(30,58,138,0.9); border-color:rgba(59,130,246,0.35);';
+                iconSvg = `<svg class="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+            }
+
+            toast.style.cssText = `${bgStyle} backdrop-filter:blur(20px); border-width:1.5px; border-style:solid;`;
+            toast.className = 'flex items-center gap-3 px-4 py-3 rounded-2xl text-white shadow-2xl pointer-events-auto max-w-sm opacity-0 translate-y-3 transition-all duration-300';
+            toast.innerHTML = `${iconSvg}<span class="text-sm font-semibold" style="font-family:'Sarabun',sans-serif;">${msg}</span>`;
+            box.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('opacity-0', 'translate-y-3');
+            });
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 350);
+            }, 3200);
+        }
+    </script>
+</body>
+</html>

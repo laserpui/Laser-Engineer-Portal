@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ข้อมูลผลิตภัณฑ์</title>
+    
+    <!-- PWA Meta Tags สำหรับทำให้เป็น App บนมือถือ -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ข้อมูลผลิตภัณฑ์">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%232563eb' rx='100'/%3E%3Cpath d='M344.5 298c15-23.6 23.8-51.6 23.8-81.7 0-84.1-68.1-152.3-152.1-152.3C132.1 64 64 132.2 64 216.3c0 84.1 68.1 152.3 152.1 152.3 30.5 0 58.9-9 82.7-24.4l69 69c3.4 3.4 8.3 5.4 13.3 5.4s9.9-2 13.3-5.4c7.4-7.4 7.4-19.4 0-26.7l-49.9-48.5zm-128.3 38.6c-66.2 0-120.1-53.9-120.1-120.3s53.9-120.3 120.1-120.3 120.1 53.9 120.1 120.3-53.9 120.3-120.1 120.3z' fill='%23fff'/%3E%3C/svg%3E">
+    <link rel="manifest" id="manifest-link">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <!-- Google Fonts: Noto Sans Thai, Sarabun, Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans Thai', 'Sarabun', 'Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        '3xl': '1.5rem',
+                        '4xl': '2rem',
+                    },
+                    boxShadow: {
+                        'glass-sm': '0 4px 16px 0 rgba(31, 38, 135, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.6)',
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.5)',
+                        'glass-lg': '0 16px 48px 0 rgba(31, 38, 135, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.7)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans Thai', 'Sarabun', 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #E5FFFF 0%, #FFFFE6 50%, #FFE6FF 100%);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .table-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1); 
+            border-radius: 9999px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: rgba(15, 23, 42, 0.12); 
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: background 0.3s;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(15, 23, 42, 0.22); 
+        }
+        .table-container {
+            -webkit-overflow-scrolling: touch; 
+            cursor: grab;
+        }
+        .table-container:active {
+            cursor: grabbing;
+        }
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased m-0 p-0 w-full h-full absolute inset-0 overflow-hidden bg-transparent flex flex-col font-sans">
+    
+    <!-- Background Ambient Glows -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div class="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-cyan-200/30 blur-[130px] animate-pulse" style="animation-duration: 8s;"></div>
+        <div class="absolute top-[30%] right-[-10%] w-[50%] h-[50%] rounded-full bg-pink-200/25 blur-[130px] animate-pulse" style="animation-duration: 10s;"></div>
+        <div class="absolute -bottom-[10%] left-[20%] w-[60%] h-[60%] rounded-full bg-yellow-100/35 blur-[130px] animate-pulse" style="animation-duration: 12s;"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="w-full h-full flex flex-col overflow-hidden max-w-[1600px] mx-auto p-3 sm:p-5 lg:p-6 gap-4 sm:gap-5">
+        
+        <!-- Header (SaaS Top Bar) -->
+        <header class="bg-white/40 backdrop-blur-md border border-white/50 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-glass shrink-0 transition-all duration-300">
+            <div class="flex items-center gap-3 sm:gap-4 text-center sm:text-left w-full sm:w-auto justify-center sm:justify-start">
+                <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white p-3 rounded-2xl shadow-lg shadow-blue-500/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent tracking-tight">ข้อมูลผลิตภัณฑ์</h1>
+                    <div class="flex items-center gap-2 mt-0.5 justify-center sm:justify-start">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <p class="text-slate-500 text-xs sm:text-sm font-medium">Real-time Sync from Google Sheets</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex items-center gap-2.5 w-full sm:w-auto justify-center sm:justify-end">
+                <button id="refreshBtn" class="bg-white/60 hover:bg-white/90 text-slate-700 border border-slate-200/80 hover:border-slate-300 p-2.5 sm:px-4 sm:py-2.5 rounded-2xl shadow-glass-sm hover:shadow-glass hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 shrink-0 group text-xs sm:text-sm font-semibold" title="อัปเดตข้อมูลล่าสุด">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 group-hover:rotate-180 transition-transform duration-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span class="hidden sm:inline">อัปเดตข้อมูล</span>
+                </button>
+                <button id="exportBtn" class="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white p-2.5 sm:px-4 sm:py-2.5 rounded-2xl shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 shrink-0 text-xs sm:text-sm font-semibold" title="ส่งออกข้อมูล (CSV)">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span class="hidden sm:inline">ส่งออก CSV</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 flex flex-col gap-4 sm:gap-5 overflow-hidden">
+            
+            <!-- KPI Counters & Filter Status Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
+                <!-- KPI Card 1: Total rows -->
+                <div class="bg-white/45 backdrop-blur-md border border-white/50 rounded-3xl p-4 sm:p-5 flex items-center gap-4 shadow-glass hover:shadow-glass-lg hover:-translate-y-0.5 transition-all duration-300">
+                    <div class="bg-blue-500/10 text-blue-600 p-3.5 rounded-2xl">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-xs sm:text-sm font-semibold text-slate-500">จำนวนที่แสดงตามตัวกรอง</p>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-1 font-mono"><span id="rowCount">0</span> <span class="text-sm font-normal text-slate-500">รายการ</span></h3>
+                    </div>
+                </div>
+
+                <!-- KPI Card 2: Last updated -->
+                <div class="bg-white/45 backdrop-blur-md border border-white/50 rounded-3xl p-4 sm:p-5 flex items-center gap-4 shadow-glass hover:shadow-glass-lg hover:-translate-y-0.5 transition-all duration-300">
+                    <div class="bg-indigo-500/10 text-indigo-600 p-3.5 rounded-2xl">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-xs sm:text-sm font-semibold text-slate-500">อัปเดตล่าสุด</p>
+                        <h3 id="lastUpdated" class="text-xl sm:text-2xl font-bold text-slate-800 mt-1.5 font-mono">-</h3>
+                    </div>
+                </div>
+
+                <!-- KPI Card 3: Interactive Filter Control Card -->
+                <div class="bg-white/45 backdrop-blur-md border border-white/50 rounded-3xl p-4 sm:p-5 flex items-center gap-4 shadow-glass hover:shadow-glass-lg hover:-translate-y-0.5 transition-all duration-300">
+                    <div class="bg-pink-500/10 text-pink-600 p-3.5 rounded-2xl">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xs sm:text-sm font-semibold text-slate-500">สถานะตัวกรอง</p>
+                        <div class="mt-1.5 flex items-center gap-1.5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/80 shadow-sm" id="statusBadgeText">
+                                แสดงข้อมูลทั้งหมด
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter Control Center -->
+            <div class="bg-white/45 backdrop-blur-md border border-white/50 rounded-3xl p-4 sm:p-5 shadow-glass shrink-0 flex flex-col gap-4">
+                <div class="flex flex-col lg:flex-row gap-4 items-center">
+                    
+                    <!-- Search Inputs Wrapper -->
+                    <div class="w-full lg:w-1/2 flex flex-col sm:flex-row gap-3">
+                        <!-- Search input 1 -->
+                        <div class="relative flex-1">
+                            <input 
+                                type="text" 
+                                id="searchInput" 
+                                placeholder="คำค้นหา 1..." 
+                                class="w-full pl-10 pr-4 py-2.5 bg-white/60 hover:bg-white/80 focus:bg-white border border-slate-200/85 hover:border-slate-300 focus:border-blue-500 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 shadow-glass-sm transition-all duration-300 text-xs sm:text-sm"
+                                disabled
+                            >
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 absolute left-3 top-3.5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <!-- Search input 2 -->
+                        <div class="relative flex-1">
+                            <input 
+                                type="text" 
+                                id="searchInput2" 
+                                placeholder="กรองคำที่ 2..." 
+                                class="w-full pl-10 pr-4 py-2.5 bg-white/60 hover:bg-white/80 focus:bg-white border border-slate-200/85 hover:border-slate-300 focus:border-blue-500 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 shadow-glass-sm transition-all duration-300 text-xs sm:text-sm"
+                                disabled
+                            >
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 absolute left-3 top-3.5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Date Filter Wrapper (Toggled by code) -->
+                    <div id="dateFilterContainer" class="hidden w-full lg:w-1/2 flex flex-wrap sm:flex-nowrap gap-3 items-center justify-start lg:justify-end text-xs sm:text-sm">
+                        <div class="flex items-center text-indigo-900 font-semibold gap-1.5 shrink-0">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>กรองวันที่:</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-white/60 hover:bg-white/80 border border-slate-200/85 hover:border-slate-300 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10 rounded-xl px-3 py-1.5 shadow-glass-sm transition-all duration-300 w-full sm:w-auto">
+                            <label for="startDateInput" class="text-slate-400 text-xs font-medium shrink-0">ตั้งแต่</label>
+                            <input type="date" id="startDateInput" class="bg-transparent outline-none text-slate-700 cursor-pointer text-xs sm:text-sm w-full sm:w-auto focus:outline-none">
+                        </div>
+                        <div class="flex items-center gap-2 bg-white/60 hover:bg-white/80 border border-slate-200/85 hover:border-slate-300 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10 rounded-xl px-3 py-1.5 shadow-glass-sm transition-all duration-300 w-full sm:w-auto">
+                            <label for="endDateInput" class="text-slate-400 text-xs font-medium shrink-0">ถึง</label>
+                            <input type="date" id="endDateInput" class="bg-transparent outline-none text-slate-700 cursor-pointer text-xs sm:text-sm w-full sm:w-auto focus:outline-none">
+                        </div>
+                        <button id="clearDateBtn" class="text-indigo-600 hover:text-red-500 font-semibold px-3 py-2 rounded-xl bg-white/60 hover:bg-red-50/50 border border-slate-200/80 hover:border-red-200 transition-all duration-300 shrink-0 text-xs shadow-glass-sm" title="ล้างการกรองวันที่">
+                            ล้างวันที่
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table Card -->
+            <div class="flex-1 flex flex-col bg-white/45 backdrop-blur-md border border-white/50 rounded-3xl shadow-glass overflow-hidden min-h-[200px] relative transition-all duration-300">
+                
+                <!-- Status/Messages inside table area -->
+                <div id="statusContainer" class="absolute inset-0 flex items-center justify-center p-6 text-center text-slate-500 z-30 bg-white/60 backdrop-blur-md rounded-3xl">
+                    <div id="loadingIndicator" class="flex flex-col items-center justify-center space-y-3">
+                        <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p class="text-sm sm:text-base font-semibold text-slate-700">กำลังดึงข้อมูล Real-time จาก Google Sheets...</p>
+                    </div>
+                    <div id="errorMessage" class="hidden bg-red-50/90 backdrop-blur-md text-red-600 p-6 rounded-2xl border border-red-200/80 flex flex-col items-center max-w-2xl mx-auto shadow-lg">
+                        <svg class="w-10 h-10 mb-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <p class="font-bold text-lg mb-2">ไม่สามารถดึงข้อมูลได้สำเร็จ</p>
+                        <div class="text-xs sm:text-sm text-left bg-white/80 p-4 rounded-xl border border-red-100/60 w-full text-slate-700 space-y-1">
+                            <p class="font-semibold text-red-600 mb-1">สาเหตุที่เป็นไปได้:</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>ไฟล์ Google Sheet อาจยังไม่ได้ตั้งค่าแชร์เป็นสาธารณะ (Anyone with the link)</li>
+                                <li>ส่วนขยายบล็อกโฆษณา (Adblocker) หรือเครือข่ายบล็อกการเชื่อมต่อ API</li>
+                                <li>การเชื่อมต่ออินเทอร์เน็ตมีปัญหาชั่วคราว</li>
+                            </ul>
+                        </div>
+                        <p id="errorDetail" class="text-xs text-red-400 mt-3 font-mono"></p>
+                    </div>
+                </div>
+
+                <!-- Table Wrapper -->
+                <div id="tableWrapper" class="hidden flex-1 overflow-auto table-container relative w-full rounded-3xl">
+                    <table class="w-full text-left border-collapse min-w-max">
+                        <thead id="tableHead" class="bg-slate-50/85 backdrop-blur-md sticky top-0 shadow-sm z-20 select-none border-b border-slate-200/50">
+                            <!-- Headers will be injected here -->
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-100 bg-white/20">
+                            <!-- Data rows will be injected here -->
+                        </tbody>
+                    </table>
+                    
+                    <div id="noResults" class="hidden p-12 text-center text-slate-500 flex flex-col items-center justify-center">
+                        <svg class="w-14 h-14 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-lg font-bold text-slate-700">ไม่พบข้อมูลตามคำค้นหา</p>
+                        <p class="text-xs sm:text-sm text-slate-400 mt-1">ลองเปลี่ยนคำค้นหา หรือคลิก "ล้างวันที่" อีกครั้ง</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer Info -->
+        <footer class="bg-white/30 backdrop-blur-md p-3 sm:px-6 sm:py-3.5 rounded-2xl border border-white/40 flex flex-col sm:flex-row justify-between items-center text-slate-500 text-[10px] sm:text-xs shrink-0 shadow-glass-sm gap-2 select-none">
+            <div>
+                &copy; ข้อมูลผลิตภัณฑ์ Enterprise SaaS Portal &bull; Real-time Sync จาก Google Sheets
+            </div>
+            <div class="flex items-center gap-1.5">
+                สถานะระบบ: <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span class="text-emerald-600 font-bold">เชื่อมต่อภายนอกสำเร็จ</span>
+            </div>
+        </footer>
+
+        <!-- Toast Notification (Glassmorphic) -->
+        <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-white/85 backdrop-blur-md border border-white/60 text-slate-800 px-5 py-3 rounded-2xl shadow-xl transition-all duration-300 opacity-0 pointer-events-none z-50 text-sm flex items-center gap-2.5">
+            <span id="toastMessage" class="flex items-center gap-2"></span>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ระบบ Progressive Web App (PWA) 
+        // ==========================================
+        const svgIcon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%232563eb' rx='100'/%3E%3Cpath d='M344.5 298c15-23.6 23.8-51.6 23.8-81.7 0-84.1-68.1-152.3-152.1-152.3C132.1 64 64 132.2 64 216.3c0 84.1 68.1 152.3 152.1 152.3 30.5 0 58.9-9 82.7-24.4l69 69c3.4 3.4 8.3 5.4 13.3 5.4s9.9-2 13.3-5.4c7.4-7.4 7.4-19.4 0-26.7l-49.9-48.5zm-128.3 38.6c-66.2 0-120.1-53.9-120.1-120.3s53.9-120.3 120.1-120.3s53.9-120.3 120.1-120.3 120.1 53.9 120.1 120.3-53.9 120.3-120.1 120.3z' fill='%23fff'/%3E%3C/svg%3E";
+        
+        const manifest = {
+            "name": "ข้อมูลผลิตภัณฑ์",
+            "short_name": "ข้อมูลผลิตภัณฑ์",
+            "start_url": window.location.href,
+            "display": "standalone",
+            "background_color": "#ffffff",
+            "theme_color": "#2563eb",
+            "icons": [{
+                "src": svgIcon,
+                "sizes": "512x512",
+                "type": "image/svg+xml",
+                "purpose": "any maskable"
+            }]
+        };
+        
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
+
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                self.addEventListener('install', (e) => self.skipWaiting());
+                self.addEventListener('activate', (e) => self.clients.claim());
+                self.addEventListener('fetch', (e) => { });
+            `;
+            const swBlob = new Blob([swCode], {type: 'application/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob))
+                .catch(err => console.log('PWA SW Error:', err));
+        }
+
+        // ==========================================
+        // ตัวแปรต่างๆ
+        // ==========================================
+        let csvUrl = 'https://docs.google.com/spreadsheets/d/1JuneOZnbJJ_r7JdNW6Rnd-LZcQ9sAAPb__VVSc4ZtbY/export?format=csv&gid=1031226843';
+
+        let rawData = [];
+        let headers = [];
+        let rows = [];
+        let currentHeaderOrder = []; 
+        let currentDisplayedData = []; 
+
+        const searchInput = document.getElementById('searchInput');
+        const searchInput2 = document.getElementById('searchInput2');
+        const startDateInput = document.getElementById('startDateInput');
+        const endDateInput = document.getElementById('endDateInput');
+        const clearDateBtn = document.getElementById('clearDateBtn');
+        const dateFilterContainer = document.getElementById('dateFilterContainer');
+        const exportBtn = document.getElementById('exportBtn');
+        
+        const statusContainer = document.getElementById('statusContainer');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorDetail = document.getElementById('errorDetail');
+        const tableWrapper = document.getElementById('tableWrapper');
+        const tableHead = document.getElementById('tableHead');
+        const tableBody = document.getElementById('tableBody');
+        const noResults = document.getElementById('noResults');
+        const rowCountEl = document.getElementById('rowCount');
+        const lastUpdatedEl = document.getElementById('lastUpdated');
+        const refreshBtn = document.getElementById('refreshBtn');
+
+        // ฟังก์ชันแสดง Toast Notification แทน Alert
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toastMessage');
+            msgEl.innerHTML = message;
+            
+            toast.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 px-5 py-3.5 rounded-2xl shadow-glass-lg border transition-all duration-300 z-50 text-sm flex items-center gap-2.5 ${isError ? 'bg-red-50/95 backdrop-blur-md text-red-600 border-red-200/80' : 'bg-white/85 backdrop-blur-md text-slate-800 border-white/60'}`;
+            
+            // ใส่ไอคอน
+            if(isError) {
+                msgEl.insertAdjacentHTML('afterbegin', `<svg class="w-5 h-5 text-red-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> `);
+            } else {
+                msgEl.insertAdjacentHTML('afterbegin', `<svg class="w-5 h-5 text-emerald-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> `);
+            }
+
+            toast.style.opacity = '1';
+            toast.style.bottom = '2rem';
+            
+            setTimeout(() => { 
+                toast.style.opacity = '0'; 
+                toast.style.bottom = '1rem';
+            }, 3000);
+        }
+
+        async function loadData() {
+            statusContainer.classList.remove('hidden');
+            loadingIndicator.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            tableWrapper.classList.add('hidden');
+            dateFilterContainer.classList.add('hidden');
+            searchInput.disabled = true;
+            searchInput2.disabled = true;
+            errorDetail.textContent = '';
+
+            const encodedUrl = encodeURIComponent(csvUrl);
+            
+            const fetchSources = [
+                { name: 'Google Direct', url: csvUrl },
+                { name: 'Proxy 1 (AllOrigins)', url: 'https://api.allorigins.win/raw?url=' + encodedUrl },
+                { name: 'Proxy 2 (CorsProxy)', url: 'https://corsproxy.io/?' + encodedUrl }
+            ];
+
+            let csvText = '';
+            let fetchSuccess = false;
+            let lastErrorMsg = '';
+
+            for (const source of fetchSources) {
+                try {
+                    const response = await fetch(source.url);
+                    if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
+                    const text = await response.text();
+                    
+                    if (text.trim().toLowerCase().startsWith('<!doctype html>')) {
+                        throw new Error('ไม่สามารถเข้าถึงข้อมูล CSV ได้ (สิทธิ์ไฟล์อาจไม่ใช่ Public)');
+                    }
+                    
+                    csvText = text;
+                    fetchSuccess = true;
+                    break;
+                } catch (err) {
+                    lastErrorMsg = err.message === 'Failed to fetch' ? 'โดนบล็อกการเชื่อมต่อ (Failed to fetch)' : err.message;
+                }
+            }
+
+            if (!fetchSuccess) {
+                showError(lastErrorMsg);
+                return;
+            }
+
+            try {
+                Papa.parse(csvText, {
+                    header: false,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        if (results.data && results.data.length > 0) {
+                            rawData = results.data;
+                            headers = rawData[0]; 
+                            rows = rawData.slice(1); 
+                            
+                            currentHeaderOrder = headers.map((_, i) => i); 
+                            
+                            statusContainer.classList.add('hidden');
+                            tableWrapper.classList.remove('hidden');
+                            dateFilterContainer.classList.remove('hidden');
+                            searchInput.disabled = false;
+                            searchInput2.disabled = false;
+                            
+                            applyFilters(); // แสดงผลผ่านฟิลเตอร์ (เริ่มต้นค่าว่าง)
+                            
+                            const now = new Date();
+                            lastUpdatedEl.textContent = now.toLocaleTimeString('th-TH') + ' น.';
+                        } else {
+                            throw new Error('ไม่พบข้อมูลใน Sheet');
+                        }
+                    },
+                    error: function(err) {
+                        throw new Error('รูปแบบไฟล์ผิดพลาด: ' + err.message);
+                    }
+                });
+
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        function showError(detailMessage) {
+            loadingIndicator.classList.add('hidden');
+            errorMessage.classList.remove('hidden');
+            if(detailMessage) errorDetail.textContent = 'รายละเอียด: ' + detailMessage;
+        }
+
+        // แปลงวันที่สำหรับเปรียบเทียบ (รองรับ พ.ศ. และ ค.ศ.)
+        function parseThaiDate(dateString) {
+            if (!dateString) return null;
+            // ตัดส่วนเวลาออก (ถ้ามี) เช่น 12/05/2024 10:30 เพื่อป้องกัน Error
+            const datePart = dateString.toString().trim().split(/[\sT]+/)[0];
+            const parts = datePart.split(/[-/]/);
+            if (parts.length !== 3) return null;
+
+            let d, m, y;
+            if (parts[0].length === 4) { // yyyy-mm-dd
+                y = parseInt(parts[0]);
+                m = parseInt(parts[1]);
+                d = parseInt(parts[2]);
+            } else { // dd/mm/yyyy
+                d = parseInt(parts[0]);
+                m = parseInt(parts[1]);
+                y = parseInt(parts[2]);
+            }
+
+            if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
+            
+            // แปลง พ.ศ. ให้เป็น ค.ศ. ถ้าค่าเกิน 2500
+            if (y > 2500) y -= 543;
+            
+            return new Date(y, m - 1, d).getTime();
+        }
+
+        // ฟังก์ชันหลักรวมการ กรองข้อความ + กรองวันที่
+        function applyFilters() {
+            const term1 = searchInput.value.toLowerCase().trim();
+            const term2 = searchInput2.value.toLowerCase().trim();
+            const startVal = startDateInput.value ? new Date(startDateInput.value).getTime() : null;
+            const endVal = endDateInput.value ? new Date(endDateInput.value).setHours(23,59,59,999) : null; // รวมจนถึงสิ้นวัน
+
+            let matchColIndex = -1; 
+            
+            // ล็อคเป้าหมายให้ใช้คอลัมน์ E สำหรับการกรองวันที่โดยเฉพาะ
+            // (การนับคอลัมน์ในโค้ดเริ่มจาก 0: A=0, B=1, C=2, D=3, E=4)
+            const targetDateColumnIndex = 4; 
+            
+            const filteredRows = rows.filter(row => {
+                // 1. ตรวจสอบเงื่อนไขข้อความจาก 2 ช่องค้นหา
+                let found1 = term1 === '';
+                let found2 = term2 === '';
+
+                row.forEach((cell, index) => {
+                    const cellStr = cell ? cell.toString().toLowerCase() : '';
+                    if (!found1 && cellStr.includes(term1)) {
+                        found1 = true;
+                        if (matchColIndex === -1 && term1 !== '') matchColIndex = index;
+                    }
+                    if (!found2 && cellStr.includes(term2)) {
+                        found2 = true;
+                    }
+                });
+
+                const textMatch = found1 && found2;
+
+                // 2. ตรวจสอบเงื่อนไขวันที่ (ตรวจสอบเฉพาะคอลัมน์ E ที่กำหนดไว้เท่านั้น)
+                let dateMatch = true;
+                if (startVal || endVal) {
+                    dateMatch = false; 
+                    
+                    if (row[targetDateColumnIndex] !== undefined) {
+                        const cellDate = parseThaiDate(row[targetDateColumnIndex]);
+                        if (cellDate) {
+                            let isAfterStart = startVal ? cellDate >= startVal : true;
+                            let isBeforeEnd = endVal ? cellDate <= endVal : true;
+                            if (isAfterStart && isBeforeEnd) {
+                                dateMatch = true;
+                            }
+                        }
+                    }
+                }
+
+                return textMatch && dateMatch;
+            });
+
+            // จัดลำดับคอลัมน์ใหม่ถ้าเจอคำค้นหาแรก
+            if (matchColIndex !== -1 && term1 !== '') {
+                currentHeaderOrder = headers.map((_, i) => i);
+                currentHeaderOrder.splice(matchColIndex, 1);
+                currentHeaderOrder.unshift(matchColIndex);
+            } else if (term1 === '') {
+                currentHeaderOrder = headers.map((_, i) => i);
+            }
+
+            renderHeaders(currentHeaderOrder);
+            renderRows(filteredRows, currentHeaderOrder);
+            rowCountEl.textContent = filteredRows.length;
+
+            const badgeEl = document.getElementById('statusBadgeText');
+            if (badgeEl) {
+                if (term1 || term2 || startVal || endVal) {
+                    let activeFilters = [];
+                    if (term1) activeFilters.push('คำค้น 1');
+                    if (term2) activeFilters.push('คำค้น 2');
+                    if (startVal || endVal) activeFilters.push('วันที่');
+                    badgeEl.textContent = 'กรอง: ' + activeFilters.join(' + ');
+                    badgeEl.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-700 border border-blue-200/50 shadow-sm animate-pulse';
+                } else {
+                    badgeEl.textContent = 'แสดงข้อมูลทั้งหมด';
+                    badgeEl.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/80 shadow-sm';
+                }
+            }
+        }
+
+        // ดักจับการเปลี่ยนแปลงเพื่อกรองข้อมูล
+        searchInput.addEventListener('input', applyFilters);
+        searchInput2.addEventListener('input', applyFilters);
+        startDateInput.addEventListener('change', applyFilters);
+        endDateInput.addEventListener('change', applyFilters);
+        
+        clearDateBtn.addEventListener('click', () => {
+            startDateInput.value = '';
+            endDateInput.value = '';
+            applyFilters();
+        });
+
+        function formatCellData(cellStr) {
+            if (!cellStr) return '<span class="text-slate-300 font-light">-</span>';
+            const str = cellStr.toString().trim();
+
+            const driveRegex = /https:\/\/drive\.google\.com\/(?:file\/d\/|open\?id=)([-\w]+)/;
+            const driveMatch = str.match(driveRegex);
+            if (driveMatch) {
+                const imgUrl = `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+                return `<div class="relative group inline-block"><img src="${imgUrl}" alt="รูป" class="h-10 w-auto max-w-[70px] sm:max-w-[90px] object-cover rounded-xl border border-slate-200/60 shadow-sm transition-all duration-300 group-hover:scale-[2.8] group-hover:shadow-lg group-hover:z-50 cursor-zoom-in relative bg-white" loading="lazy" onerror="this.onerror=null; this.outerHTML='<a href=\\'${str}\\' target=\\'_blank\\' class=\\'text-blue-600 hover:text-blue-800 font-semibold hover:underline\\'>ลิงก์รูปภาพ</a>';"/></div>`;
+            }
+
+            const imageRegex = /^https?:\/\/.*\.(jpeg|jpg|gif|png|webp)(\?.*)?$/i;
+            if (imageRegex.test(str)) {
+                return `<div class="relative group inline-block"><img src="${str}" alt="รูป" class="h-10 w-auto max-w-[70px] sm:max-w-[90px] object-cover rounded-xl border border-slate-200/60 shadow-sm transition-all duration-300 group-hover:scale-[2.8] group-hover:shadow-lg group-hover:z-50 cursor-zoom-in relative bg-white" loading="lazy" /></div>`;
+            }
+
+            const urlRegex = /^https?:\/\/[^\s]+$/i;
+            if (urlRegex.test(str)) {
+                return `<a href="${str}" target="_blank" class="text-blue-600 hover:text-blue-800 font-semibold hover:underline inline-flex items-center gap-1">คลิกเปิดลิงก์ <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>`;
+            }
+            return str;
+        }
+
+        function renderHeaders(order) {
+            let theadHTML = '<tr>';
+            order.forEach((colIndex, i) => {
+                const header = headers[colIndex];
+                const bgClass = i === 0 && searchInput.value.trim() !== '' ? 'bg-blue-500/10 text-blue-700 font-bold' : 'bg-slate-50/80 text-slate-500';
+                theadHTML += `<th class="px-4 sm:px-6 py-3.5 sm:py-4 text-[11px] sm:text-xs font-semibold ${bgClass} uppercase tracking-wider whitespace-nowrap transition-colors">${header || '-'}</th>`;
+            });
+            theadHTML += `<th class="px-4 sm:px-6 py-3.5 sm:py-4 text-[11px] sm:text-xs font-semibold bg-slate-50/90 text-slate-500 uppercase tracking-wider whitespace-nowrap text-center sticky right-0 z-20 shadow-[-6px_0_12px_-3px_rgba(0,0,0,0.04)] border-l border-slate-200/30">คัดลอก</th></tr>`;
+            tableHead.innerHTML = theadHTML;
+        }
+
+        function renderRows(dataToRender, order) {
+            tableBody.innerHTML = '';
+            currentDisplayedData = dataToRender; 
+            
+            if (dataToRender.length === 0) {
+                tableBody.parentElement.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                return;
+            } else {
+                tableBody.parentElement.classList.remove('hidden');
+                noResults.classList.add('hidden');
+            }
+
+            let tbodyHTML = '';
+            dataToRender.forEach((row, rowIndex) => {
+                tbodyHTML += '<tr class="even:bg-slate-50/15 hover:bg-slate-100/35 transition duration-150 group/row border-b border-slate-100/40">';
+                
+                order.forEach((colIndex, i) => {
+                    const cell = row[colIndex];
+                    const cellData = formatCellData(cell);
+                    
+                    let cellClasses = 'text-slate-600 group-hover/row:text-slate-800';
+                    if (i === 0 && searchInput.value.trim() !== '') {
+                        cellClasses = 'font-semibold text-blue-700 bg-blue-500/5 group-hover/row:text-blue-800';
+                    } else if (i === 0) {
+                        cellClasses = 'font-medium text-slate-800';
+                    }
+
+                    tbodyHTML += `<td class="px-4 sm:px-6 py-2.5 text-xs sm:text-sm ${cellClasses} whitespace-nowrap transition-colors">${cellData}</td>`;
+                });
+
+                tbodyHTML += `
+                    <td class="px-4 sm:px-6 py-2.5 text-center whitespace-nowrap sticky right-0 bg-white group-hover/row:bg-slate-50 transition-colors shadow-[-6px_0_12px_-3px_rgba(0,0,0,0.04)] border-l border-slate-200/30 z-10">
+                        <button type="button" class="copy-btn text-slate-500 hover:text-blue-600 bg-slate-100/80 hover:bg-blue-50/60 p-1.5 sm:p-2 rounded-xl shadow-glass-sm border border-slate-200/50 hover:border-blue-200 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/15" data-row-index="${rowIndex}" title="คัดลอกข้อมูลบรรทัดนี้">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
+                    </td></tr>`;
+            });
+            tableBody.innerHTML = tbodyHTML;
+        }
+
+        // ปุ่มคัดลอก
+        tableBody.addEventListener('click', function(e) {
+            const btn = e.target.closest('.copy-btn');
+            if (btn) {
+                const rowIndex = btn.getAttribute('data-row-index');
+                const rowData = currentDisplayedData[rowIndex]; 
+                
+                let linesToCopy = [];
+                currentHeaderOrder.forEach(colIndex => {
+                    const headerName = headers[colIndex] || '-';
+                    const cellValue = rowData[colIndex] ? rowData[colIndex].trim() : '-';
+                    if (cellValue !== '-' && cellValue !== '') {
+                        linesToCopy.push(`• ${headerName} : ${cellValue}`);
+                    }
+                });
+
+                const textToCopy = linesToCopy.join('\n');
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                textArea.style.position = "fixed";
+                textArea.style.opacity = "0";
+                document.body.appendChild(textArea);
+                textArea.select();
+
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        const originalHTML = btn.innerHTML;
+                        const originalClasses = btn.className;
+                        
+                        btn.innerHTML = `<svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+                        btn.className = "copy-btn text-white bg-emerald-500 p-1.5 sm:p-2 rounded-xl shadow-sm border border-emerald-500 transition-all pointer-events-none";
+                        
+                        showToast("คัดลอกข้อมูลเรียบร้อยแล้ว");
+
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                            btn.className = originalClasses;
+                        }, 2000);
+                    } else {
+                        showToast("ไม่สามารถคัดลอกได้ เบราว์เซอร์อาจบล็อก", true);
+                    }
+                } catch (err) {
+                    showToast("ไม่รองรับการคัดลอกอัตโนมัติ", true);
+                } finally {
+                    document.body.removeChild(textArea);
+                }
+            }
+        });
+
+        // ฟังก์ชัน Export CSV
+        exportBtn.addEventListener('click', function() {
+            if (!currentDisplayedData || currentDisplayedData.length === 0) {
+                showToast("ไม่มีข้อมูลให้ส่งออกในขณะนี้", true);
+                return;
+            }
+
+            const exportHeaders = currentHeaderOrder.map(colIndex => headers[colIndex] || '-');
+            const exportRows = currentDisplayedData.map(row => {
+                return currentHeaderOrder.map(colIndex => {
+                    return row[colIndex] ? row[colIndex].toString().trim() : '';
+                });
+            });
+
+            const csvDataToExport = [exportHeaders, ...exportRows];
+            const csvString = Papa.unparse(csvDataToExport);
+            
+            // ใส่ BOM (Byte Order Mark) นำหน้า เพื่อให้โปรแกรมอย่าง Excel อ่านภาษาไทยได้ถูกต้อง
+            const bom = '\uFEFF';
+            const blob = new Blob([bom + csvString], { type: 'text/csv;charset=utf-8;' });
+            
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            
+            const d = new Date();
+            const dateStr = `${d.getFullYear()}${(d.getMonth()+1).toString().padStart(2,'0')}${d.getDate().toString().padStart(2,'0')}_${d.getHours().toString().padStart(2,'0')}${d.getMinutes().toString().padStart(2,'0')}`;
+            link.setAttribute('download', `products_export_${dateStr}.csv`);
+            
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast("ดาวน์โหลดไฟล์ CSV เรียบร้อยแล้ว");
+        });
+
+        // ระบบลากเพื่อเลื่อนซ้ายขวา (Drag to scroll)
+        let isDown = false; let startX; let scrollLeft;
+        tableWrapper.addEventListener('mousedown', (e) => {
+            if(e.target.closest('button') || e.target.closest('a') || e.target.closest('img') || e.target.closest('input')) return;
+            isDown = true;
+            tableWrapper.classList.add('no-select'); 
+            startX = e.pageX - tableWrapper.offsetLeft;
+            scrollLeft = tableWrapper.scrollLeft;
+        });
+        tableWrapper.addEventListener('mouseleave', () => { isDown = false; tableWrapper.classList.remove('no-select'); });
+        tableWrapper.addEventListener('mouseup', () => { isDown = false; tableWrapper.classList.remove('no-select'); });
+        tableWrapper.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - tableWrapper.offsetLeft;
+            tableWrapper.scrollLeft = scrollLeft - ((x - startX) * 1.5); 
+        });
+
+        refreshBtn.addEventListener('click', function() {
+            searchInput.value = ''; 
+            searchInput2.value = ''; 
+            startDateInput.value = '';
+            endDateInput.value = '';
+            loadData(); 
+        });
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
