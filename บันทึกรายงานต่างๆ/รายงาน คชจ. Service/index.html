@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบบันทึกค่าใช้จ่าย & Dashboard - Service Engineer</title>
+  
+  <!-- Google Fonts: Noto Sans Thai & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- SweetAlert2 for beautiful popups -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Lucide Icons for modern dashboard icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* ==========================================
+       DESIGN SYSTEM & VARIABLES
+       ========================================== */
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent-red: #ef4444;
+      --accent-blue: #3b82f6;
+      --accent-yellow: #f59e0b;
+      --success: #10b981;
+      
+      /* Glassmorphism Styles */
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-bg-hover: rgba(255, 255, 255, 0.35);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+      
+      --text-main: #1e293b;
+      --text-muted: #475569;
+      --text-light: #64748b;
+      
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f87171 0%, #38bdf8 50%, #facc15 100%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      padding: 2rem 1rem;
+    }
+
+    /* Ambient Background Blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .blob-1 {
+      top: -10%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: rgba(239, 68, 68, 0.3);
+      animation: float 20s infinite alternate;
+    }
+    .blob-2 {
+      bottom: -10%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: rgba(59, 130, 246, 0.3);
+      animation: float 25s infinite alternate-reverse;
+    }
+    .blob-3 {
+      top: 40%;
+      left: 50%;
+      width: 400px;
+      height: 400px;
+      background: rgba(245, 158, 11, 0.2);
+      animation: float 18s infinite alternate;
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(50px, 30px) scale(1.1); }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      z-index: 1;
+    }
+
+    /* ==========================================
+       GLASSMORPHISM CARD STYLING
+       ========================================== */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 1.5rem; /* rounded-3xl equivalent */
+      box-shadow: var(--glass-shadow);
+      padding: 2rem;
+      transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      background: var(--glass-bg-hover);
+      box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.12);
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================
+       HEADER & NAVIGATION
+       ========================================== */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #1e1b4b;
+    }
+
+    .brand-title i {
+      color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: 1px solid var(--glass-border);
+      border-radius: 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all var(--transition-speed) ease;
+      background: rgba(255, 255, 255, 0.4);
+      color: var(--text-main);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.6);
+      transform: scale(1.02);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+    }
+
+    /* ==========================================
+       DASHBOARD STATS (KPI CARDS)
+       ========================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-info h3 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-info p {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .stat-icon-wrapper {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.5);
+      color: var(--primary);
+    }
+
+    .stat-card:nth-child(1) .stat-icon-wrapper { color: var(--primary); }
+    .stat-card:nth-child(2) .stat-icon-wrapper { color: var(--success); }
+    .stat-card:nth-child(3) .stat-icon-wrapper { color: var(--accent-blue); }
+    .stat-card:nth-child(4) .stat-icon-wrapper { color: var(--accent-yellow); }
+
+    /* ==========================================
+       MAIN CONTENT LAYOUT (FORM & CHARTS)
+       ========================================== */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 1.9fr;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 0.5rem;
+    }
+
+    /* ==========================================
+       EXPENSE FORM STYLING
+       ========================================== */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--glass-border);
+      border-radius: 0.75rem;
+      background: rgba(255, 255, 255, 0.5);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.85);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.2em;
+      padding-right: 2.5rem;
+    }
+
+    .file-upload-wrapper {
+      position: relative;
+      border: 2px dashed var(--glass-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .file-upload-wrapper:hover {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .file-upload-wrapper input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-preview {
+      margin-top: 0.75rem;
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--glass-border);
+    }
+
+    .file-preview img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 0.25rem;
+    }
+
+    .file-preview-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex-grow: 1;
+    }
+
+    .file-preview-remove {
+      color: var(--accent-red);
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    /* ==========================================
+       CHARTS & ANALYSIS STYLING
+       ========================================== */
+    .charts-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      height: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .charts-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-box {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+    }
+
+    .chart-box h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+      width: 100%;
+      text-align: left;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 240px;
+    }
+
+    /* ==========================================
+       TABLE & HISTORY LOG STYLING
+       ========================================== */
+    .table-section {
+      margin-top: 2rem;
+    }
+
+    .table-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .search-filter-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      flex-grow: 1;
+      max-width: 700px;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 1rem;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.925rem;
+      min-width: 800px;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.35);
+      padding: 1rem 1.25rem;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge-primary { background: rgba(79, 70, 229, 0.15); color: var(--primary); }
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .badge-blue { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+    .badge-yellow { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); }
+    .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+
+    .btn-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.4);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all var(--transition-speed) ease;
+    }
+
+    .btn-icon:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .btn-receipt {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      background: rgba(255, 255, 255, 0.5);
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--glass-border);
+      transition: all var(--transition-speed) ease;
+    }
+
+    .btn-receipt:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .text-amount {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    /* ==========================================
+       EMPTY STATE & LOADER
+       ========================================== */
+    .empty-state {
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .loading-spinner-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem;
+    }
+
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border-left-color: var(--primary);
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Animated Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="container">
+    
+    <!-- HEADER -->
+    <header class="glass-card">
+      <div class="brand-title">
+        <i data-lucide="wallet"></i>
+        <span>ระบบบันทึกค่าใช้จ่าย & Dashboard</span>
+      </div>
+      <div class="header-actions">
+        <span id="sync-status" class="badge badge-success" style="display: none;">
+          <i data-lucide="check-circle" style="width:14px; height:14px; margin-right:4px;"></i>
+          เชื่อมต่อสำเร็จ
+        </span>
+        <button id="btn-refresh" class="btn" onclick="fetchData()">
+          <i data-lucide="refresh-cw"></i>
+          ดึงข้อมูลล่าสุด
+        </button>
+      </div>
+    </header>
+
+    <!-- KPI CARDS -->
+    <div class="stats-grid">
+      
+      <!-- Card 1: เงินคงคลังคงเหลือ -->
+      <div class="glass-card stat-card">
+        <div class="stat-info">
+          <h3>เงินคงคลังคงเหลือ</h3>
+          <p id="stat-treasury" style="transition: color 0.3s ease;">฿20,000.00</p>
+        </div>
+        <div class="stat-icon-wrapper" style="color: var(--success);">
+          <i data-lucide="coins" style="width:28px; height:28px;"></i>
+        </div>
+      </div>
+
+      <!-- Card 2: ยอดรวมทั้งหมด -->
+      <div class="glass-card stat-card">
+        <div class="stat-info">
+          <h3>ค่าใช้จ่ายรวมทั้งหมด</h3>
+          <p id="stat-total">฿0.00</p>
+        </div>
+        <div class="stat-icon-wrapper" style="color: var(--accent-red);">
+          <i data-lucide="credit-card" style="width:28px; height:28px;"></i>
+        </div>
+      </div>
+
+      
+      <!-- Card 4: ผู้เบิกสูงสุด -->
+      <div class="glass-card stat-card">
+        <div class="stat-info">
+          <h3>ผู้เบิกสูงสุด</h3>
+          <p id="stat-spender">-</p>
+        </div>
+        <div class="stat-icon-wrapper" style="color: var(--primary);">
+          <i data-lucide="user" style="width:28px; height:28px;"></i>
+        </div>
+      </div>
+      
+      <!-- Card 5: จำนวนรายการ -->
+      <div class="glass-card stat-card">
+        <div class="stat-info">
+          <h3>จำนวนรายการสะสม</h3>
+          <p id="stat-count">0 รายการ</p>
+        </div>
+        <div class="stat-icon-wrapper" style="color: var(--text-light);">
+          <i data-lucide="file-text" style="width:28px; height:28px;"></i>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MAIN GRID: FORM & CHARTS -->
+    <div class="dashboard-layout">
+      
+      <!-- COLUMN 1: FORM -->
+      <div class="glass-card">
+        <h2 class="section-title">
+          <i data-lucide="plus-circle" style="width:20px; height:20px;"></i>
+          บันทึกค่าใช้จ่ายใหม่
+        </h2>
+        <form id="expense-form" onsubmit="handleFormSubmit(event)">
+          
+          <div class="form-group">
+            <label for="input-date">วัน เดือน ปี <span style="color:var(--accent-red)">*</span></label>
+            <input type="date" id="input-date" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="input-name">รายชื่อพนักงาน <span style="color:var(--accent-red)">*</span></label>
+            <select id="input-name" class="form-control" required>
+              <option value="" disabled selected>-- เลือกรายชื่อพนักงาน --</option>
+              <option value="กษิเดช">กษิเดช</option>
+              <option value="กันต์ศักดิ์">กันต์ศักดิ์</option>
+              <option value="จีรศักดิ์">จีรศักดิ์</option>
+              <option value="ชาติชาย">ชาติชาย</option>
+              <option value="ณัฐชัย">ณัฐชัย</option>
+              <option value="ณัฐพงษ์">ณัฐพงษ์</option>
+              <option value="ธนบูรณ์">ธนบูรณ์</option>
+              <option value="ประวิทย์">ประวิทย์</option>
+              <option value="พงษ์ศักดิ์">พงษ์ศักดิ์</option>
+              <option value="ภาสพงษ์">ภาสพงษ์</option>
+              <option value="สมชาย">สมชาย</option>
+              <option value="อภิลักษณ์">อภิลักษณ์</option>
+              <option value="เอกเลิศ">เอกเลิศ</option>
+              <option value="custom">เพิ่มชื่อพนักงานอื่น...</option>
+            </select>
+            <input type="text" id="input-name-custom" class="form-control" placeholder="กรอกชื่อพนักงานใหม่" style="display: none; margin-top: 0.5rem;">
+          </div>
+
+          <div class="form-group">
+            <label for="input-job">รายละเอียดงาน <span style="color:var(--accent-red)">*</span></label>
+            <select id="input-job" class="form-control" required>
+              <option value="" disabled selected>-- เลือกรายละเอียดงาน --</option>
+              <option value="ทริปภาคเหนือ">ทริปภาคเหนือ</option>
+              <option value="ทริปภาคใต้">ทริปภาคใต้</option>
+              <option value="ทริปภาคอีสาน">ทริปภาคอีสาน</option>
+              <option value="ทริปภาคตะวันออก">ทริปภาคตะวันออก</option>
+              <option value="ทริปภาคตะวันตก">ทริปภาคตะวันตก</option>
+              <option value="ทริปต่างประเทศ">ทริปต่างประเทศ</option>
+              <option value="ค่าใช้จ่ายการเดินทาง">ค่าใช้จ่ายการเดินทาง</option>
+              <option value="เบี้ยเลี้ยง">เบี้ยเลี้ยง</option>
+              <option value="บัตร Easy Pass">บัตร Easy Pass</option>
+              <option value="เครื่องมือ, อะไหล่">เครื่องมือ, อะไหล่</option>
+              <option value="อาหาร เครื่องดื่ม">อาหาร เครื่องดื่ม</option>
+              <option value="ล้างรถบริษัท">ล้างรถบริษัท</option>
+              <option value="custom">อื่นๆ...</option>
+            </select>
+            <input type="text" id="input-job-custom" class="form-control" placeholder="ระบุรายละเอียดงานอื่นๆ" style="display: none; margin-top: 0.5rem;">
+          </div>
+
+          <div class="form-group">
+            <label for="input-type">ประเภทการเบิก <span style="color:var(--accent-red)">*</span></label>
+            <select id="input-type" class="form-control" required>
+              <option value="" disabled selected>-- เลือกประเภทการเบิก --</option>
+              <option value="เบิกค่าใช้จ่าย">เบิกค่าใช้จ่าย</option>
+              <option value="เบิกล่วงหน้า">เบิกล่วงหน้า</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-amount">จำนวนเงิน (บาท) <span style="color:var(--accent-red)">*</span></label>
+            <input type="number" id="input-amount" class="form-control" step="0.01" min="0" placeholder="0.00" required>
+          </div>
+
+          <div class="form-group">
+            <label for="input-withdrawal-no">เลขใบเบิก</label>
+            <input type="text" id="input-withdrawal-no" class="form-control" placeholder="เช่น EXP2026-0001">
+          </div>
+
+          <div class="form-group">
+            <label>แนบรูปใบเสร็จ <span style="color:var(--accent-red)">*</span></label>
+            <div class="file-upload-wrapper">
+              <i data-lucide="upload-cloud" style="width:32px; height:32px; color:var(--text-muted); margin-bottom:0.5rem; display:block; margin-left:auto; margin-right:auto;"></i>
+              <span>คลิก หรือลากไฟล์มาวางที่นี่</span>
+              <input type="file" id="input-file" accept="image/*,application/pdf" onchange="handleFileSelect(event)">
+            </div>
+            
+            <div id="file-preview-container" class="file-preview">
+              <img id="file-preview-img" src="" alt="preview" style="display:none;">
+              <i id="file-preview-icon" data-lucide="file" style="display:none; width:30px; height:30px; color:var(--primary);"></i>
+              <span id="file-preview-name" class="file-preview-name">filename.jpg</span>
+              <button type="button" class="file-preview-remove" onclick="removeFile()">
+                <i data-lucide="trash-2" style="width:18px; height:18px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:1rem; padding: 0.9rem;">
+            <i data-lucide="send"></i>
+            บันทึกรายงานค่าใช้จ่าย
+          </button>
+        </form>
+      </div>
+
+      <!-- COLUMN 2: CHARTS -->
+      <div class="glass-card" style="display: flex; flex-direction: column;">
+        <h2 class="section-title">
+          <i data-lucide="pie-chart" style="width:20px; height:20px;"></i>
+          รายงานการวิเคราะห์ (Visual Reports)
+        </h2>
+        <div class="charts-container" style="grid-template-columns: 1fr;">
+          
+          <!-- Doughnut Chart: Expenses by Category -->
+          <div class="chart-box" style="min-height: 350px;">
+            <h4>สัดส่วนค่าใช้จ่ายตามหมวดหมู่</h4>
+            <div class="chart-wrapper" style="height: 280px;">
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TRANSACTION HISTORY LOG -->
+    <div class="glass-card table-section">
+      <h2 class="section-title">
+        <i data-lucide="list" style="width:20px; height:20px;"></i>
+        ประวัติรายการบันทึกค่าใช้จ่าย
+      </h2>
+      
+      <div class="table-actions">
+        <!-- Search & Category Filters -->
+        <div class="search-filter-group">
+          <input type="text" id="search-input" class="form-control" placeholder="ค้นหาเลขใบเบิก, พนักงาน, รายละเอียดงาน..." oninput="applyFilters()" style="flex: 1.8; min-width: 200px;">
+          
+          <select id="filter-type" class="form-control" onchange="applyFilters()" style="flex: 1.2; min-width: 150px;">
+            <option value="all">ทุกรายละเอียดงาน</option>
+            <option value="ทริปภาคเหนือ">ทริปภาคเหนือ</option>
+            <option value="ทริปภาคใต้">ทริปภาคใต้</option>
+            <option value="ทริปภาคอีสาน">ทริปภาคอีสาน</option>
+            <option value="ทริปภาคตะวันออก">ทริปภาคตะวันออก</option>
+            <option value="ทริปภาคตะวันตก">ทริปภาคตะวันตก</option>
+            <option value="ทริปต่างประเทศ">ทริปต่างประเทศ</option>
+            <option value="ค่าใช้จ่ายการเดินทาง">ค่าใช้จ่ายการเดินทาง</option>
+            <option value="เบี้ยเลี้ยง">เบี้ยเลี้ยง</option>
+            <option value="บัตร Easy Pass">บัตร Easy Pass</option>
+            <option value="เครื่องมือ, อะไหล่">เครื่องมือ, อะไหล่</option>
+            <option value="อาหาร เครื่องดื่ม">อาหาร เครื่องดื่ม</option>
+            <option value="ล้างรถบริษัท">ล้างรถบริษัท</option>
+          </select>
+
+          <select id="filter-withdrawal" class="form-control" onchange="applyFilters()" style="flex: 1; min-width: 150px;">
+            <option value="all">ทุกประเภทการเบิก</option>
+            <option value="เบิกค่าใช้จ่าย">เบิกค่าใช้จ่าย</option>
+            <option value="เบิกล่วงหน้า">เบิกล่วงหน้า</option>
+          </select>
+
+          <select id="filter-name" class="form-control" onchange="applyFilters()" style="flex: 1; min-width: 120px;">
+            <option value="all">ทุกคน</option>
+          </select>
+        </div>
+        
+        <div style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
+          พบ <span id="filtered-count" style="color:var(--primary); font-weight:800;">0</span> รายการ
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="table-container">
+        <div id="table-loader" class="loading-spinner-wrapper">
+          <div class="spinner"></div>
+          <p style="font-weight:600; color:var(--text-muted)">กำลังโหลดข้อมูลจาก Google Sheet...</p>
+        </div>
+
+        <table id="data-table" style="display: none;">
+          <thead>
+            <tr>
+              <th width="12%">วัน เดือน ปี</th>
+              <th width="13%">เลขใบเบิก</th>
+              <th width="15%">รายชื่อพนักงาน</th>
+              <th width="20%">รายละเอียดงาน</th>
+              <th width="15%">ประเภทการเบิก</th>
+              <th width="13%">จำนวนเงิน</th>
+              <th width="12%" style="text-align: center;">แนบรูปใบเสร็จ</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Dynamic data will be generated here -->
+          </tbody>
+        </table>
+
+        <div id="table-empty" class="empty-state" style="display: none;">
+          <i data-lucide="inbox"></i>
+          <p style="font-weight:600;">ไม่พบข้อมูลบันทึกค่าใช้จ่าย</p>
+          <p style="font-size:0.85rem; color:var(--text-light); margin-top:0.25rem;">ลองป้อนข้อมูลรายการใหม่ หรือตรวจสอบการเชื่อมต่อ API</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // ==========================================
+    // CONFIGURATION & GLOBAL STATE
+    // ==========================================
+    const API_URL = "https://script.google.com/macros/s/AKfycbyjpsQlovTbo_DefKRxJeTreG14zsyK4Xg03iEwBtO-LCeMMJKrI1Z0A3aZ3qKxUS74ug/exec"; 
+    let expenseData = [];
+    let filteredData = [];
+    
+    // อ้างอิงตัวแปร Chart
+    let categoryChartInstance = null;
+    let trendChartInstance = null;
+
+    // ข้อมูลแนบไฟล์
+    let attachmentFile = {
+      base64: null,
+      name: null,
+      type: null
+    };
+
+    // ==========================================
+    // INITIALIZATION & DOMEVENTS
+    // ==========================================
+    document.addEventListener("DOMContentLoaded", () => {
+      // โหลดไอคอน
+      lucide.createIcons();
+      
+      // ตั้งค่าฟิลด์วันที่เบิกฟอร์มเริ่มต้นเป็น "วันนี้"
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById("input-date").value = today;
+
+      // จัดการตัวเลือกชื่อแบบ Custom
+      const nameSelect = document.getElementById("input-name");
+      const nameCustomInput = document.getElementById("input-name-custom");
+      nameSelect.addEventListener("change", () => {
+        if (nameSelect.value === "custom") {
+          nameCustomInput.style.display = "block";
+          nameCustomInput.required = true;
+          nameCustomInput.focus();
+        } else {
+          nameCustomInput.style.display = "none";
+          nameCustomInput.required = false;
+        }
+      });
+
+      // จัดการตัวเลือกรายละเอียดงานแบบ Custom (อื่นๆ)
+      const jobSelect = document.getElementById("input-job");
+      const jobCustomInput = document.getElementById("input-job-custom");
+      jobSelect.addEventListener("change", () => {
+        if (jobSelect.value === "custom") {
+          jobCustomInput.style.display = "block";
+          jobCustomInput.required = true;
+          jobCustomInput.focus();
+        } else {
+          jobCustomInput.style.display = "none";
+          jobCustomInput.required = false;
+        }
+      });
+
+      // ดึงข้อมูลการเบิกจ่ายทันทีเมื่อโหลดหน้าเว็บ
+      fetchData();
+    });
+
+    // ==========================================
+    // DATA FETCHING & SYNC
+    // ==========================================
+    async function fetchData() {
+      if (!API_URL) return;
+
+      showTableLoading(true);
+      document.getElementById("sync-status").style.display = "none";
+
+      try {
+        const response = await fetch(API_URL);
+        const result = await response.json();
+
+        if (result.status === "success") {
+          expenseData = result.data || [];
+          filteredData = [...expenseData];
+          
+          // เรียงลำดับข้อมูลตามวันที่ จากใหม่ไปเก่า
+          expenseData.sort((a, b) => new Date(b.date) - new Date(a.date));
+          filteredData = [...expenseData];
+
+          // อัปเดตรายชื่อผู้เบิกในตัวกรอง
+          populateNameFilter();
+
+          // แสดงผลข้อมูล
+          updateDashboard();
+          
+          document.getElementById("sync-status").style.display = "inline-flex";
+        } else {
+          throw new Error(result.message || "Failed to retrieve data.");
+        }
+      } catch (error) {
+        console.error(error);
+        Swal.fire({
+          title: "เกิดข้อผิดพลาดในการโหลดข้อมูล",
+          text: "โปรดตรวจสอบการเปิดแชร์ชีต หรือตรวจสอบว่า Apps Script Deploy เป็น Web App (Anyone) เรียบร้อยแล้ว\n\nรายละเอียด: " + error.message,
+          icon: "error",
+          confirmButtonText: "ตกลง"
+        });
+      } finally {
+        showTableLoading(false);
+      }
+    }
+
+    // ==========================================
+    // UI UPDATES & DOM MANIPULATIONS
+    // ==========================================
+    function showTableLoading(isLoading) {
+      const loader = document.getElementById("table-loader");
+      const table = document.getElementById("data-table");
+      const empty = document.getElementById("table-empty");
+
+      if (isLoading) {
+        loader.style.display = "flex";
+        table.style.display = "none";
+        empty.style.display = "none";
+      } else {
+        loader.style.display = "none";
+      }
+    }
+
+    // ดึงชื่อผู้เบิกที่ไม่ซ้ำกันเพื่อใส่ใน Dropdown ตัวกรอง
+    function populateNameFilter() {
+      const filterNameSelect = document.getElementById("filter-name");
+      
+      // ดึงรายชื่อที่ไม่ซ้ำกัน
+      const names = [...new Set(expenseData.map(item => item.name))].filter(Boolean);
+      
+      // ล้างตัวเลือกเดิมเก็บไว้เฉพาะ "ทุกคน"
+      filterNameSelect.innerHTML = '<option value="all">ทุกคน</option>';
+      
+      names.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        filterNameSelect.appendChild(option);
+      });
+    }
+
+    // ฟังก์ชันอัปเดตหน้า Dashboard ตัวเลขและกราฟ
+    function updateDashboard() {
+      const totalAmount = filteredData.reduce((sum, item) => sum + item.amount, 0);
+      
+      // คำนวณเงินคงคลังคงเหลือ (งบตั้งต้น 20,000 บาท)
+      const initialTreasury = 20000;
+      const remainingTreasury = initialTreasury - totalAmount;
+
+      // แสดงค่าเงินคงคลัง และเปลี่ยนสีเป็นสีแดงหากเงินเหลือน้อยกว่า 3,000 บาท
+      const statTreasuryElem = document.getElementById("stat-treasury");
+      statTreasuryElem.textContent = formatCurrency(remainingTreasury);
+      if (remainingTreasury < 3000) {
+        statTreasuryElem.style.color = "var(--accent-red)";
+      } else {
+        statTreasuryElem.style.color = "#0f172a";
+      }
+
+      // คำนวณค่าใช้จ่ายรายเดือนนี้ (คัดกรองเฉพาะ เดือนปัจจุบัน ในปีปัจจุบัน)
+      const currentYearMonth = new Date().toISOString().substring(0, 7); // YYYY-MM
+      const monthlyAmount = filteredData
+        .filter(item => item.date && item.date.substring(0, 7) === currentYearMonth)
+        .reduce((sum, item) => sum + item.amount, 0);
+
+      // ค้นหาผู้เบิกเงินสูงสุด
+      const spenderMap = {};
+      filteredData.forEach(item => {
+        if (item.name) {
+          spenderMap[item.name] = (spenderMap[item.name] || 0) + item.amount;
+        }
+      });
+      let topSpender = "-";
+      let maxSpend = 0;
+      for (const name in spenderMap) {
+        if (spenderMap[name] > maxSpend) {
+          maxSpend = spenderMap[name];
+          topSpender = name;
+        }
+      }
+      
+      // แสดงตัวเลข
+      document.getElementById("stat-total").textContent = formatCurrency(totalAmount);
+      document.getElementById("stat-spender").textContent = topSpender !== "-" ? `${topSpender} (${formatCurrency(maxSpend)})` : "-";
+      document.getElementById("stat-count").textContent = `${filteredData.length} รายการ`;
+      document.getElementById("filtered-count").textContent = filteredData.length;
+
+      // เรนเดอร์ตารางข้อมูล
+      renderTable();
+
+      // เรนเดอร์กราฟ
+      renderCharts();
+    }
+
+    // เรนเดอร์ตารางประวัติ
+    function renderTable() {
+      const tableBody = document.getElementById("table-body");
+      const table = document.getElementById("data-table");
+      const empty = document.getElementById("table-empty");
+
+      tableBody.innerHTML = "";
+
+      if (filteredData.length === 0) {
+        table.style.display = "none";
+        empty.style.display = "block";
+        return;
+      }
+
+      table.style.display = "table";
+      empty.style.display = "none";
+
+      filteredData.forEach(item => {
+        const row = document.createElement("tr");
+
+        // Format Date for Thai
+        const formattedDate = formatThaiDate(item.date);
+
+        // Badge สำหรับประเภทการเบิก
+        let categoryBadgeClass = "badge-primary";
+        if (item.type === "เบิกค่าใช้จ่าย") categoryBadgeClass = "badge-success";
+        else if (item.type === "เบิกล่วงหน้า") categoryBadgeClass = "badge-yellow";
+
+        // ลิงก์ใบเสร็จ
+        let fileLinkHtml = `<span style="color:var(--text-light); font-size:0.85rem">ไม่มีหลักฐาน</span>`;
+        if (item.fileUrl) {
+          fileLinkHtml = `<a href="${item.fileUrl}" target="_blank" class="btn-receipt">
+            <i data-lucide="eye" style="width:14px; height:14px;"></i> ดูใบเสร็จ
+          </a>`;
+        }
+
+        row.innerHTML = `
+          <td>${formattedDate}</td>
+          <td><span style="font-weight: 700; color: #1e1b4b;">${item.withdrawalNo || '-'}</span></td>
+          <td>${item.name}</td>
+          <td>${item.job || '-'}</td>
+          <td><span class="badge ${categoryBadgeClass}">${item.type}</span></td>
+          <td class="text-amount" style="color: #0f172a;">${formatCurrency(item.amount)}</td>
+          <td align="center">${fileLinkHtml}</td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+
+      // โหลดไอคอนใหม่สำหรับตาราง
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // FILTER LOGIC
+    // ==========================================
+    function applyFilters() {
+      const searchVal = document.getElementById("search-input").value.toLowerCase();
+      const typeVal = document.getElementById("filter-type").value; // รายละเอียดงาน
+      const withdrawalVal = document.getElementById("filter-withdrawal").value; // ประเภทการเบิก
+      const nameVal = document.getElementById("filter-name").value; // รายชื่อพนักงาน
+
+      filteredData = expenseData.filter(item => {
+        // ค้นหาข้อความ (พนักงาน, งาน, เลขใบเบิก)
+        const matchesSearch = 
+          (item.name && item.name.toLowerCase().includes(searchVal)) ||
+          (item.job && item.job.toLowerCase().includes(searchVal)) ||
+          (item.withdrawalNo && item.withdrawalNo.toLowerCase().includes(searchVal));
+
+        // คัดกรองรายละเอียดงาน
+        const matchesType = typeVal === "all" || item.job === typeVal;
+
+        // คัดกรองประเภทการเบิก
+        const matchesWithdrawal = withdrawalVal === "all" || item.type === withdrawalVal;
+
+        // คัดกรองชื่อพนักงาน
+        const matchesName = nameVal === "all" || item.name === nameVal;
+
+        return matchesSearch && matchesType && matchesWithdrawal && matchesName;
+      });
+
+      updateDashboard();
+    }
+
+    // ==========================================
+    // CHART.JS INTEGRATION
+    // ==========================================
+    function renderCharts() {
+      // 1. กราฟวงกลม: สัดส่วนค่าใช้จ่ายตามหมวดหมู่
+      const categoryTotals = {};
+      filteredData.forEach(item => {
+        const cat = item.job || "อื่นๆ";
+        categoryTotals[cat] = (categoryTotals[cat] || 0) + item.amount;
+      });
+
+      const catLabels = Object.keys(categoryTotals);
+      const catData = Object.values(categoryTotals);
+
+      if (categoryChartInstance) {
+        categoryChartInstance.destroy();
+      }
+
+      const ctxCat = document.getElementById('categoryChart').getContext('2d');
+      categoryChartInstance = new Chart(ctxCat, {
+        type: 'doughnut',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            data: catData,
+            backgroundColor: [
+              'rgba(79, 70, 229, 0.75)',  // primary
+              'rgba(59, 130, 246, 0.75)', // blue
+              'rgba(16, 185, 129, 0.75)', // success/green
+              'rgba(245, 158, 11, 0.75)',  // yellow/orange
+              'rgba(239, 68, 68, 0.75)',  // danger/red
+              'rgba(148, 163, 184, 0.75)' // grey
+            ],
+            borderColor: 'rgba(255, 255, 255, 0.6)',
+            borderWidth: 1.5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                boxWidth: 12,
+                font: { family: 'Noto Sans Thai, sans-serif', size: 11 },
+                color: '#1e293b'
+              }
+            }
+          }
+        }
+      });
+
+    }
+
+    // ==========================================
+    // FILE HANDLERS
+    // ==========================================
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const container = document.getElementById("file-preview-container");
+      const previewName = document.getElementById("file-preview-name");
+      const previewImg = document.getElementById("file-preview-img");
+      const previewIcon = document.getElementById("file-preview-icon");
+
+      previewName.textContent = file.name;
+      attachmentFile.name = file.name;
+      attachmentFile.type = file.type;
+
+      // อ่านเป็น Base64
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        attachmentFile.base64 = e.target.result;
+
+        // แสดงผล Preview ตามประเภทไฟล์
+        if (file.type.startsWith("image/")) {
+          previewImg.src = e.target.result;
+          previewImg.style.display = "block";
+          previewIcon.style.display = "none";
+        } else {
+          previewImg.style.display = "none";
+          previewIcon.style.display = "block";
+        }
+        
+        container.style.display = "flex";
+        lucide.createIcons();
+      };
+      
+      reader.readAsDataURL(file);
+    }
+
+    function removeFile() {
+      document.getElementById("input-file").value = "";
+      document.getElementById("file-preview-container").style.display = "none";
+      attachmentFile = { base64: null, name: null, type: null };
+    }
+
+    // ==========================================
+    // FORM SUBMISSION (CREATE EXPENSE)
+    // ==========================================
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+
+      if (!API_URL) {
+        Swal.fire("ผิดพลาด", "กรุณาตั้งค่า API URL ก่อนบันทึกข้อมูล", "error");
+        return;
+      }
+
+      // ดึงชื่อผู้เบิก (รายชื่อพนักงาน)
+      const nameSelect = document.getElementById("input-name");
+      let nameValue = nameSelect.value;
+      if (nameValue === "custom") {
+        nameValue = document.getElementById("input-name-custom").value.trim();
+        if (!nameValue) {
+          Swal.fire("ผิดพลาด", "กรุณากรอกชื่อพนักงานท่านใหม่", "warning");
+          return;
+        }
+      }
+
+      // ดึงรายละเอียดงาน
+      const jobSelect = document.getElementById("input-job");
+      let jobValue = jobSelect.value;
+      if (jobValue === "custom") {
+        jobValue = document.getElementById("input-job-custom").value.trim();
+        if (!jobValue) {
+          Swal.fire("ผิดพลาด", "กรุณาระบุรายละเอียดงานอื่นๆ", "warning");
+          return;
+        }
+      }
+
+      // ตรวจสอบความถูกต้องของการแนบรูปใบเสร็จ (บังคับแนบ *)
+      if (!attachmentFile.base64) {
+        Swal.fire("กรุณาแนบใบเสร็จ", "จำเป็นต้องอัปโหลดรูปภาพใบเสร็จเพื่อเบิกจ่าย", "warning");
+        return;
+      }
+
+      const dateVal = document.getElementById("input-date").value;
+      const typeVal = document.getElementById("input-type").value;
+      const amountVal = document.getElementById("input-amount").value;
+      const withdrawalNoVal = document.getElementById("input-withdrawal-no").value.trim();
+
+      const payload = {
+        date: dateVal,
+        name: nameValue,
+        job: jobValue,
+        type: typeVal,
+        amount: parseFloat(amountVal),
+        withdrawalNo: withdrawalNoVal,
+        fileData: attachmentFile.base64,
+        fileName: attachmentFile.name,
+        fileType: attachmentFile.type
+      };
+
+      // แสดง Popup กำลังบันทึก
+      Swal.fire({
+        title: "กำลังบันทึกข้อมูล...",
+        text: "ระบบกำลังส่งข้อมูลไปยัง Google Sheets และอัปโหลดไฟล์ใบเสร็จ",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          }
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+          Swal.fire({
+            title: "สำเร็จ!",
+            text: "บันทึกรายงานค่าใช้จ่ายเรียบร้อยแล้ว",
+            icon: "success",
+            confirmButtonText: "ตกลง"
+          });
+
+          // รีเซ็ตแบบฟอร์ม
+          document.getElementById("expense-form").reset();
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById("input-date").value = today;
+          document.getElementById("input-name-custom").style.display = "none";
+          document.getElementById("input-job-custom").style.display = "none";
+          removeFile();
+
+          // โหลดข้อมูลล่าสุดมาแสดงผลใหม่
+          fetchData();
+        } else {
+          throw new Error(result.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+        }
+      } catch (error) {
+        console.error(error);
+        Swal.fire({
+          title: "เกิดข้อผิดพลาดในการบันทึก",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "ตกลง"
+        });
+      }
+    }
+
+    // ==========================================
+    // UTILITY FUNCTIONS
+    // ==========================================
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('th-TH', {
+        style: 'currency',
+        currency: 'THB'
+      }).format(amount);
+    }
+
+    function formatThaiDate(dateString) {
+      if (!dateString) return "-";
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString; // ถ้าแปลงไม่ได้ ให้ใช้ตัวอักษรเดิม
+        
+        const day = date.getDate();
+        const months = [
+          "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+          "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."
+        ];
+        const month = months[date.getMonth()];
+        const year = date.getFullYear() + 543; // แปลง พ.ศ.
+        return `${day} ${month} ${year.toString().slice(-2)}`;
+      } catch(e) {
+        return dateString;
+      }
+    }
+  </script>
+</body>
+</html>
