@@ -123,44 +123,11 @@
         <!-- Main Workspace -->
         <main class="flex-1 flex flex-col gap-4 sm:gap-5 overflow-hidden">
             
-            <!-- KPI Counters & Filter Status Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
-                <!-- KPI Card 1: Total rows -->
-                <div class="bg-white/45 backdrop-blur-md border border-white/50 rounded-3xl p-4 sm:p-5 flex items-center gap-4 shadow-glass hover:shadow-glass-lg hover:-translate-y-0.5 transition-all duration-300">
-                    <div class="bg-blue-500/10 text-blue-600 p-3.5 rounded-2xl">
-                        <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                    </div>
-                    <div>
-                        <p class="text-xs sm:text-sm font-semibold text-slate-500">จำนวนที่แสดงตามตัวกรอง</p>
-                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-1 font-mono"><span id="rowCount">0</span> <span class="text-sm font-normal text-slate-500">รายการ</span></h3>
-                    </div>
-                </div>
-
-                <!-- KPI Card 2: Last updated -->
-                <div class="bg-white/45 backdrop-blur-md border border-white/50 rounded-3xl p-4 sm:p-5 flex items-center gap-4 shadow-glass hover:shadow-glass-lg hover:-translate-y-0.5 transition-all duration-300">
-                    <div class="bg-indigo-500/10 text-indigo-600 p-3.5 rounded-2xl">
-                        <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div>
-                        <p class="text-xs sm:text-sm font-semibold text-slate-500">อัปเดตล่าสุด</p>
-                        <h3 id="lastUpdated" class="text-xl sm:text-2xl font-bold text-slate-800 mt-1.5 font-mono">-</h3>
-                    </div>
-                </div>
-
-                <!-- KPI Card 3: Interactive Filter Control Card -->
-                <div class="bg-white/45 backdrop-blur-md border border-white/50 rounded-3xl p-4 sm:p-5 flex items-center gap-4 shadow-glass hover:shadow-glass-lg hover:-translate-y-0.5 transition-all duration-300">
-                    <div class="bg-pink-500/10 text-pink-600 p-3.5 rounded-2xl">
-                        <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-xs sm:text-sm font-semibold text-slate-500">สถานะตัวกรอง</p>
-                        <div class="mt-1.5 flex items-center gap-1.5">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/80 shadow-sm" id="statusBadgeText">
-                                แสดงข้อมูลทั้งหมด
-                            </span>
-                        </div>
-                    </div>
-                </div>
+            <!-- Hidden elements for JS references to prevent breaking functionality -->
+            <div class="hidden">
+                <span id="rowCount">0</span>
+                <span id="lastUpdated">-</span>
+                <span id="statusBadgeText">แสดงข้อมูลทั้งหมด</span>
             </div>
 
             <!-- Search and Filter Control Center -->
