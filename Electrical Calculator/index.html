@@ -40,20 +40,14 @@
         }
 
         /* ===========================
-           GRADIENT BACKGROUND: ฟ้า → เหลือง → แดง
+           GRADIENT BACKGROUND: #E5FFFF → #FFFFE6 → #FFE6FF
+           (Modern pastel color scheme)
         =========================== */
         .bg-hero {
             background: linear-gradient(135deg,
-                #0ea5e9 0%,
-                #0284c7 10%,
-                #0369a1 18%,
-                #1e40af 26%,
-                #2563eb 34%,
-                #f59e0b 54%,
-                #d97706 62%,
-                #ef4444 76%,
-                #dc2626 88%,
-                #b91c1c 100%
+                #E5FFFF 0%,
+                #FFFFE6 50%,
+                #FFE6FF 100%
             );
         }
 
@@ -65,23 +59,23 @@
            GLASSMORPHISM CARDS
         =========================== */
         .glass {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.45);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.15),
-                0 2px 8px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+                0 8px 32px rgba(31, 38, 135, 0.04),
+                0 2px 8px rgba(31, 38, 135, 0.02),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
             transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .glass:hover {
-            background: rgba(255, 255, 255, 0.17);
+            background: rgba(255, 255, 255, 0.6);
             box-shadow:
-                0 16px 48px rgba(0, 0, 0, 0.2),
-                0 4px 16px rgba(0, 0, 0, 0.12),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+                0 16px 48px rgba(31, 38, 135, 0.08),
+                0 4px 16px rgba(31, 38, 135, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
             transform: translateY(-2px);
         }
 
@@ -104,11 +98,11 @@
 
         /* Static glass (no hover lift) */
         .glass-static {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.04);
         }
         .dark .glass-static {
             background: rgba(15, 23, 42, 0.6);
@@ -121,10 +115,10 @@
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(15, 23, 42, 0.15);
             border-radius: 99px;
         }
-        .dark ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.5); }
+        .dark ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
 
         /* ===========================
            TAB CONTENT TRANSITIONS
@@ -136,8 +130,8 @@
            INPUT FIELD STYLING
         =========================== */
         .input-field {
-            background: rgba(255, 255, 255, 0.10);
-            border: 1.5px solid rgba(255, 255, 255, 0.20);
+            background: rgba(255, 255, 255, 0.45);
+            border: 1.5px solid rgba(255, 255, 255, 0.55);
             backdrop-filter: blur(8px);
             color: inherit;
             border-radius: 1rem;
@@ -149,11 +143,11 @@
             transition: all 0.25s ease;
             outline: none;
         }
-        .input-field::placeholder { color: rgba(255,255,255,0.4); font-family: 'Sarabun', sans-serif; font-weight: 400; }
+        .input-field::placeholder { color: rgba(71, 85, 105, 0.5); font-family: 'Sarabun', sans-serif; font-weight: 400; }
         .input-field:focus {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15), 0 4px 16px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.7);
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), 0 4px 16px rgba(0,0,0,0.05);
         }
         .dark .input-field {
             background: rgba(15, 23, 42, 0.5);
@@ -167,20 +161,20 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
         .dark .input-field[readonly] { background: rgba(15,23,42,0.35); color: rgba(148,163,184,0.7); cursor: not-allowed; }
-        .input-field[readonly] { background: rgba(0,0,0,0.08); cursor: not-allowed; color: rgba(255,255,255,0.5); }
+        .input-field[readonly] { background: rgba(0,0,0,0.04); cursor: not-allowed; color: rgba(71, 85, 105, 0.7); }
 
         /* Input wrapper card */
         .input-card {
-            background: rgba(255,255,255,0.08);
-            border: 1.5px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.3);
+            border: 1.5px solid rgba(255,255,255,0.4);
             border-radius: 1.25rem;
             padding: 1rem 1.25rem;
             transition: all 0.25s ease;
         }
         .input-card:focus-within {
-            background: rgba(255,255,255,0.14);
-            border-color: rgba(255,255,255,0.35);
-            box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.5);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.05);
         }
         .dark .input-card { background: rgba(15,23,42,0.45); border-color: rgba(255,255,255,0.07); }
         .dark .input-card:focus-within { background: rgba(15,23,42,0.65); border-color: rgba(96,165,250,0.4); }
@@ -215,11 +209,11 @@
             display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
             font-family: 'Sarabun', sans-serif; font-weight: 600; font-size: 0.9rem;
             padding: 0.875rem 1.25rem; border-radius: 1rem; cursor: pointer;
-            background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85);
-            border: 1.5px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.3); color: #334155;
+            border: 1.5px solid rgba(255,255,255,0.45);
             transition: all 0.25s ease;
         }
-        .btn-ghost:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.35); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.45); border-color: rgba(255,255,255,0.6); }
         .dark .btn-ghost { background: rgba(15,23,42,0.5); color: #94a3b8; border-color: rgba(255,255,255,0.08); }
         .dark .btn-ghost:hover { background: rgba(30,41,59,0.8); color: #e2e8f0; }
 
@@ -231,8 +225,8 @@
             display: flex;
             padding: 5px;
             border-radius: 1.25rem;
-            background: rgba(255,255,255,0.12);
-            border: 1.5px solid rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.35);
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
             backdrop-filter: blur(12px);
         }
         .dark .tab-rail {
@@ -243,8 +237,8 @@
             position: absolute;
             top: 5px; bottom: 5px;
             border-radius: 1rem;
-            background: rgba(255,255,255,0.9);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 16px rgba(31, 38, 135, 0.05);
             transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
             z-index: 0;
         }
@@ -256,10 +250,10 @@
             border: none; background: transparent; cursor: pointer;
             transition: color 0.3s ease; font-family: 'Sarabun', sans-serif;
             letter-spacing: 0.01em;
-            color: rgba(255,255,255,0.6);
+            color: #475569;
         }
         .tab-btn.active-elec { color: #1d4ed8; }
-        .tab-btn.active-laser { color: #dc2626; }
+        .tab-btn.active-laser { color: #ea580c; }
         .dark .tab-btn { color: rgba(148,163,184,0.8); }
         .dark .tab-btn.active-elec { color: #93c5fd; }
         .dark .tab-btn.active-laser { color: #fca5a5; }
@@ -269,13 +263,13 @@
         =========================== */
         .result-row {
             display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.4);
             border-radius: 1rem; padding: 0.75rem 1rem;
             transition: all 0.2s ease;
         }
         .result-row:hover {
-            background: rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.4);
             transform: translateX(2px);
         }
         .dark .result-row { background: rgba(15,23,42,0.4); border-color: rgba(255,255,255,0.06); }
@@ -288,14 +282,14 @@
             position: relative;
             padding: 0.75rem 1rem;
             border-radius: 1rem;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
             cursor: pointer; transition: all 0.2s ease;
             display: flex; flex-direction: column; gap: 0.375rem;
         }
         .history-card:hover {
-            background: rgba(255,255,255,0.14);
-            border-color: rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.35);
+            border-color: rgba(255,255,255,0.45);
         }
         .dark .history-card { background: rgba(15,23,42,0.4); border-color: rgba(255,255,255,0.06); }
         .dark .history-card:hover { background: rgba(30,41,59,0.65); }
@@ -309,11 +303,17 @@
             border-radius: 9999px; font-weight: 700; font-size: 0.7rem;
             letter-spacing: 0.04em; text-transform: uppercase;
         }
-        .badge-blue { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
-        .badge-orange { background: rgba(249,115,22,0.2); color: #fdba74; border: 1px solid rgba(249,115,22,0.3); }
-        .badge-emerald { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
-        .badge-pink { background: rgba(236,72,153,0.2); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.3); }
-        .badge-purple { background: rgba(139,92,246,0.2); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
+        .badge-blue { background: rgba(59,130,246,0.15); color: #2563eb; border: 1px solid rgba(59,130,246,0.3); }
+        .badge-orange { background: rgba(249,115,22,0.15); color: #ea580c; border: 1px solid rgba(249,115,22,0.3); }
+        .badge-emerald { background: rgba(16,185,129,0.15); color: #059669; border: 1px solid rgba(16,185,129,0.3); }
+        .badge-pink { background: rgba(236,72,153,0.15); color: #db2777; border: 1px solid rgba(236,72,153,0.3); }
+        .badge-purple { background: rgba(139,92,246,0.15); color: #7c3aed; border: 1px solid rgba(139,92,246,0.3); }
+
+        .dark .badge-blue { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+        .dark .badge-orange { background: rgba(249,115,22,0.2); color: #fdba74; border: 1px solid rgba(249,115,22,0.3); }
+        .dark .badge-emerald { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+        .dark .badge-pink { background: rgba(236,72,153,0.2); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.3); }
+        .dark .badge-purple { background: rgba(139,92,246,0.2); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
 
         /* ===========================
            GLOW ORBS
@@ -357,15 +357,15 @@
         =========================== */
         .stat-card {
             border-radius: 1.5rem; padding: 1.25rem 1.5rem;
-            background: rgba(255,255,255,0.1);
-            border: 1.5px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.35);
+            border: 1.5px solid rgba(255,255,255,0.45);
             backdrop-filter: blur(16px);
             transition: all 0.3s ease;
         }
         .stat-card:hover {
-            background: rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.5);
             transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 32px rgba(31,38,135,0.06);
         }
         .dark .stat-card { background: rgba(15,23,42,0.5); border-color: rgba(255,255,255,0.07); }
 
@@ -373,12 +373,12 @@
            FORMULA BOX
         =========================== */
         .formula-box {
-            background: rgba(0,0,0,0.12);
-            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(15, 23, 42, 0.05);
+            border: 1px solid rgba(15, 23, 42, 0.08);
             border-radius: 1rem; padding: 1rem;
             font-family: 'JetBrains Mono', monospace;
         }
-        .dark .formula-box { background: rgba(0,0,0,0.3); }
+        .dark .formula-box { background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.15); }
 
         /* ===========================
            THEME TOGGLE
@@ -386,30 +386,39 @@
         .theme-toggle {
             width: 2.5rem; height: 2.5rem; border-radius: 0.75rem;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25);
-            cursor: pointer; transition: all 0.25s ease; color: white;
+            background: rgba(255, 255, 255, 0.4); border: 1.5px solid rgba(255, 255, 255, 0.45);
+            cursor: pointer; transition: all 0.25s ease; color: #1e293b;
         }
-        .theme-toggle:hover { background: rgba(255,255,255,0.25); transform: rotate(15deg); }
-        .dark .theme-toggle { background: rgba(15,23,42,0.6); border-color: rgba(255,255,255,0.08); }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.65); transform: rotate(15deg); }
+        .dark .theme-toggle { background: rgba(15, 23, 42, 0.6); border-color: rgba(255, 255, 255, 0.08); color: white; }
 
         /* ===========================
            LABEL COLOR ACCENTS
         =========================== */
-        .label-v { color: #93c5fd; } /* blue-300 */
-        .label-i { color: #6ee7b7; } /* emerald-300 */
-        .label-r { color: #fdba74; } /* orange-300 */
-        .label-p { color: #f9a8d4; } /* pink-300 */
-        .label-s { color: #c4b5fd; } /* purple-300 */
-        .label-e { color: #93c5fd; }
-        .label-d { color: #fdba74; }
-        .label-f { color: #6ee7b7; }
+        .label-v { color: #2563eb; }
+        .label-i { color: #059669; }
+        .label-r { color: #d97706; }
+        .label-p { color: #db2777; }
+        .label-s { color: #7c3aed; }
+        .label-e { color: #2563eb; }
+        .label-d { color: #d97706; }
+        .label-f { color: #059669; }
+
+        .dark .label-v { color: #93c5fd; }
+        .dark .label-i { color: #6ee7b7; }
+        .dark .label-r { color: #fdba74; }
+        .dark .label-p { color: #f9a8d4; }
+        .dark .label-s { color: #c4b5fd; }
+        .dark .label-e { color: #93c5fd; }
+        .dark .label-d { color: #fdba74; }
+        .dark .label-f { color: #6ee7b7; }
 
         /* ===========================
            SECTION DIVIDER
         =========================== */
         .divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.08), transparent);
             margin: 1.5rem 0;
         }
         .dark .divider { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); }
@@ -423,23 +432,79 @@
         .icon-wrap {
             width: 2.5rem; height: 2.5rem; border-radius: 0.75rem;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.15); flex-shrink: 0;
+            background: rgba(255,255,255,0.3); flex-shrink: 0;
         }
+        .dark .icon-wrap { background: rgba(255,255,255,0.15); }
+        
         .icon-wrap-lg {
             width: 3.5rem; height: 3.5rem; border-radius: 1rem;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
+
+        /* ===========================
+           INTERACTIVE DIAGRAM ADJUSTMENTS
+        =========================== */
+        svg polygon {
+            fill: rgba(0, 0, 0, 0.02) !important;
+            stroke: rgba(0, 0, 0, 0.12) !important;
+            transition: all 0.3s ease;
+        }
+        svg line {
+            stroke: rgba(0, 0, 0, 0.08) !important;
+            transition: all 0.3s ease;
+        }
+        svg rect {
+            fill: rgba(0, 0, 0, 0.03) !important;
+            stroke: rgba(0, 0, 0, 0.08) !important;
+            transition: all 0.3s ease;
+        }
+        svg line[stroke-dasharray] {
+            stroke: rgba(0, 0, 0, 0.25) !important;
+        }
+        svg text {
+            fill: rgba(30, 41, 59, 0.7) !important;
+        }
+        
+        /* Dark theme overrides for SVG */
+        .dark svg polygon {
+            fill: rgba(255, 255, 255, 0.04) !important;
+            stroke: rgba(255, 255, 255, 0.2) !important;
+        }
+        .dark svg line {
+            stroke: rgba(255, 255, 255, 0.15) !important;
+        }
+        .dark svg rect {
+            fill: rgba(255, 255, 255, 0.07) !important;
+            stroke: rgba(255, 255, 255, 0.1) !important;
+        }
+        .dark svg line[stroke-dasharray] {
+            stroke: rgba(255, 255, 255, 0.3) !important;
+        }
+        .dark svg text {
+            fill: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        /* Color-mapped label texts in SVG */
+        svg text[fill="#93c5fd"] { fill: #1d4ed8 !important; }
+        svg text[fill="#6ee7b7"] { fill: #047857 !important; }
+        svg text[fill="#fdba74"] { fill: #c2410c !important; }
+        svg text[fill="#fca5a5"] { fill: #b91c1c !important; }
+        
+        .dark svg text[fill="#93c5fd"] { fill: #93c5fd !important; }
+        .dark svg text[fill="#6ee7b7"] { fill: #6ee7b7 !important; }
+        .dark svg text[fill="#fdba74"] { fill: #fdba74 !important; }
+        .dark svg text[fill="#fca5a5"] { fill: #fca5a5 !important; }
     </style>
 </head>
 
 <!-- ==================== BODY ==================== -->
-<body class="text-white min-h-screen">
+<body class="text-slate-800 dark:text-slate-100 min-h-screen">
 
     <!-- Gradient Background Layer -->
     <div class="fixed inset-0 bg-hero opacity-90 dark:opacity-80 -z-10"></div>
     <!-- Dark overlay for dark mode -->
-    <div class="fixed inset-0 bg-slate-900/50 opacity-0 dark:opacity-60 -z-10 transition-opacity duration-500"></div>
+    <div class="fixed inset-0 bg-slate-900/80 opacity-0 dark:opacity-85 -z-10 transition-opacity duration-500"></div>
 
     <!-- Decorative Orbs -->
     <div class="orb w-96 h-96 top-[-80px] left-[-80px]"
@@ -470,8 +535,18 @@
                 </div>
             </div>
 
-            <!-- Header Right: Status Badge -->
-            <div class="flex items-center self-end sm:self-center">
+            <!-- Header Right: Status Badge & Theme Toggle -->
+            <div class="flex items-center gap-3 self-end sm:self-center">
+                <button onclick="toggleTheme()" class="theme-toggle" title="เปลี่ยนธีม">
+                    <!-- Sun icon -->
+                    <svg id="theme-sun" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                    </svg>
+                    <!-- Moon icon -->
+                    <svg id="theme-moon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
                 <div class="glass-static rounded-full px-4 py-2 flex items-center gap-2 text-xs font-semibold">
                     <span class="pulse-dot bg-emerald-400 shadow-sm shadow-emerald-400"></span>
                     <span class="opacity-90">ระบบพร้อมใช้งาน</span>
