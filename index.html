@@ -289,8 +289,8 @@
                                 <i data-lucide="wallet" class="w-6 h-6"></i>
                             </div>
                             <div>
-                                <div id="ov-expenses-amount" class="text-xl font-black font-en leading-tight">-</div>
-                                <div class="text-xs font-semibold text-slate-400">ค่าใช้จ่ายเดือนนี้</div>
+                                <div id="ov-expenses-remaining" class="text-xl font-black font-en leading-tight">-</div>
+                                <div class="text-xs font-semibold text-slate-400">เงินคงเหลือ</div>
                             </div>
                         </div>
 
@@ -1483,8 +1483,9 @@
                     document.getElementById('ov-debtor-count').innerText = ARServiceModule.rows.length.toLocaleString();
                 }
                 if (ExpensesModule.records.length > 0) {
-                    const monthlyAmount = ExpensesModule.records.reduce((sum, item) => sum + item.amount, 0);
-                    document.getElementById('ov-expenses-amount').innerText = App.formatCurrency(monthlyAmount);
+                    const totalExpense = ExpensesModule.records.reduce((sum, item) => sum + item.amount, 0);
+                    const remaining = ExpensesModule.initialTreasury - totalExpense;
+                    document.getElementById('ov-expenses-remaining').innerText = App.formatCurrency(remaining);
                 }
                 if (HolidayWorkModule.records.length > 0) {
                     document.getElementById('ov-holiday-shifts').innerText = HolidayWorkModule.records.length.toLocaleString();
