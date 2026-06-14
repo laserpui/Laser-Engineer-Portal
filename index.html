@@ -1082,6 +1082,7 @@
                                             <th class="px-4 py-3 font-bold" style="width: 160px;">วันทำงานวันหยุด</th>
                                             <th class="px-4 py-3 font-bold" style="width: 180px;">รายชื่อพนักงาน</th>
                                             <th class="px-4 py-3 font-bold">รายละเอียดงาน</th>
+                                            <th class="px-4 py-3 font-bold text-center" style="width: 80px;">จัดการ</th>
                                         </tr>
                                     </thead>
                                     <tbody id="holiday-table-body" class="divide-y divide-slate-300/20 bg-white/10"></tbody>
@@ -3435,17 +3436,13 @@
         // 8. HOLIDAY WORK REPORT MODULE
         // ============================================
         const HolidayWorkModule = {
-            apiUrl: 'https://script.google.com/macros/s/AKfycbz2CC067TIsLSyk-_MMSKBC2Nrlsib2KOw8giy0V88kOb293JKAGlK4Ss7-8nunDOH7/exec',
+            apiUrl: 'https://script.google.com/macros/s/AKfycbxBahh1bmw1CLlYHVCQ8D9W7d-MuN93K6bECzfagooC1PmCwHRVF4XH5W45NAicfuby/exec',
             records: [],
             filteredData: [],
 
             init() {
                 // Populate selections
-                const employeeSelect = document.getElementById('holiday-form-employee');
-                employeeSelect.innerHTML = '<option value="" disabled selected>-- เลือกรายชื่อพนักงาน --</option>';
-                App.employees.forEach(emp => {
-                    employeeSelect.add(new Option(emp, emp));
-                });
+                this.populateEmployeeDropdown();
 
                 // Default date
                 document.getElementById('holiday-form-date').value = new Date().toISOString().split('T')[0];
@@ -3455,6 +3452,20 @@
                 document.getElementById('holiday-table-search').addEventListener('input', () => this.applyFilters());
                 document.getElementById('holiday-filter-start-date').addEventListener('change', () => this.applyFilters());
                 document.getElementById('holiday-filter-end-date').addEventListener('change', () => this.applyFilters());
+
+                // Delete Button Event Delegation
+                document.getElementById('holiday-table-body').addEventListener('click', async (e) => {
+                    const btn = e.target.closest('.btn-delete-holiday');
+                    if (!btn) return;
+                    
+                    const date = btn.dataset.date;
+                    const employee = btn.dataset.employee;
+                    const details = btn.dataset.details;
+                    const rowNumber = parseInt(btn.dataset.rowNumber, 10);
+                    
+                    const tr = btn.closest('tr');
+                    await this.handleDeleteRecord({ date, employee, details, rowNumber }, tr);
+                });
 
                 this.loadData();
             },
@@ -3477,6 +3488,14 @@
                         // Sort by date descending
                         this.records.sort((a,b) => new Date(b.date) - new Date(a.date));
                         this.filteredData = [...this.records];
+                        
+                        // Populate employee dropdown dynamically
+                        if (result.employees) {
+                            this.populateEmployeeDropdown(result.employees);
+                        } else {
+                            this.populateEmployeeDropdown([]);
+                        }
+                        
                         this.updateDashboard();
                     } else {
                         throw new Error(result.message || 'Apps Script returned error');
@@ -3484,6 +3503,7 @@
                 } catch(e) {
                     console.error("Holiday work load error:", e);
                     loader.classList.add('hidden');
+                    this.populateEmployeeDropdown([]); // fallback
                     Swal.fire({
                         icon: 'error',
                         title: 'ดึงรายงานทำงานวันหยุดขัดข้อง',
@@ -3529,15 +3549,27 @@
                 empty.classList.add('hidden');
 
                 tbody.innerHTML = this.filteredData.map(item => {
+                    const rowNumber = item.rowNumber || '';
                     return `
-                        <tr class="even:bg-white/10 hover:bg-white/30 transition-all">
+                        <tr class="even:bg-white/10 hover:bg-white/30 transition-all border-b border-slate-300/10" data-row-number="${rowNumber}">
                             <td class="px-4 py-3 font-semibold text-slate-500 whitespace-nowrap">${App.formatThaiDate(item.date)}</td>
                             <td class="px-4 py-3 font-bold text-slate-700 whitespace-nowrap">${item.employee}</td>
-                            <td class="px-4 py-3 text-slate-600 font-medium whitespace-pre-wrap">${item.details}</td>
+                            <td class="px-4 py-3 text-slate-600 font-medium whitespace-pre-wrap">${this.escapeHtml(item.details)}</td>
+                            <td class="px-4 py-3 text-center whitespace-nowrap">
+                                <button class="btn-delete-holiday text-red-500 hover:text-red-700 hover:scale-110 active:scale-95 transition-all p-1 inline-flex items-center justify-center" 
+                                        data-date="${item.date}" 
+                                        data-employee="${item.employee}" 
+                                        data-details="${this.escapeHtml(item.details)}" 
+                                        data-row-number="${rowNumber}" 
+                                        title="ลบข้อมูล">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </td>
                         </tr>
                     `;
                 }).join('');
 
+                lucide.createIcons();
                 this.setupDragScroll();
             },
 
@@ -3584,14 +3616,14 @@
                 container.innerHTML = recent.map(r => {
                     const initial = r.employee.charAt(0);
                     return `
-                        <div class="flex gap-3 items-start border-b border-slate-350/20 pb-2.5 last:border-0 last:pb-0">
+                        <div class="flex gap-3 items-start border-b border-slate-300/20 pb-2.5 last:border-0 last:pb-0">
                             <div class="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 font-bold flex items-center justify-center shrink-0 text-xs">${initial}</div>
                             <div class="flex-grow space-y-0.5 text-xs truncate">
                                 <div class="flex justify-between font-bold">
                                     <span class="text-slate-700">${r.employee}</span>
                                     <span class="text-slate-400 text-[10px] font-en">${App.formatThaiDate(r.date)}</span>
                                 </div>
-                                <div class="text-slate-500 truncate font-semibold" title="${r.details}">${r.details}</div>
+                                <div class="text-slate-500 truncate font-semibold" title="${this.escapeHtml(r.details)}">${this.escapeHtml(r.details)}</div>
                             </div>
                         </div>
                     `;
@@ -3638,6 +3670,28 @@
                 const employeeVal = document.getElementById('holiday-form-employee').value;
                 const detailsVal = document.getElementById('holiday-form-details').value.trim();
 
+                if (!dateVal || !employeeVal || !detailsVal) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ข้อมูลไม่ครบถ้วน',
+                        text: 'กรุณากรอกข้อมูลในช่องที่จำเป็นให้ครบถ้วน'
+                    });
+                    return;
+                }
+
+                // Client-side Duplicate Check
+                const isDuplicate = this.records.some(r => 
+                    r.date === dateVal && r.employee === employeeVal && r.details === detailsVal
+                );
+                if (isDuplicate) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ข้อมูลซ้ำซ้อน',
+                        text: 'พบรายงานการทำงานนี้ในตารางประวัติอยู่แล้ว ระบบป้องกันการส่งข้อมูลซ้ำ'
+                    });
+                    return;
+                }
+
                 Swal.fire({
                     title: 'กำลังบันทึกข้อมูล...',
                     allowOutsideClick: false,
@@ -3649,9 +3703,8 @@
                 try {
                     const response = await fetch(this.apiUrl, {
                         method: 'POST',
-                        mode: 'no-cors',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'text/plain'
                         },
                         body: JSON.stringify({
                             date: dateVal,
@@ -3660,16 +3713,23 @@
                         })
                     });
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'สำเร็จ!',
-                        text: 'บันทึกรายงานทำงานวันหยุดเรียบร้อย',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
+                    if (!response.ok) throw new Error('การส่งข้อมูลล้มเหลว');
+                    const result = await response.json();
 
-                    document.getElementById('holiday-form-details').value = '';
-                    this.loadData();
+                    if (result.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ!',
+                            text: 'บันทึกรายงานทำงานวันหยุดเรียบร้อย',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        document.getElementById('holiday-form-details').value = '';
+                        this.loadData();
+                    } else {
+                        throw new Error(result.message || 'บันทึกเอกสารล้มเหลว');
+                    }
                 } catch(error) {
                     Swal.fire({
                         icon: 'error',
@@ -3677,6 +3737,111 @@
                         text: error.message
                     });
                 }
+            },
+
+            async handleDeleteRecord(record, tr) {
+                let thaiFormatDate = record.date;
+                if (record.date.includes('-')) {
+                    const parts = record.date.split('-');
+                    thaiFormatDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+
+                const confirmResult = await Swal.fire({
+                    title: 'ยืนยันการลบข้อมูล?',
+                    text: `คุณต้องการลบรายงานของ "${record.employee}" วันที่ ${thaiFormatDate} หรือไม่?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: 'ใช่, ต้องการลบ',
+                    cancelButtonText: 'ยกเลิก'
+                });
+
+                if (!confirmResult.isConfirmed) return;
+
+                Swal.fire({
+                    title: 'กำลังลบข้อมูล...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                if (tr) tr.classList.add('opacity-50');
+
+                try {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'text/plain'
+                        },
+                        body: JSON.stringify({
+                            action: 'delete',
+                            date: record.date,
+                            employee: record.employee,
+                            details: record.details,
+                            rowNumber: record.rowNumber
+                        })
+                    });
+
+                    if (!response.ok) throw new Error('ไม่สามารถลบข้อมูลได้');
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'ลบข้อมูลสำเร็จ!',
+                            text: result.message || 'ลบข้อมูลออกจาก Google Sheets เรียบร้อยแล้ว',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+
+                        this.records = this.records.filter(r => 
+                            !(r.date === record.date && r.employee === record.employee && r.details === record.details)
+                        );
+                        this.applyFilters();
+                        this.updateDashboard();
+                    } else {
+                        throw new Error(result.message || 'เกิดข้อผิดพลาดในการลบข้อมูล');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    if (tr) tr.classList.remove('opacity-50');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ลบข้อมูลไม่สำเร็จ',
+                        text: error.message
+                    });
+                }
+            },
+
+            populateEmployeeDropdown(employees) {
+                const select = document.getElementById('holiday-form-employee');
+                if (!select) return;
+
+                const currentValue = select.value;
+                const employeeList = (employees && employees.length > 0) ? employees : App.employees;
+
+                let optionsHtml = '<option value="" disabled selected>-- เลือกรายชื่อพนักงาน --</option>';
+                employeeList.forEach(emp => {
+                    optionsHtml += `<option value="${this.escapeHtml(emp)}">${this.escapeHtml(emp)}</option>`;
+                });
+
+                select.innerHTML = optionsHtml;
+
+                if (currentValue && employeeList.includes(currentValue)) {
+                    select.value = currentValue;
+                }
+            },
+
+            escapeHtml(text) {
+                if (!text) return '';
+                return text
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
             },
 
             exportCsv() {

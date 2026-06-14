@@ -960,9 +960,6 @@
           <span class="status-dot active" id="api-status-dot"></span>
           <span id="api-status-text">เชื่อมต่อ Google Sheets</span>
         </div>
-        <a href="../../index.html" class="btn btn-secondary" style="padding: 10px 18px; font-size: 14px; border-radius: 12px; margin-right: 10px;">
-          <i data-lucide="home" style="width: 14px; height: 14px;"></i> กลับหน้าหลัก
-        </a>
         <a href="admin.html" class="btn btn-primary" style="padding: 10px 18px; font-size: 14px; border-radius: 12px;">
           <i data-lucide="lock" style="width: 14px; height: 14px;"></i> จัดการหลังบ้าน (Admin)
         </a>
@@ -1215,13 +1212,40 @@
       }
     }
 
+    // Helper to parse dates locally to avoid timezone shifts
+    function parseLocalDate(dateVal) {
+      if (!dateVal) return null;
+      if (dateVal instanceof Date) return dateVal;
+      
+      // If it contains T, it's an ISO timestamp
+      if (typeof dateVal === 'string' && dateVal.includes('T')) {
+        return new Date(dateVal);
+      }
+      
+      // If it's a YYYY-MM-DD string
+      const dateParts = dateVal.toString().substring(0, 10).split('-');
+      if (dateParts.length === 3) {
+        const year = parseInt(dateParts[0], 10);
+        const month = parseInt(dateParts[1], 10) - 1;
+        const day = parseInt(dateParts[2], 10);
+        if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+          return new Date(year, month, day);
+        }
+      }
+      
+      const d = new Date(dateVal);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
     // Format dates received in different styles to standard YYYY-MM-DD
     function formatDateString(dateVal) {
       if (!dateVal) return '';
-      // If it's a timestamp string
-      const date = new Date(dateVal);
-      if (!isNaN(date.getTime())) {
-        return date.toISOString().split('T')[0];
+      const date = parseLocalDate(dateVal);
+      if (date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
       }
       return dateVal.toString().substring(0, 10);
     }
@@ -1282,8 +1306,8 @@
       }
 
       state.trips.forEach(trip => {
-        const start = new Date(trip.startDate);
-        const end = new Date(trip.endDate);
+        const start = parseLocalDate(trip.startDate);
+        const end = parseLocalDate(trip.endDate);
         const diffTime = Math.abs(end - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
 
@@ -1331,10 +1355,10 @@
 
     function formatThaiDateRange(startStr, endStr) {
       const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-      const start = new Date(startStr);
-      const end = new Date(endStr);
+      const start = parseLocalDate(startStr);
+      const end = parseLocalDate(endStr);
       
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) {
         return `${startStr} - ${endStr}`;
       }
 

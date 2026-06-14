@@ -44,7 +44,7 @@
       color: var(--text-main);
       min-height: 100vh;
       /* Red -> Blue -> Yellow Animated Gradient */
-      background: linear-gradient(135deg, #E5FFFF 0%, #FFFFE6 50%, #FFE6FF 100%);
+      background: linear-gradient(135deg, #ff4e50 0%, #0abde3 50%, #feca57 100%);
       background-size: 400% 400%;
       animation: gradientMove 15s ease infinite;
       background-attachment: fixed;
@@ -659,6 +659,59 @@
       text-decoration: underline;
       font-weight: 600;
     }
+
+    /* Delete button style */
+    .btn-delete-row {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-delete-row:hover {
+      background: var(--danger);
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    }
+
+    .btn-delete-row:active {
+      transform: scale(0.95);
+    }
+
+    /* Send to Google Sheet button style */
+    .btn-send-sheet {
+      background: var(--success) !important;
+      color: white !important;
+    }
+
+    .btn-send-sheet:hover {
+      background: #059669 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-send-sheet:active {
+      transform: translateY(0);
+    }
+
+    /* Row deletion loading transition */
+    .row-deleting {
+      animation: fadeOut 0.5s forwards;
+      pointer-events: none;
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: translateX(0); }
+      100% { opacity: 0; transform: translateX(-20px); background: rgba(239, 68, 68, 0.1); }
+    }
   </style>
 </head>
 <body>
@@ -845,9 +898,10 @@
             <table id="recordsTable">
               <thead>
                 <tr>
-                  <th style="width: 160px;">วันทำงานวันหยุด</th>
-                  <th style="width: 180px;">รายชื่อพนักงาน</th>
+                  <th style="width: 150px;">วันทำงานวันหยุด</th>
+                  <th style="width: 170px;">รายชื่อพนักงาน</th>
                   <th>รายละเอียดงาน</th>
+                  <th style="width: 80px; text-align: center;">จัดการ</th>
                 </tr>
               </thead>
               <tbody id="recordsBody">
@@ -884,7 +938,7 @@
   <script>
     // Configuration & Data State
     let state = {
-      apiUrl: 'https://script.google.com/macros/s/AKfycbz2CC067TIsLSyk-_MMSKBC2Nrlsib2KOw8giy0V88kOb293JKAGlK4Ss7-8nunDOH7/exec',
+      apiUrl: 'https://script.google.com/macros/s/AKfycbxBahh1bmw1CLlYHVCQ8D9W7d-MuN93K6bECzfagooC1PmCwHRVF4XH5W45NAicfuby/exec',
       records: []
     };
 
@@ -987,6 +1041,17 @@
     `;
     document.head.appendChild(styleSheet);
 
+    // HTML Escaping Utility
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     // Render Table, Stats, Chart, and Activity Feed
     function renderDashboard() {
       // Get Search/Filter Values
@@ -1045,10 +1110,20 @@
           }
           
           return `
-            <tr>
+            <tr data-row-number="${rec.rowNumber}">
               <td class="td-date">${displayDate}</td>
               <td class="td-name">${rec.employee}</td>
-              <td class="td-details">${rec.details}</td>
+              <td class="td-details">${escapeHtml(rec.details)}</td>
+              <td style="text-align: center;">
+                <button class="btn-delete-row" 
+                        data-date="${rec.date}" 
+                        data-employee="${rec.employee}" 
+                        data-details="${escapeHtml(rec.details)}" 
+                        data-row-number="${rec.rowNumber}" 
+                        title="ลบข้อมูล">
+                  <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                </button>
+              </td>
             </tr>
           `;
         }).join('');
@@ -1123,12 +1198,15 @@
                   <span class="feed-name">${rec.employee}</span>
                   <span class="feed-date font-en">${displayDate}</span>
                 </div>
-                <div class="feed-text" title="${rec.details}">${rec.details}</div>
+                <div class="feed-text" title="${escapeHtml(rec.details)}">${escapeHtml(rec.details)}</div>
               </div>
             </div>
           `;
         }).join('');
       }
+
+      // Re-initialize Lucide Icons for dynamically rendered icons (like trash-2)
+      lucide.createIcons();
     }
 
     // Register all interactivity handlers
@@ -1173,6 +1251,20 @@
 
       // 4. CSV Export Button
       document.getElementById('exportCsvBtn').addEventListener('click', handleCsvExport);
+
+      // 5. Delete Button Event Delegation
+      document.getElementById('recordsTable').addEventListener('click', async (e) => {
+        const btn = e.target.closest('.btn-delete-row');
+        if (!btn) return;
+        
+        const date = btn.dataset.date;
+        const employee = btn.dataset.employee;
+        const details = btn.dataset.details;
+        const rowNumber = parseInt(btn.dataset.rowNumber, 10);
+        
+        const tr = btn.closest('tr');
+        await handleDeleteRecord({ date, employee, details, rowNumber }, tr);
+      });
     }
 
     // Handle Form Submit (POST to Apps Script)
@@ -1194,10 +1286,25 @@
         return;
       }
 
+      // Client-side Duplicate Check
+      const isDuplicate = state.records.some(r => 
+        r.date === dateVal && r.employee === employeeVal && r.details === detailsVal
+      );
+      if (isDuplicate) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ข้อมูลซ้ำซ้อน',
+          text: 'พบรายงานการทำงานนี้ในตารางประวัติอยู่แล้ว ระบบป้องกันการส่งข้อมูลซ้ำ',
+          confirmButtonText: 'รับทราบ',
+          confirmButtonColor: 'var(--warning)'
+        });
+        return;
+      }
+
       // Show Loading Spinner Popup
       Swal.fire({
         title: 'กำลังบันทึกข้อมูล...',
-        text: 'กรุณารอสักครู่',
+        text: 'กำลังตรวจสอบข้อมูลและส่งต่อไปยัง Google Sheet',
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -1214,39 +1321,133 @@
       try {
         const response = await fetch(state.apiUrl, {
           method: 'POST',
-          mode: 'no-cors', // Standard workaround for GAS POST request redirect CORS
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'text/plain' // Workaround to prevent CORS preflight check on POST
           },
           body: JSON.stringify(payload)
         });
 
-        // Note: mode 'no-cors' will return an opaque response (type: "opaque", status: 0).
-        // We assume success since CORS limitations prevent reading content without redirects.
-        // This is a standard Google Apps Script behavior.
+        if (!response.ok) {
+          throw new Error('การส่งข้อมูลล้มเหลว แม่ข่ายปฏิเสธการเชื่อมต่อ');
+        }
         
-        Swal.fire({
-          icon: 'success',
-          title: 'บันทึกสำเร็จ!',
-          text: 'ส่งรายงานทำงานวันหยุดเข้าสู่ Google Sheet เรียบร้อยแล้ว',
-          confirmButtonText: 'ตกลง',
-          confirmButtonColor: 'var(--success)'
-        });
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+          Swal.fire({
+            icon: 'success',
+            title: 'บันทึกและส่งข้อมูลสำเร็จ!',
+            text: 'ส่งรายงานทำงานวันหยุดเข้าสู่ Google Sheet เรียบร้อยแล้ว',
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: 'var(--success)'
+          });
 
-        // Reset Form description, keeping employee selected for speed and date
-        document.getElementById('reportDetails').value = '';
-        
-        // Refresh list
-        setTimeout(() => {
+          // Reset Form description, keeping employee selected for speed and date
+          document.getElementById('reportDetails').value = '';
+          
+          // Reload list to get the latest rowNumber mapping
           loadData();
-        }, 1500); // 1.5s delay to allow Google Sheets buffer to update
+        } else {
+          throw new Error(result.message || 'เกิดข้อผิดพลาดในการตรวจสอบข้อมูลฝั่งแม่ข่าย');
+        }
 
       } catch (error) {
         console.error(error);
         Swal.fire({
           icon: 'error',
-          title: 'เกิดข้อผิดพลาดในการเชื่อมต่อ',
+          title: 'เกิดข้อผิดพลาดในการส่งข้อมูล',
           text: 'ไม่สามารถบันทึกเข้า Google Sheets ได้\nรายละเอียด: ' + error.message,
+          confirmButtonText: 'ตกลง',
+          confirmButtonColor: 'var(--danger)'
+        });
+      }
+    }
+
+    // Handle Delete Record Action
+    async function handleDeleteRecord(record, tr) {
+      // Format display date for alert
+      let thaiFormatDate = record.date;
+      if (record.date.includes('-')) {
+        const parts = record.date.split('-');
+        thaiFormatDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+
+      const confirmResult = await Swal.fire({
+        title: 'ยืนยันการลบข้อมูล?',
+        text: `คุณต้องการลบรายงานของพนักงาน "${record.employee}" วันทำงานวันหยุดวันที่ ${thaiFormatDate} หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--danger)',
+        cancelButtonColor: 'var(--text-muted)',
+        confirmButtonText: 'ใช่, ต้องการลบ',
+        cancelButtonText: 'ยกเลิก'
+      });
+
+      if (!confirmResult.isConfirmed) return;
+
+      // Show Loading Spinner
+      Swal.fire({
+        title: 'กำลังลบข้อมูล...',
+        text: 'กรุณารอสักครู่',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // Animate row deletion on table
+      if (tr) {
+        tr.classList.add('row-deleting');
+      }
+
+      try {
+        const response = await fetch(state.apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain' // Bypasses CORS Preflight OPTIONS check
+          },
+          body: JSON.stringify({
+            action: 'delete',
+            date: record.date,
+            employee: record.employee,
+            details: record.details,
+            rowNumber: record.rowNumber
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('ไม่สามารถลบข้อมูลได้ แม่ข่ายปฏิเสธการเชื่อมต่อ');
+        }
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          Swal.fire({
+            icon: 'success',
+            title: 'ลบข้อมูลสำเร็จ!',
+            text: result.message || 'ลบข้อมูลออกจาก Google Sheets เรียบร้อยแล้ว',
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: 'var(--success)'
+          });
+
+          // Instantly update UI State by filtering out deleted record
+          state.records = state.records.filter(r => 
+            !(r.date === record.date && r.employee === record.employee && r.details === record.details)
+          );
+          renderDashboard();
+        } else {
+          throw new Error(result.message || 'เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์ลบข้อมูล');
+        }
+      } catch (error) {
+        console.error(error);
+        // Remove animation if delete failed
+        if (tr) {
+          tr.classList.remove('row-deleting');
+        }
+        Swal.fire({
+          icon: 'error',
+          title: 'ลบข้อมูลไม่สำเร็จ',
+          text: 'ไม่สามารถทำรายการลบข้อมูลได้\nรายละเอียด: ' + error.message,
           confirmButtonText: 'ตกลง',
           confirmButtonColor: 'var(--danger)'
         });
