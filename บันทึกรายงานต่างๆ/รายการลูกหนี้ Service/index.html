@@ -540,6 +540,9 @@
                 <button class="btn-sm btn-outline" id="clearDateBtn" title="ล้างตัวกรอง">
                     <i data-lucide="x"></i> ล้าง
                 </button>
+                <button class="btn-sm btn-outline" id="resetFiltersBtn" title="รีเซ็ตการค้นหา" onclick="resetFilters()">
+                    <i data-lucide="filter-x"></i> รีเซ็ต
+                </button>
             </div>
         </div>
 
@@ -1001,6 +1004,14 @@
         endDateInput.value = '';
         applyFilters();
     });
+
+    function resetFilters() {
+        searchInput.value = '';
+        startDateInput.value = '';
+        endDateInput.value = '';
+        applyFilters();
+        Swal.fire({ toast:true, position:'bottom-end', icon:'success', title:'รีเซ็ตตัวกรองแล้ว', showConfirmButton:false, timer:1500, timerProgressBar:true });
+    }
     refreshBtn.addEventListener('click', () => {
         searchInput.value = '';
         startDateInput.value = '';

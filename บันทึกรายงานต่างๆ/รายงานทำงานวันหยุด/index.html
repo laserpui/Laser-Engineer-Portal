@@ -561,6 +561,19 @@
       color: white;
     }
 
+    .btn-action.danger-action {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--danger);
+    }
+
+    .btn-action.danger-action:hover {
+      background: var(--danger);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+
     /* Settings Modal Panel */
     .modal-overlay {
       position: fixed;
@@ -888,8 +901,9 @@
               <input type="date" id="filterEndDate" class="glass-input font-en">
             </div>
 
-            <button class="btn-action" id="clearFiltersBtn" title="ล้างตัวกรอง" style="padding:0.65rem 0.75rem; border-radius:0.75rem;">
+            <button class="btn-action danger-action" id="resetFiltersBtn" title="รีเซ็ตตัวกรอง">
               <i data-lucide="filter-x" style="width:16px; height:16px;"></i>
+              รีเซ็ต
             </button>
           </div>
 
@@ -1220,21 +1234,7 @@
       document.getElementById('filterStartDate').addEventListener('change', renderDashboard);
       document.getElementById('filterEndDate').addEventListener('change', renderDashboard);
       
-      document.getElementById('clearFiltersBtn').addEventListener('click', () => {
-        document.getElementById('filterSearch').value = '';
-        document.getElementById('filterStartDate').value = '';
-        document.getElementById('filterEndDate').value = '';
-        renderDashboard();
-        
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'success',
-          title: 'ล้างตัวกรองทั้งหมดแล้ว',
-          showConfirmButton: false,
-          timer: 1500
-        });
-      });
+      document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
 
       // 3. Refresh Button
       document.getElementById('refreshBtn').addEventListener('click', () => {
@@ -1508,6 +1508,23 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+
+    // Reset filters handler
+    function resetFilters() {
+      document.getElementById('filterSearch').value = '';
+      document.getElementById('filterStartDate').value = '';
+      document.getElementById('filterEndDate').value = '';
+      renderDashboard();
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'รีเซ็ตตัวกรองทั้งหมดแล้ว',
+        showConfirmButton: false,
+        timer: 1500
+      });
     }
   </script>
 </body>

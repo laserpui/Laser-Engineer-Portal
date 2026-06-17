@@ -807,6 +807,9 @@
           <select id="filter-name" class="form-control" onchange="applyFilters()" style="flex: 1; min-width: 120px;">
             <option value="all">ทุกคน</option>
           </select>
+          <button type="button" class="btn" id="resetFiltersBtn" onclick="resetFilters()" title="รีเซ็ตการค้นหา" style="padding: 0.5rem 1rem; border-radius: 0.75rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+            <i data-lucide="filter-x"></i> รีเซ็ต
+          </button>
         </div>
         
         <div style="font-weight: 600; color: var(--text-muted); font-size: 0.9rem;">
@@ -1124,6 +1127,22 @@
       });
 
       updateDashboard();
+    }
+
+    function resetFilters() {
+      document.getElementById("search-input").value = "";
+      document.getElementById("filter-type").value = "all";
+      document.getElementById("filter-withdrawal").value = "all";
+      document.getElementById("filter-name").value = "all";
+      applyFilters();
+      Swal.fire({
+        toast: true,
+        position: 'bottom-end',
+        icon: 'success',
+        title: 'รีเซ็ตตัวกรองทั้งหมดแล้ว',
+        showConfirmButton: false,
+        timer: 1500
+      });
     }
 
     // ==========================================

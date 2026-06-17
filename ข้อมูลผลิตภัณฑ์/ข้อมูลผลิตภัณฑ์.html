@@ -181,6 +181,9 @@
                         <button id="clearDateBtn" class="text-indigo-600 hover:text-red-500 font-semibold px-3 py-2 rounded-xl bg-white/60 hover:bg-red-50/50 border border-slate-200/80 hover:border-red-200 transition-all duration-300 shrink-0 text-xs shadow-glass-sm" title="ล้างการกรองวันที่">
                             ล้างวันที่
                         </button>
+                        <button id="resetFiltersBtn" class="text-slate-600 hover:text-red-500 font-semibold px-3 py-2 rounded-xl bg-white/60 hover:bg-red-50/50 border border-slate-200/80 hover:border-red-200 transition-all duration-300 shrink-0 text-xs shadow-glass-sm flex items-center gap-1" title="รีเซ็ตตัวกรองทั้งหมด" onclick="resetFilters()">
+                            รีเซ็ต
+                        </button>
                     </div>
                 </div>
             </div>
@@ -540,6 +543,15 @@
             endDateInput.value = '';
             applyFilters();
         });
+
+        function resetFilters() {
+            searchInput.value = '';
+            searchInput2.value = '';
+            startDateInput.value = '';
+            endDateInput.value = '';
+            applyFilters();
+            showToast("รีเซ็ตตัวกรองทั้งหมดแล้ว");
+        }
 
         function formatCellData(cellStr) {
             if (!cellStr) return '<span class="text-slate-300 font-light">-</span>';

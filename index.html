@@ -194,6 +194,9 @@
                     <button onclick="App.switchTab('trip-queue')" data-tab-btn="trip-queue" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
                         <i data-lucide="route" class="w-4 h-4"></i> เวรทริปต่างจังหวัด
                     </button>
+                    <button onclick="App.switchTab('csat')" data-tab-btn="csat" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
+                        <i data-lucide="heart" class="w-4 h-4"></i> ผลประเมิน CSAT
+                    </button>
                 </nav>
             </div>
 
@@ -313,6 +316,17 @@
                             <div>
                                 <div id="ov-next-trip-engineer" class="text-lg font-black leading-tight text-cyan-700">-</div>
                                 <div class="text-xs font-semibold text-slate-400">คิวทริปต่างจังหวัดถัดไป</div>
+                            </div>
+                        </div>
+
+                        <!-- Stat Card 7: CSAT Survey -->
+                        <div onclick="App.switchTab('csat')" class="glass-panel glass-panel-hover rounded-3xl p-5 flex items-center gap-4 cursor-pointer">
+                            <div class="w-12 h-12 rounded-2xl bg-pink-500/10 text-pink-600 flex items-center justify-center border border-pink-500/20 shrink-0">
+                                <i data-lucide="heart" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <div id="ov-csat-score" class="text-2xl font-black font-en leading-tight">-</div>
+                                <div class="text-xs font-semibold text-slate-400">คะแนนเฉลี่ย CSAT</div>
                             </div>
                         </div>
                     </div>
@@ -531,6 +545,7 @@
                                 <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400"></i>
                             </div>
                             <button onclick="SparePartsModule.loadData()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all" title="รีเฟรชข้อมูล"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i></button>
+                            <button onclick="SparePartsModule.resetSearch()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600 flex items-center gap-1.5" title="รีเซ็ตการค้นหา"><i data-lucide="filter-x" class="w-4 h-4"></i> รีเซ็ต</button>
                         </div>
                     </div>
 
@@ -597,6 +612,7 @@
 
                             <button onclick="ProductInfoModule.clearDateFilters()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600">ล้างวันที่</button>
                             <button onclick="ProductInfoModule.loadData()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all" title="รีเฟรชข้อมูล"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i></button>
+                            <button onclick="ProductInfoModule.resetFilters()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600 flex items-center gap-1.5" title="รีเซ็ตการค้นหาและตัวกรอง"><i data-lucide="filter-x" class="w-4 h-4"></i> รีเซ็ต</button>
                             <button onclick="ProductInfoModule.exportCsv()" class="py-2 px-3 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/10 hover:-translate-y-0.5 transition-all flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5"></i> Export</button>
                         </div>
                     </div>
@@ -662,6 +678,7 @@
 
                             <button onclick="ARServiceModule.clearDateFilters()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600">ล้างวันที่</button>
                             <button onclick="ARServiceModule.loadData()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all" title="รีเฟรชข้อมูล"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i></button>
+                            <button onclick="ARServiceModule.resetFilters()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600 flex items-center gap-1.5" title="รีเซ็ตการค้นหาและตัวกรอง"><i data-lucide="filter-x" class="w-4 h-4"></i> รีเซ็ต</button>
                             <button onclick="ARServiceModule.exportCsv()" class="py-2 px-3 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/10 hover:-translate-y-0.5 transition-all flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5"></i> Export</button>
                             
                             <!-- Admin view tab switcher -->
@@ -927,6 +944,7 @@
                                 <select id="expenses-filter-name" class="input-glass px-3 py-2 text-xs w-[120px]">
                                     <option value="all">ทุกคน</option>
                                 </select>
+                                <button onclick="ExpensesModule.resetFilters()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600 flex items-center gap-1.5" title="รีเซ็ตตัวกรอง"><i data-lucide="filter-x" class="w-4 h-4"></i> รีเซ็ต</button>
                             </div>
                         </div>
 
@@ -1060,7 +1078,7 @@
                                     <span>ถึง</span>
                                     <input type="date" id="holiday-filter-end-date" class="input-glass px-2 py-1.5 font-en text-[11px] w-[115px]">
                                 </div>
-                                <button onclick="HolidayWorkModule.clearFilters()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all" title="ล้างตัวกรอง"><i data-lucide="filter-x" class="w-4 h-4 text-slate-600"></i></button>
+                                <button onclick="HolidayWorkModule.clearFilters()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600 flex items-center gap-1.5" title="รีเซ็ตการค้นหาและตัวกรอง"><i data-lucide="filter-x" class="w-4 h-4 text-slate-600"></i> รีเซ็ต</button>
                                 <button onclick="HolidayWorkModule.loadData()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all" title="รีเฟรชข้อมูล"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i></button>
                                 <button onclick="HolidayWorkModule.exportCsv()" class="py-2 px-3 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/10 hover:-translate-y-0.5 transition-all flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5"></i> Export</button>
                             </div>
@@ -1229,6 +1247,116 @@
                     </div>
                 </div>
 
+                <!-- ==================== TAB: CSAT SURVEY ==================== -->
+                <div id="tab-csat" class="tab-content space-y-6">
+                    <div class="glass-panel rounded-3xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-600 flex items-center justify-center shrink-0">
+                                <i data-lucide="heart" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-base">รายงานผลประเมินความพึงพอใจ CSAT</h3>
+                                <p class="text-xs text-slate-400">สรุปคะแนนประเมินการบริการจากลูกค้า Real-time</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2.5 items-center">
+                            <div id="csat-sheet-status" class="bg-slate-100 text-slate-500 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200">
+                                <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> กำลังเชื่อมต่อ...
+                            </div>
+                            <button onclick="CSATModule.loadData()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all" title="รีเฟรชข้อมูล"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i></button>
+                            <button onclick="CSATModule.exportCsv()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600 flex items-center gap-1.5" title="ดาวน์โหลดรายงาน CSV"><i data-lucide="download" class="w-4 h-4"></i> ส่งออก CSV</button>
+                        </div>
+                    </div>
+
+                    <!-- Date Filter -->
+                    <div class="glass-panel rounded-3xl p-5 flex flex-wrap items-end gap-4">
+                        <div class="flex items-center gap-2 text-slate-700">
+                            <i data-lucide="calendar" class="w-5 h-5 text-slate-400"></i>
+                            <span class="text-xs font-bold">กรองช่วงวันที่ประเมิน</span>
+                        </div>
+                        <div class="flex flex-wrap items-end gap-3 flex-grow">
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-bold text-slate-400">ตั้งแต่วันที่</label>
+                                <input type="date" id="csat-filter-from" class="input-glass px-3 py-1.5 text-xs">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-bold text-slate-400">ถึงวันที่</label>
+                                <input type="date" id="csat-filter-to" class="input-glass px-3 py-1.5 text-xs">
+                            </div>
+                            <button onclick="CSATModule.applyFilters()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">กรองข้อมูล</button>
+                            <button onclick="CSATModule.clearFilters()" class="bg-white/40 border border-white/60 hover:bg-white/70 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">ล้างตัวกรอง</button>
+                            <span id="csat-filter-badge" class="hidden text-xs bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-bold"></span>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Dashboard Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <div class="glass-panel rounded-3xl p-5 flex flex-col justify-between border-white/60 bg-gradient-to-br from-white/40 to-white/10 shadow-sm col-span-2 md:col-span-1">
+                            <div>
+                                <span class="text-xs text-slate-400 font-bold">คะแนนเฉลี่ยรวม CSAT</span>
+                                <div id="csat-metric-avg" class="text-4xl font-black font-en text-blue-600 mt-2">—</div>
+                            </div>
+                            <div id="csat-metric-count" class="text-[10px] font-semibold text-slate-400 mt-2">0 รายการประเมิน</div>
+                        </div>
+                        <div class="glass-panel rounded-3xl p-5 border-white/50 bg-white/20 hover:bg-white/30 transition-all">
+                            <span class="text-[10px] text-slate-400 font-bold">1. ความตรงต่อเวลา</span>
+                            <div id="csat-metric-q1" class="text-2xl font-black font-en text-slate-700 mt-2">—</div>
+                            <span class="text-[9px] text-slate-400 block mt-1 leading-tight">วิศวกรมาถึงตรงเวลาตามนัด</span>
+                        </div>
+                        <div class="glass-panel rounded-3xl p-5 border-white/50 bg-white/20 hover:bg-white/30 transition-all">
+                            <span class="text-[10px] text-slate-400 font-bold">2. บุคลิกภาพการแต่งกาย</span>
+                            <div id="csat-metric-q2" class="text-2xl font-black font-en text-slate-700 mt-2">—</div>
+                            <span class="text-[9px] text-slate-400 block mt-1 leading-tight">สุภาพ เรียบร้อย วางตัวดี</span>
+                        </div>
+                        <div class="glass-panel rounded-3xl p-5 border-white/50 bg-white/20 hover:bg-white/30 transition-all">
+                            <span class="text-[10px] text-slate-400 font-bold">3. การวิเคราะห์ปัญหา</span>
+                            <div id="csat-metric-q3" class="text-2xl font-black font-en text-slate-700 mt-2">—</div>
+                            <span class="text-[9px] text-slate-400 block mt-1 leading-tight">แก้ไขตรงจุด ถูกต้อง แม่นยำ</span>
+                        </div>
+                        <div class="glass-panel rounded-3xl p-5 border-white/50 bg-white/20 hover:bg-white/30 transition-all">
+                            <span class="text-[10px] text-slate-400 font-bold">4. ภาพรวมความพึงพอใจ</span>
+                            <div id="csat-metric-q4" class="text-2xl font-black font-en text-slate-700 mt-2">—</div>
+                            <span class="text-[9px] text-slate-400 block mt-1 leading-tight">ความพึงพอใจการบริการรวม</span>
+                        </div>
+                    </div>
+
+                    <!-- CSAT Response Logs Table Card -->
+                    <div class="glass-panel rounded-3xl overflow-hidden flex flex-col min-h-[300px]">
+                        <!-- Loader inside table -->
+                        <div id="csat-table-loader" class="py-24 text-center text-slate-500 flex flex-col items-center justify-center w-full">
+                            <i data-lucide="loader-2" class="w-10 h-10 text-blue-600 animate-spin mb-3"></i>
+                            <span class="text-sm font-semibold">กำลังเชื่อมต่อและดึงข้อมูลจาก Google Sheets...</span>
+                        </div>
+                        
+                        <!-- Table Wrapper -->
+                        <div id="csat-table-wrap" class="hidden overflow-auto table-container w-full">
+                            <table class="w-full text-left border-collapse min-w-max text-xs sm:text-sm">
+                                <thead class="bg-white/40 border-b border-white/60 sticky top-0 select-none">
+                                    <tr>
+                                        <th class="px-5 py-3.5 font-bold uppercase tracking-wider text-slate-500">วันที่ประเมิน</th>
+                                        <th class="px-5 py-3.5 font-bold uppercase tracking-wider text-slate-500">เลขที่งาน (Job No.)</th>
+                                        <th class="px-5 py-3.5 font-bold text-center text-slate-500">ตรงเวลา (1)</th>
+                                        <th class="px-5 py-3.5 font-bold text-center text-slate-500">บุคลิกภาพ (2)</th>
+                                        <th class="px-5 py-3.5 font-bold text-center text-slate-500">แก้ปัญหา (3)</th>
+                                        <th class="px-5 py-3.5 font-bold text-center text-slate-500">ภาพรวม (4)</th>
+                                        <th class="px-5 py-3.5 font-bold text-slate-500">ข้อเสนอแนะเพิ่มเติม</th>
+                                        <th class="px-5 py-3.5 font-bold text-center sticky right-0 bg-white/60 backdrop-blur-md border-l border-slate-200/50 shadow-[-6px_0_12px_-3px_rgba(0,0,0,0.04)] text-slate-500">คัดลอก</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="csat-table-body" class="divide-y divide-slate-300/20 bg-white/10"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Empty state -->
+                        <div id="csat-table-empty" class="hidden py-16 flex flex-col items-center justify-center text-center text-slate-400">
+                            <i data-lucide="search-x" class="w-12 h-12 mb-3 opacity-50"></i>
+                            <h4 class="font-bold text-sm text-slate-600">ไม่พบผลการประเมินในช่วงเวลาที่กำหนด</h4>
+                            <p class="text-xs opacity-70">โปรดลองเปลี่ยนช่วงวันที่กรองอีกครั้ง</p>
+                        </div>
+                    </div>
+                </div>
+
             </main>
 
             <!-- Main App Footer -->
@@ -1274,6 +1402,7 @@
                 ExpensesModule.init();
                 HolidayWorkModule.init();
                 TripQueueModule.init();
+                CSATModule.init();
             },
 
             switchTab(tabId) {
@@ -1300,7 +1429,8 @@
                     debtor: 'ระบบจัดการลูกหนี้ค้างชำระ (AR Service)',
                     expenses: 'รายงานบัญชีและบันทึกค่าใช้จ่ายวิศวกร',
                     holiday: 'ระบบบันทึกรายงานการปฏิบัติงานในวันหยุด',
-                    'trip-queue': 'การออกทริปเวรเดินทางต่างจังหวัด'
+                    'trip-queue': 'การออกทริปเวรเดินทางต่างจังหวัด',
+                    csat: 'รายงานผลประเมินความพึงพอใจลูกค้า (CSAT Survey)'
                 };
                 document.getElementById('tab-title').innerText = titles[tabId] || 'Dashboard';
                 
@@ -1492,6 +1622,12 @@
                 }
                 if (TripQueueModule.queue.length > 0) {
                     document.getElementById('ov-next-trip-engineer').innerText = TripQueueModule.queue[0];
+                }
+                if (typeof CSATModule !== 'undefined' && CSATModule.records.length > 0) {
+                    const avg = CSATModule.getAverageScore();
+                    document.getElementById('ov-csat-score').innerText = `${avg.toFixed(1)} / 5.0`;
+                } else {
+                    document.getElementById('ov-csat-score').innerText = '—';
                 }
             }
         };
@@ -1981,6 +2117,13 @@
                 this.renderTable(filtered);
             },
 
+            resetSearch() {
+                document.getElementById('spareparts-search-1').value = '';
+                document.getElementById('spareparts-search-2').value = '';
+                this.performSearch();
+                App.showToast('รีเซ็ตการค้นหาแล้ว');
+            },
+
             copyRow(rowIndex) {
                 const rowData = this.currentDisplayedData[rowIndex];
                 let lines = [];
@@ -2241,6 +2384,15 @@
                 document.getElementById('products-start-date').value = '';
                 document.getElementById('products-end-date').value = '';
                 this.applyFilters();
+            },
+
+            resetFilters() {
+                document.getElementById('products-search-1').value = '';
+                document.getElementById('products-search-2').value = '';
+                document.getElementById('products-start-date').value = '';
+                document.getElementById('products-end-date').value = '';
+                this.applyFilters();
+                App.showToast('รีเซ็ตการค้นหาและตัวกรองแล้ว');
             },
 
             renderTable(dataToRender) {
@@ -2616,6 +2768,14 @@
                 document.getElementById('debtor-start-date').value = '';
                 document.getElementById('debtor-end-date').value = '';
                 this.applyFilters();
+            },
+
+            resetFilters() {
+                document.getElementById('debtor-search').value = '';
+                document.getElementById('debtor-start-date').value = '';
+                document.getElementById('debtor-end-date').value = '';
+                this.applyFilters();
+                App.showToast('รีเซ็ตการค้นหาและตัวกรองแล้ว');
             },
 
             formatCell(str, colIdx) {
@@ -3249,6 +3409,15 @@
                 this.updateDashboard();
             },
 
+            resetFilters() {
+                document.getElementById('expenses-table-search').value = '';
+                document.getElementById('expenses-filter-job').value = 'all';
+                document.getElementById('expenses-filter-type').value = 'all';
+                document.getElementById('expenses-filter-name').value = 'all';
+                this.applyFilters();
+                App.showToast('รีเซ็ตตัวกรองทั้งหมดแล้ว');
+            },
+
             renderCharts() {
                 const categoryTotals = {};
                 this.filteredData.forEach(item => {
@@ -3679,6 +3848,7 @@
                 document.getElementById('holiday-filter-start-date').value = '';
                 document.getElementById('holiday-filter-end-date').value = '';
                 this.applyFilters();
+                App.showToast('รีเซ็ตการค้นหาและตัวกรองแล้ว');
             },
 
             async handleFormSubmit(e) {
@@ -4303,6 +4473,337 @@
                     return `${sDay} ${sMonth} - ${eDay} ${eMonth} ${sYear.toString().substring(2)}`;
                 }
                 return `${sDay} ${sMonth} ${sYear.toString().substring(2)} - ${eDay} ${eMonth} ${eYear.toString().substring(2)}`;
+            }
+        };
+
+        // ============================================
+        // 10. CSAT SURVEY MODULE
+        // ============================================
+        const CSATModule = {
+            apiUrl: 'https://script.google.com/macros/s/AKfycbwKOzf_dYEr8HOnEmFmSuVZFRGVdG37FlHtIwy-UWFUC5nxB4xRMojMeoStSSTSrrW23Q/exec',
+            records: [],
+            filteredData: [],
+
+            formatDateTime(dateObj) {
+                if (!dateObj || isNaN(dateObj.getTime())) return "—";
+                const day = dateObj.getDate();
+                const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+                const month = months[dateObj.getMonth()];
+                const year = dateObj.getFullYear() + 543;
+                const hours = dateObj.getHours().toString().padStart(2, '0');
+                const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+                const seconds = dateObj.getSeconds().toString().padStart(2, '0');
+                return `${day} ${month} ${year.toString().slice(-2)} ${hours}:${minutes}:${seconds}`;
+            },
+
+            init() {
+                // Register event listeners
+                document.getElementById('csat-filter-from').addEventListener('change', () => this.applyFilters());
+                document.getElementById('csat-filter-to').addEventListener('change', () => this.applyFilters());
+                
+                this.loadData();
+            },
+
+            async loadData() {
+                const loader = document.getElementById('csat-table-loader');
+                const wrap = document.getElementById('csat-table-wrap');
+                const empty = document.getElementById('csat-table-empty');
+                const statusEl = document.getElementById('csat-sheet-status');
+
+                loader.classList.remove('hidden');
+                wrap.classList.add('hidden');
+                empty.classList.add('hidden');
+
+                statusEl.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> กำลังโหลด...`;
+                statusEl.className = 'bg-slate-100 text-slate-500 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200';
+                lucide.createIcons();
+
+                try {
+                    const url = `${this.apiUrl}?action=get&t=${Date.now()}`;
+                    const response = await fetch(url);
+                    const json = await response.json();
+
+                    if (json.result === 'success' && Array.isArray(json.data)) {
+                        this.records = json.data;
+                        this.filteredData = [...this.records];
+                        
+                        statusEl.innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> เชื่อมต่อแล้ว`;
+                        statusEl.className = 'bg-green-500/10 text-green-700 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-green-500/20';
+                    } else {
+                        throw new Error('โครงสร้างการตอบรับไม่ถูกต้อง');
+                    }
+                } catch(e) {
+                    console.error("CSAT load failed, loading cached fallback:", e);
+                    this.records = JSON.parse(localStorage.getItem('med_csat_data') || '[]');
+                    this.filteredData = [...this.records];
+
+                    statusEl.innerHTML = `⚠️ ข้อมูลแคช`;
+                    statusEl.className = 'bg-yellow-500/10 text-yellow-700 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-yellow-500/20';
+                }
+
+                lucide.createIcons();
+                this.updateDashboard();
+            },
+
+            updateDashboard() {
+                const count = this.filteredData.length;
+                document.getElementById('csat-metric-count').innerText = `${count.toLocaleString()} รายการประเมิน`;
+
+                if (count === 0) {
+                    ['q1', 'q2', 'q3', 'q4', 'avg'].forEach(id => {
+                        document.getElementById(`csat-metric-${id}`).innerText = '—';
+                    });
+                    document.getElementById('csat-metric-avg').className = 'text-4xl font-black font-en text-slate-400 mt-2';
+                    this.renderTable();
+                    OverviewModule.updateStats();
+                    return;
+                }
+
+                let sums = { q1: 0, q2: 0, q3: 0, q4: 0, total: 0 };
+                this.filteredData.forEach(item => {
+                    const q1 = Number(item.q1) || 0;
+                    const q2 = Number(item.q2) || 0;
+                    const q3 = Number(item.q3) || 0;
+                    const q4 = Number(item.q4) || 0;
+
+                    sums.q1 += q1;
+                    sums.q2 += q2;
+                    sums.q3 += q3;
+                    sums.q4 += q4;
+                    sums.total += (q1 + q2 + q3 + q4) / 4;
+                });
+
+                const avgQ1 = sums.q1 / count;
+                const avgQ2 = sums.q2 / count;
+                const avgQ3 = sums.q3 / count;
+                const avgQ4 = sums.q4 / count;
+                const overallAvg = sums.total / count;
+
+                document.getElementById('csat-metric-q1').innerText = avgQ1.toFixed(1);
+                document.getElementById('csat-metric-q2').innerText = avgQ2.toFixed(1);
+                document.getElementById('csat-metric-q3').innerText = avgQ3.toFixed(1);
+                document.getElementById('csat-metric-q4').innerText = avgQ4.toFixed(1);
+
+                const avgEl = document.getElementById('csat-metric-avg');
+                avgEl.innerText = overallAvg.toFixed(1);
+                if (overallAvg < 4.0) {
+                    avgEl.className = 'text-4xl font-black font-en text-rose-600 mt-2';
+                } else if (overallAvg < 4.5) {
+                    avgEl.className = 'text-4xl font-black font-en text-amber-600 mt-2';
+                } else {
+                    avgEl.className = 'text-4xl font-black font-en text-blue-600 mt-2';
+                }
+
+                this.renderTable();
+                OverviewModule.updateStats();
+            },
+
+            renderTable() {
+                const loader = document.getElementById('csat-table-loader');
+                const wrap = document.getElementById('csat-table-wrap');
+                const empty = document.getElementById('csat-table-empty');
+                const tbody = document.getElementById('csat-table-body');
+
+                loader.classList.add('hidden');
+
+                if (this.filteredData.length === 0) {
+                    wrap.classList.add('hidden');
+                    empty.classList.remove('hidden');
+                    return;
+                }
+
+                wrap.classList.remove('hidden');
+                empty.classList.add('hidden');
+
+                // Sort by date descending
+                const sorted = [...this.filteredData].sort((a, b) => this.parseItemDate(b) - this.parseItemDate(a));
+
+                tbody.innerHTML = sorted.map((item, idx) => {
+                    const q1 = Number(item.q1) || 0;
+                    const q2 = Number(item.q2) || 0;
+                    const q3 = Number(item.q3) || 0;
+                    const q4 = Number(item.q4) || 0;
+                    const rowAvg = (q1 + q2 + q3 + q4) / 4;
+
+                    const dateDisplay = this.formatDateTime(this.parseItemDate(item));
+
+                    // Highlight red for low score
+                    const isLow = rowAvg <= 3.0;
+                    const rowClass = isLow ? 'bg-rose-500/10 hover:bg-rose-500/15' : 'even:bg-white/10 hover:bg-white/30';
+
+                    return `
+                        <tr class="${rowClass} transition-all">
+                            <td class="px-5 py-3.5 font-semibold text-slate-500 whitespace-nowrap">${dateDisplay}</td>
+                            <td class="px-5 py-3.5 font-bold text-slate-700 whitespace-nowrap">${this.escapeHtml(item.jobNumber || '')}</td>
+                            <td class="px-5 py-3.5 text-center font-semibold ${q1 <= 3 ? 'text-rose-600' : 'text-slate-600'}">${q1 || '-'}</td>
+                            <td class="px-5 py-3.5 text-center font-semibold ${q2 <= 3 ? 'text-rose-600' : 'text-slate-600'}">${q2 || '-'}</td>
+                            <td class="px-5 py-3.5 text-center font-semibold ${q3 <= 3 ? 'text-rose-600' : 'text-slate-600'}">${q3 || '-'}</td>
+                            <td class="px-5 py-3.5 text-center font-bold ${q4 <= 3 ? 'text-rose-600' : 'text-slate-700'}">${q4 || '-'}</td>
+                            <td class="px-5 py-3.5 text-slate-500 max-w-xs truncate" title="${this.escapeHtml(item.comments || '')}">${this.escapeHtml(item.comments || '') || '<span class="text-slate-300 font-light">—</span>'}</td>
+                            <td class="px-5 py-3.5 text-center sticky right-0 bg-white/60 backdrop-blur-md border-l border-slate-200/50 shadow-[-6px_0_12px_-3px_rgba(0,0,0,0.04)]">
+                                <button onclick="CSATModule.copyRow(${idx})" class="p-1.5 rounded-lg bg-white/80 hover:bg-blue-600 hover:text-white border border-slate-200 transition-all text-blue-600 shadow-sm" title="คัดลอกรายละเอียด"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                lucide.createIcons();
+                this.setupDragScroll();
+            },
+
+            getAverageScore() {
+                if (this.records.length === 0) return 0;
+                let sum = 0;
+                this.records.forEach(item => {
+                    const q1 = Number(item.q1) || 0;
+                    const q2 = Number(item.q2) || 0;
+                    const q3 = Number(item.q3) || 0;
+                    const q4 = Number(item.q4) || 0;
+                    sum += (q1 + q2 + q3 + q4) / 4;
+                });
+                return sum / this.records.length;
+            },
+
+            parseItemDate(item) {
+                if (item.timestamp) return new Date(Number(item.timestamp) || item.timestamp);
+                if (item.dateStr) {
+                    const d = new Date(item.dateStr);
+                    if (!isNaN(d.getTime())) return d;
+                    const parts = item.dateStr.replace(' ', '/').replace(/:/g, '/').split('/');
+                    if (parts.length >= 3) {
+                        return new Date(parts[2], parts[1] - 1, parts[0], parts[3] || 0, parts[4] || 0, parts[5] || 0);
+                    }
+                }
+                return new Date();
+            },
+
+            applyFilters() {
+                const fromVal = document.getElementById('csat-filter-from').value;
+                const toVal = document.getElementById('csat-filter-to').value;
+                const badge = document.getElementById('csat-filter-badge');
+
+                this.filteredData = this.records.filter(item => {
+                    const date = this.parseItemDate(item);
+                    if (fromVal) {
+                        const from = new Date(fromVal);
+                        from.setHours(0, 0, 0, 0);
+                        if (date < from) return false;
+                    }
+                    if (toVal) {
+                        const to = new Date(toVal);
+                        to.setHours(23, 59, 59, 999);
+                        if (date > to) return false;
+                    }
+                    return true;
+                });
+
+                if (fromVal || toVal) {
+                    const parts = [];
+                    if (fromVal) parts.push(App.formatThaiDate(fromVal));
+                    if (toVal) parts.push(App.formatThaiDate(toVal));
+                    badge.textContent = parts.join(' — ');
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+
+                this.updateDashboard();
+            },
+
+            clearFilters() {
+                document.getElementById('csat-filter-from').value = '';
+                document.getElementById('csat-filter-to').value = '';
+                document.getElementById('csat-filter-badge').classList.add('hidden');
+                this.filteredData = [...this.records];
+                this.updateDashboard();
+                App.showToast('ล้างตัวกรองช่วงวันที่แล้ว');
+            },
+
+            copyRow(idx) {
+                // sort same way as display
+                const sorted = [...this.filteredData].sort((a, b) => this.parseItemDate(b) - this.parseItemDate(a));
+                const item = sorted[idx];
+                if (!item) return;
+
+                const q1 = Number(item.q1) || 0;
+                const q2 = Number(item.q2) || 0;
+                const q3 = Number(item.q3) || 0;
+                const q4 = Number(item.q4) || 0;
+                const rowAvg = (q1 + q2 + q3 + q4) / 4;
+
+                const dateStr = App.formatThaiDate(this.parseItemDate(item));
+
+                const text = `[ผลประเมิน CSAT - Laser Engineer]
+📅 วันที่ประเมิน: ${dateStr}
+📄 เลขที่งาน (Job No.): ${item.jobNumber || '-'}
+⚡ ความตรงต่อเวลา: ${q1} / 5
+👔 บุคลิกภาพการวางตัว: ${q2} / 5
+🔧 การวิเคราะห์แก้ไขปัญหา: ${q3} / 5
+ภาพรวมความพึงพอใจ: ${q4} / 5
+⭐ คะแนนเฉลี่ย: ${rowAvg.toFixed(1)} / 5.0
+💬 ข้อเสนอแนะ: ${item.comments || '-'}`;
+
+                navigator.clipboard.writeText(text)
+                    .then(() => App.showToast('คัดลอกรายละเอียดผลประเมินแล้ว'))
+                    .catch(() => App.showToast('คัดลอกล้มเหลว', 'error'));
+            },
+
+            exportCsv() {
+                if (this.filteredData.length === 0) {
+                    App.showToast('ไม่มีข้อมูลสำหรับส่งออก', 'warning');
+                    return;
+                }
+
+                let csvContent = "\uFEFF"; // UTF-8 BOM
+                csvContent += "วันที่ประเมิน,เลขที่งาน,ความตรงต่อเวลา (1),บุคลิกภาพและการวางตัว (2),การวิเคราะห์แก้ไขปัญหา (3),ภาพรวมความพึงพอใจ (4),ข้อเสนอแนะเพิ่มเติม\r\n";
+
+                const sorted = [...this.filteredData].sort((a, b) => this.parseItemDate(b) - this.parseItemDate(a));
+                sorted.forEach(item => {
+                    const dateStr = App.formatThaiDate(this.parseItemDate(item));
+                    const job = (item.jobNumber || '').replace(/"/g, '""');
+                    const comments = (item.comments || '').replace(/"/g, '""');
+                    csvContent += `"${dateStr}","${job}",${item.q1 || 0},${item.q2 || 0},${item.q3 || 0},${item.q4 || 0},"${comments}"\r\n`;
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = `รายงานผลประเมิน_CSAT_${new Date().toLocaleDateString('en-CA')}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                App.showToast('ดาวน์โหลดรายงาน CSAT เรียบร้อย');
+            },
+
+            escapeHtml(text) {
+                if (!text) return '';
+                return text.toString()
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            },
+
+            setupDragScroll() {
+                const wrap = document.getElementById('csat-table-wrap');
+                let isDown = false, startX, scrollLeft;
+
+                wrap.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('img')) return;
+                    isDown = true;
+                    startX = e.pageX - wrap.offsetLeft;
+                    scrollLeft = wrap.scrollLeft;
+                });
+                wrap.addEventListener('mouseleave', () => isDown = false);
+                wrap.addEventListener('mouseup', () => isDown = false);
+                wrap.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - wrap.offsetLeft;
+                    const walk = (x - startX) * 1.5;
+                    wrap.scrollLeft = scrollLeft - walk;
+                });
             }
         };
 

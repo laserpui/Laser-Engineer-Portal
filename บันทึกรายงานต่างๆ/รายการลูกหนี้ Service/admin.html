@@ -299,6 +299,7 @@
                     <label>ถึง</label>
                     <input type="date" id="dEnd">
                     <button class="btn-sm btn-outline" id="dClearDate"><i data-lucide="x"></i> ล้าง</button>
+                    <button class="btn-sm btn-outline" id="dResetFiltersBtn" title="รีเซ็ตการค้นหา" onclick="resetFilters()"><i data-lucide="filter-x"></i> รีเซ็ต</button>
                 </div>
                 <button class="btn btn-accent" id="dRefresh"><i data-lucide="refresh-cw"></i> รีเฟรช</button>
             </div>
@@ -621,6 +622,14 @@
     dEnd.addEventListener('change', applyDashFilter);
     dClearDate.addEventListener('click', () => { dStart.value=''; dEnd.value=''; applyDashFilter(); });
     dRefresh.addEventListener('click', () => { dSearch.value=''; dStart.value=''; dEnd.value=''; loadDashboardData(); });
+
+    function resetFilters() {
+        dSearch.value = '';
+        dStart.value = '';
+        dEnd.value = '';
+        applyDashFilter();
+        Swal.fire({ toast:true, position:'bottom-end', icon:'success', title:'รีเซ็ตตัวกรองแล้ว', showConfirmButton:false, timer:1500 });
+    }
 
     // ============================================
     // 📊 Dashboard - Render Table
