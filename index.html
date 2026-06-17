@@ -3090,8 +3090,15 @@
                     const result = await response.json();
 
                     if (result.status === "success") {
-                        this.records = result.data || [];
-                        this.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                        this.records = (result.data || []).map((item, idx) => ({ ...item, originalIndex: idx }));
+                        this.records.sort((a, b) => {
+                            const dateA = new Date(a.date);
+                            const dateB = new Date(b.date);
+                            if (dateA.getTime() !== dateB.getTime()) {
+                                return dateB - dateA;
+                            }
+                            return b.originalIndex - a.originalIndex;
+                        });
                         this.filteredData = [...this.records];
                         
                         this.populateFilters();
@@ -3227,6 +3234,16 @@
                     const matchesName = nameVal === "all" || item.name === nameVal;
 
                     return matchesSearch && matchesJob && matchesType && matchesName;
+                });
+
+                // เรียงลำดับข้อมูลจากใหม่ไปเก่า (บันทึกล่าสุดอยู่ด้านบน)
+                this.filteredData.sort((a, b) => {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    if (dateA.getTime() !== dateB.getTime()) {
+                        return dateB - dateA;
+                    }
+                    return b.originalIndex - a.originalIndex;
                 });
 
                 this.updateDashboard();
