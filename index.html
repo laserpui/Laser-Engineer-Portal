@@ -4731,7 +4731,7 @@
                 const q4 = Number(item.q4) || 0;
                 const rowAvg = (q1 + q2 + q3 + q4) / 4;
 
-                const dateStr = App.formatThaiDate(this.parseItemDate(item));
+                const dateStr = this.formatDateTime(this.parseItemDate(item));
 
                 const text = `[ผลประเมิน CSAT - Laser Engineer]
 📅 วันที่ประเมิน: ${dateStr}
@@ -4739,7 +4739,7 @@
 ⚡ ความตรงต่อเวลา: ${q1} / 5
 👔 บุคลิกภาพการวางตัว: ${q2} / 5
 🔧 การวิเคราะห์แก้ไขปัญหา: ${q3} / 5
-ภาพรวมความพึงพอใจ: ${q4} / 5
+❤️ ภาพรวมความพึงพอใจ: ${q4} / 5
 ⭐ คะแนนเฉลี่ย: ${rowAvg.toFixed(1)} / 5.0
 💬 ข้อเสนอแนะ: ${item.comments || '-'}`;
 
