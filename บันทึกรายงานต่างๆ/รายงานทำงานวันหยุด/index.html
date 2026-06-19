@@ -1342,8 +1342,10 @@
             confirmButtonColor: 'var(--success)'
           });
 
-          // Reset Form description, keeping employee selected for speed and date
-          document.getElementById('reportDetails').value = '';
+          // Reset Form completely
+          document.getElementById('reportForm').reset();
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('reportDate').value = today;
           
           // Reload list to get the latest rowNumber mapping
           loadData();

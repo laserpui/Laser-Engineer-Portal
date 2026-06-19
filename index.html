@@ -3913,7 +3913,8 @@
                             showConfirmButton: false
                         });
 
-                        document.getElementById('holiday-form-details').value = '';
+                        document.getElementById('holiday-form').reset();
+                        document.getElementById('holiday-form-date').value = new Date().toISOString().split('T')[0];
                         this.loadData();
                     } else {
                         throw new Error(result.message || 'บันทึกเอกสารล้มเหลว');
@@ -4376,6 +4377,11 @@
                         if (res.success) {
                             Swal.fire({ icon: 'success', title: 'บันทึกทริปสำเร็จ!', timer: 2000, showConfirmButton: false });
                             document.getElementById('tripqueue-form').reset();
+                            const today = new Date().toISOString().split('T')[0];
+                            const tom = new Date(); tom.setDate(tom.getDate() + 1);
+                            const tomorrow = tom.toISOString().split('T')[0];
+                            document.getElementById('tripqueue-form-start-date').value = today;
+                            document.getElementById('tripqueue-form-end-date').value = tomorrow;
                             this.toggleOtherRegionInput(false);
                             this.loadData();
                         } else {
@@ -4399,6 +4405,11 @@
 
                     Swal.fire({ icon: 'success', title: 'บันทึก (Mock) ทริปสำเร็จ', timer: 1500, showConfirmButton: false });
                     document.getElementById('tripqueue-form').reset();
+                    const today = new Date().toISOString().split('T')[0];
+                    const tom = new Date(); tom.setDate(tom.getDate() + 1);
+                    const tomorrow = tom.toISOString().split('T')[0];
+                    document.getElementById('tripqueue-form-start-date').value = today;
+                    document.getElementById('tripqueue-form-end-date').value = tomorrow;
                     this.toggleOtherRegionInput(false);
                     
                     this.renderQueue();

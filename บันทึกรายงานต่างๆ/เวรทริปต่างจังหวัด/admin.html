@@ -1434,6 +1434,11 @@
                 showConfirmButton: false
               });
               document.getElementById('trip-form').reset();
+              const today = new Date().toISOString().split('T')[0];
+              const tom = new Date(); tom.setDate(tom.getDate() + 1);
+              const tomorrow = tom.toISOString().split('T')[0];
+              document.getElementById('startDate').value = today;
+              document.getElementById('endDate').value = tomorrow;
               toggleOtherInput(false);
             } else {
               throw new Error(result.error);
@@ -1471,6 +1476,11 @@
           });
 
           document.getElementById('trip-form').reset();
+          const today = new Date().toISOString().split('T')[0];
+          const tom = new Date(); tom.setDate(tom.getDate() + 1);
+          const tomorrow = tom.toISOString().split('T')[0];
+          document.getElementById('startDate').value = today;
+          document.getElementById('endDate').value = tomorrow;
           toggleOtherInput(false);
         }
       } finally {
