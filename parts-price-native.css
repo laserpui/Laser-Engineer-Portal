@@ -1060,3 +1060,381 @@
     transition: none !important;
   }
 }
+/* Responsive hardening for native parts price screens. */
+#tab-parts-price,
+#tab-parts-price * {
+    min-width: 0;
+}
+
+#tab-parts-price {
+    overflow-x: hidden;
+}
+
+#tab-parts-price .parts-native-root {
+    max-width: 100%;
+}
+
+#pp-spare-root,
+#pp-cart-root {
+    min-height: auto;
+    overflow-x: hidden;
+    border-radius: 24px;
+}
+
+#pp-spare-root .app-container,
+#pp-cart-root .shell {
+    max-width: 100%;
+}
+
+#pp-spare-root header,
+#pp-cart-root .topbar,
+#pp-cart-root .result-hero,
+#pp-cart-root .section-head,
+#pp-spare-root .tier-header,
+#pp-spare-root .section-title,
+#pp-spare-root .meta-info,
+#pp-spare-root .brand-section,
+#pp-cart-root .brand-block,
+#pp-cart-root .source-chip,
+#pp-cart-root .result-label,
+#pp-cart-root .payable-box span,
+#pp-cart-root .metric span {
+    min-width: 0;
+}
+
+#pp-spare-root h1,
+#pp-spare-root h2,
+#pp-spare-root h3,
+#pp-spare-root p,
+#pp-spare-root span,
+#pp-spare-root label,
+#pp-cart-root h1,
+#pp-cart-root h2,
+#pp-cart-root h3,
+#pp-cart-root p,
+#pp-cart-root span,
+#pp-cart-root label,
+#pp-cart-root legend,
+#pp-cart-root strong,
+#pp-cart-root td,
+#pp-cart-root th {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+#pp-spare-root .dashboard-grid,
+#pp-cart-root .calculator-grid {
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+}
+
+#pp-spare-root .tiers-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+}
+
+#pp-spare-root .discounts-grid,
+#pp-cart-root .metrics {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+}
+
+#pp-cart-root .result-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 34%);
+}
+
+#pp-cart-root .table-wrap,
+#pp-spare-root .tiers-grid,
+#pp-spare-root .main-content {
+    max-width: 100%;
+}
+
+#pp-cart-root table {
+    min-width: 760px;
+}
+
+@media (max-width: 1180px) {
+    #pp-spare-root .dashboard-grid,
+    #pp-cart-root .calculator-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #pp-spare-root .control-sidebar,
+    #pp-cart-root .controls-panel {
+        position: static;
+    }
+}
+
+@media (max-width: 900px) {
+    #tab-parts-price > .flex:first-child {
+        align-items: stretch;
+    }
+
+    #tab-parts-price > .flex:first-child > .glass-panel {
+        width: 100%;
+    }
+
+    #pp-spare-root header,
+    #pp-cart-root .topbar,
+    #pp-cart-root .result-hero,
+    #pp-cart-root .section-head {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
+        text-align: left;
+    }
+
+    #pp-spare-root .meta-info,
+    #pp-cart-root .source-chip {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    #pp-cart-root .payable-box {
+        align-content: start;
+    }
+}
+
+@media (max-width: 640px) {
+    #tab-parts-price {
+        margin-left: -0.25rem;
+        margin-right: -0.25rem;
+    }
+
+    #tab-parts-price > .flex:first-child h3 {
+        font-size: 1rem;
+        line-height: 1.35;
+    }
+
+    #tab-parts-price > .flex:first-child p {
+        font-size: 0.75rem;
+        line-height: 1.55;
+    }
+
+    #parts-native-tab-spare,
+    #parts-native-tab-cartridge {
+        padding: 0.65rem 0.75rem;
+        white-space: normal;
+        line-height: 1.25;
+    }
+
+    #pp-spare-root,
+    #pp-cart-root {
+        border-radius: 18px;
+        padding: 0.875rem;
+        background-attachment: scroll;
+    }
+
+    #pp-spare-root .app-container,
+    #pp-cart-root .shell {
+        width: 100%;
+        gap: 1rem;
+    }
+
+    #pp-spare-root header,
+    #pp-spare-root .control-panel,
+    #pp-spare-root .summary-widget,
+    #pp-spare-root .tier-card,
+    #pp-spare-root .info-banner,
+    #pp-cart-root .topbar,
+    #pp-cart-root .controls-panel,
+    #pp-cart-root .result-hero,
+    #pp-cart-root .panel,
+    #pp-cart-root .metric {
+        border-radius: 18px;
+        padding: 1rem;
+    }
+
+    #pp-spare-root .brand-section,
+    #pp-cart-root .brand-block {
+        align-items: flex-start;
+    }
+
+    #pp-spare-root .brand-logo,
+    #pp-cart-root .brand-icon {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+    }
+
+    #pp-spare-root .brand-title h1,
+    #pp-cart-root h1 {
+        font-size: 1.05rem;
+        line-height: 1.35;
+    }
+
+    #pp-spare-root .brand-title p,
+    #pp-cart-root .eyebrow,
+    #pp-cart-root .source-chip {
+        font-size: 0.75rem;
+    }
+
+    #pp-spare-root .dashboard-grid,
+    #pp-cart-root .calculator-grid,
+    #pp-spare-root .tiers-grid,
+    #pp-spare-root .discounts-grid,
+    #pp-cart-root .metrics {
+        gap: 1rem;
+    }
+
+    #pp-spare-root .currency-tabs {
+        grid-template-columns: 1fr 1fr;
+        display: grid;
+    }
+
+    #pp-spare-root .quick-presets {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #pp-spare-root .tier-header,
+    #pp-spare-root .tier-price-display,
+    #pp-spare-root .price-box,
+    #pp-spare-root .section-title,
+    #pp-cart-root .info-row,
+    #pp-cart-root .radio-card label,
+    #pp-cart-root .result-label,
+    #pp-cart-root .payable-box span,
+    #pp-cart-root .metric span {
+        align-items: flex-start;
+    }
+
+    #pp-spare-root .tier-header,
+    #pp-spare-root .section-title,
+    #pp-cart-root .info-row {
+        flex-direction: column;
+    }
+
+    #pp-spare-root .tier-multiplier,
+    #pp-spare-root .active-badge,
+    #pp-cart-root #pp-cart-formulaTag {
+        white-space: normal;
+        width: fit-content;
+        max-width: 100%;
+    }
+
+    #pp-spare-root .price-value-main {
+        font-size: clamp(1.45rem, 9vw, 2rem);
+        line-height: 1.15;
+    }
+
+    #pp-cart-root #pp-cart-discountAmount {
+        font-size: clamp(2rem, 11vw, 3rem);
+    }
+
+    #pp-cart-root .payable-box strong,
+    #pp-cart-root .metric strong {
+        font-size: clamp(1.15rem, 6vw, 1.55rem);
+    }
+
+    #pp-cart-root .number-control {
+        grid-template-columns: 1fr;
+    }
+
+    #pp-cart-root .number-control span {
+        padding: 0 13px 12px;
+    }
+
+    #pp-cart-root .quick-buttons button {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 0;
+    }
+
+    #pp-cart-root .steps {
+        padding: 1rem 1rem 1rem 1.5rem;
+    }
+
+    #pp-cart-root .table-wrap {
+        border-radius: 14px;
+    }
+}
+
+@media (max-width: 420px) {
+    #pp-spare-root,
+    #pp-cart-root {
+        padding: 0.75rem;
+    }
+
+    #pp-spare-root .quick-presets,
+    #pp-spare-root .discounts-grid,
+    #pp-cart-root .metrics {
+        grid-template-columns: 1fr;
+    }
+
+    #pp-spare-root .meta-info,
+    #pp-cart-root .quick-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #pp-cart-root .quick-buttons button {
+        flex-basis: auto;
+        width: 100%;
+    }
+}
+
+/* Single-page integration: remove standalone page behavior and nested-scroll feel. */
+#tab-parts-price {
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+}
+
+#tab-parts-price .parts-native-panel {
+    width: 100%;
+    max-width: 100%;
+    overflow: visible;
+}
+
+#tab-parts-price .parts-native-root,
+#pp-spare-root,
+#pp-cart-root {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+    background-attachment: scroll !important;
+    border-radius: 0 !important;
+}
+
+#pp-spare-root .app-container,
+#pp-cart-root .shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+#pp-spare-root .glass-card,
+#pp-cart-root .panel {
+    max-width: 100%;
+}
+
+#pp-spare-root .glass-card:hover,
+#pp-cart-root .panel:hover {
+    transform: none;
+}
+
+#pp-cart-root .controls-panel {
+    position: static !important;
+    top: auto !important;
+}
+
+#pp-cart-root .table-wrap {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+#pp-cart-root .table-wrap table {
+    margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+    #tab-parts-price {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
