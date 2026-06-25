@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เครื่องมือคำนวณราคาอะไหล่ (Spare Parts Price Calculator)</title>
+    <!-- CSS File -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Dashboard Header -->
+        <header class="glass-card">
+            <div class="brand-section">
+                <div class="brand-logo">
+                    <i data-lucide="cpu"></i>
+                </div>
+                <div class="brand-title">
+                    <h1>เครื่องมือคำนวณราคาอะไหล่</h1>
+                    <p>SaaS Price Engine • USD & EUR Spare Parts Pricing</p>
+                </div>
+            </div>
+            <div class="meta-info">
+                <div class="meta-item">
+                    <i data-lucide="database"></i>
+                    <span>ฐานข้อมูล: อะไหล่</span>
+                </div>
+                <div class="meta-item">
+                    <i data-lucide="calendar"></i>
+                    <span id="current-date">--/--/----</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Grid Layout -->
+        <div class="dashboard-grid">
+            
+            <!-- Left Side Control Panel -->
+            <div class="control-sidebar">
+                
+                <!-- Input Panel -->
+                <div class="glass-card control-panel">
+                    <div class="panel-title">
+                        <i data-lucide="settings"></i>
+                        <span>ตั้งค่าการคำนวณ</span>
+                    </div>
+
+                    <!-- Currency Switcher tabs -->
+                    <div class="currency-tabs">
+                        <button type="button" class="tab-btn active" id="tab-usd" onclick="switchCurrency('USD')">
+                            <i data-lucide="dollar-sign"></i>
+                            <span>USD ($)</span>
+                        </button>
+                        <button type="button" class="tab-btn" id="tab-eur" onclick="switchCurrency('EUR')">
+                            <i data-lucide="euro"></i>
+                            <span>Euro (€)</span>
+                        </button>
+                    </div>
+
+                    <!-- Price Input -->
+                    <div class="form-group">
+                        <label for="input-price">ราคาอะไหล่ต้นทาง</label>
+                        <div class="input-container">
+                            <span class="input-icon" id="currency-icon"><i data-lucide="dollar-sign"></i></span>
+                            <input type="number" id="input-price" placeholder="0.00" min="0" step="0.01" oninput="calculate()">
+                            <span class="currency-badge" id="currency-badge">USD</span>
+                        </div>
+                        <!-- Quick presets -->
+                        <div class="quick-presets">
+                            <button type="button" class="preset-btn" onclick="applyPreset(100)">100</button>
+                            <button type="button" class="preset-btn" onclick="applyPreset(500)">500</button>
+                            <button type="button" class="preset-btn" onclick="applyPreset(1000)">1,000</button>
+                            <button type="button" class="preset-btn" onclick="applyPreset(1500)">1,500</button>
+                            <button type="button" class="preset-btn" onclick="applyPreset(2000)">2,000</button>
+                            <button type="button" class="preset-btn" onclick="applyPreset(5000)">5,000</button>
+                        </div>
+                    </div>
+
+                    <!-- Exchange Rate Input -->
+                    <div class="form-group">
+                        <label for="input-rate">อัตราแลกเปลี่ยน (THB)</label>
+                        <div class="input-container">
+                            <span class="input-icon"><i data-lucide="trending-up"></i></span>
+                            <input type="number" id="input-rate" placeholder="36" min="0" step="0.01" oninput="calculate()">
+                            <button type="button" class="btn-icon" style="position: absolute; right: 0.5rem; width: 28px; height: 28px; border-radius: 6px; padding: 0;" onclick="resetExchangeRate()" title="รีเซ็ตค่าเริ่มต้น">
+                                <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="reset-form-btn" onclick="resetCalculator()">
+                        <i data-lucide="rotate-ccw"></i>
+                        <span>รีเซ็ตค่าที่ป้อน</span>
+                    </button>
+                </div>
+
+                <!-- Cost Summary Card -->
+                <div class="glass-card summary-widget">
+                    <div class="widget-icon">
+                        <i data-lucide="coins"></i>
+                    </div>
+                    <div class="widget-details">
+                        <span class="widget-label">ต้นทุนแปลเป็นเงินบาท (THB)</span>
+                        <span class="widget-value" id="cost-thb">0.00 ฿</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side Results Panel -->
+            <div class="main-content">
+                
+                <!-- Section Header -->
+                <div class="section-header">
+                    <div class="section-title">
+                        <i data-lucide="trending-up"></i>
+                        <span>สรุปการตั้งราคาแยกตามช่วงราคาป้อนเข้า (Price Tiers)</span>
+                    </div>
+                </div>
+
+                <!-- Results Grid (The 4 Tiers) -->
+                <div class="tiers-grid">
+                    
+                    <!-- Tier 1 Card -->
+                    <div class="glass-card tier-card animate-fade" id="tier-card-1" style="animation-delay: 0.05s;">
+                        <div class="tier-bg-badge">1</div>
+                        <div class="tier-header">
+                            <div>
+                                <span class="tier-name">ระดับที่ 1</span>
+                                <div>
+                                    <span class="tier-range">ราคา 1 - 500 USD / Euro</span>
+                                    <span class="active-badge"><i data-lucide="sparkles" style="width: 10px; height: 10px;"></i> ตรงกับช่วงราคานี้</span>
+                                </div>
+                            </div>
+                            <span class="tier-multiplier">ตัวคูณ 4.0x</span>
+                        </div>
+                        <div class="tier-price-display">
+                            <div class="price-box">
+                                <span class="price-label">ราคาขายแนะนำ (ก่อน VAT)</span>
+                                <span class="price-value-main" id="t1-price">0.00 ฿</span>
+                                <span class="price-value-vat" id="t1-price-vat">
+                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                    รวม VAT 7%: <span id="t1-vat-val">0.00</span> ฿
+                                </span>
+                            </div>
+                        </div>
+                        <div class="discounts-section">
+                            <span class="discount-header-label">ราคาหักส่วนลดพันธมิตร</span>
+                            <div class="discounts-grid">
+                                <div class="discount-item">
+                                    <span class="discount-pct d10">ลด 10%</span>
+                                    <span class="discount-val" id="t1-d10">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d15">ลด 15%</span>
+                                    <span class="discount-val" id="t1-d15">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d20">ลด 20%</span>
+                                    <span class="discount-val" id="t1-d20">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d25">ลด 25%</span>
+                                    <span class="discount-val" id="t1-d25">0.00 ฿</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" class="btn-icon" onclick="copyTierToClipboard(1)" title="คัดลอกรายละเอียดราคานี้">
+                                <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tier 2 Card -->
+                    <div class="glass-card tier-card animate-fade" id="tier-card-2" style="animation-delay: 0.1s;">
+                        <div class="tier-bg-badge">2</div>
+                        <div class="tier-header">
+                            <div>
+                                <span class="tier-name">ระดับที่ 2</span>
+                                <div>
+                                    <span class="tier-range">ราคา 501 - 1,000 USD / Euro</span>
+                                    <span class="active-badge"><i data-lucide="sparkles" style="width: 10px; height: 10px;"></i> ตรงกับช่วงราคานี้</span>
+                                </div>
+                            </div>
+                            <span class="tier-multiplier">ตัวคูณ 3.0x</span>
+                        </div>
+                        <div class="tier-price-display">
+                            <div class="price-box">
+                                <span class="price-label">ราคาขายแนะนำ (ก่อน VAT)</span>
+                                <span class="price-value-main" id="t2-price">0.00 ฿</span>
+                                <span class="price-value-vat" id="t2-price-vat">
+                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                    รวม VAT 7%: <span id="t2-vat-val">0.00</span> ฿
+                                </span>
+                            </div>
+                        </div>
+                        <div class="discounts-section">
+                            <span class="discount-header-label">ราคาหักส่วนลดพันธมิตร</span>
+                            <div class="discounts-grid">
+                                <div class="discount-item">
+                                    <span class="discount-pct d10">ลด 10%</span>
+                                    <span class="discount-val" id="t2-d10">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d15">ลด 15%</span>
+                                    <span class="discount-val" id="t2-d15">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d20">ลด 20%</span>
+                                    <span class="discount-val" id="t2-d20">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d25">ลด 25%</span>
+                                    <span class="discount-val" id="t2-d25">0.00 ฿</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" class="btn-icon" onclick="copyTierToClipboard(2)" title="คัดลอกรายละเอียดราคานี้">
+                                <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tier 3 Card -->
+                    <div class="glass-card tier-card animate-fade" id="tier-card-3" style="animation-delay: 0.15s;">
+                        <div class="tier-bg-badge">3</div>
+                        <div class="tier-header">
+                            <div>
+                                <span class="tier-name">ระดับที่ 3</span>
+                                <div>
+                                    <span class="tier-range">ราคา 1,001 - 1,500 USD / Euro</span>
+                                    <span class="active-badge"><i data-lucide="sparkles" style="width: 10px; height: 10px;"></i> ตรงกับช่วงราคานี้</span>
+                                </div>
+                            </div>
+                            <span class="tier-multiplier">ตัวคูณ 2.0x</span>
+                        </div>
+                        <div class="tier-price-display">
+                            <div class="price-box">
+                                <span class="price-label">ราคาขายแนะนำ (ก่อน VAT)</span>
+                                <span class="price-value-main" id="t3-price">0.00 ฿</span>
+                                <span class="price-value-vat" id="t3-price-vat">
+                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                    รวม VAT 7%: <span id="t3-vat-val">0.00</span> ฿
+                                </span>
+                            </div>
+                        </div>
+                        <div class="discounts-section">
+                            <span class="discount-header-label">ราคาหักส่วนลดพันธมิตร</span>
+                            <div class="discounts-grid">
+                                <div class="discount-item">
+                                    <span class="discount-pct d10">ลด 10%</span>
+                                    <span class="discount-val" id="t3-d10">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d15">ลด 15%</span>
+                                    <span class="discount-val" id="t3-d15">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d20">ลด 20%</span>
+                                    <span class="discount-val" id="t3-d20">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d25">ลด 25%</span>
+                                    <span class="discount-val" id="t3-d25">0.00 ฿</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" class="btn-icon" onclick="copyTierToClipboard(3)" title="คัดลอกรายละเอียดราคานี้">
+                                <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tier 4 Card -->
+                    <div class="glass-card tier-card animate-fade" id="tier-card-4" style="animation-delay: 0.2s;">
+                        <div class="tier-bg-badge">4</div>
+                        <div class="tier-header">
+                            <div>
+                                <span class="tier-name">ระดับที่ 4</span>
+                                <div>
+                                    <span class="tier-range">ราคา 1,501 USD / Euro ขึ้นไป</span>
+                                    <span class="active-badge"><i data-lucide="sparkles" style="width: 10px; height: 10px;"></i> ตรงกับช่วงราคานี้</span>
+                                </div>
+                            </div>
+                            <span class="tier-multiplier">ตัวคูณ 1.5x</span>
+                        </div>
+                        <div class="tier-price-display">
+                            <div class="price-box">
+                                <span class="price-label">ราคาขายแนะนำ (ก่อน VAT)</span>
+                                <span class="price-value-main" id="t4-price">0.00 ฿</span>
+                                <span class="price-value-vat" id="t4-price-vat">
+                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                    รวม VAT 7%: <span id="t4-vat-val">0.00</span> ฿
+                                </span>
+                            </div>
+                        </div>
+                        <div class="discounts-section">
+                            <span class="discount-header-label">ราคาหักส่วนลดพันธมิตร</span>
+                            <div class="discounts-grid">
+                                <div class="discount-item">
+                                    <span class="discount-pct d10">ลด 10%</span>
+                                    <span class="discount-val" id="t4-d10">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d15">ลด 15%</span>
+                                    <span class="discount-val" id="t4-d15">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d20">ลด 20%</span>
+                                    <span class="discount-val" id="t4-d20">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d25">ลด 25%</span>
+                                    <span class="discount-val" id="t4-d25">0.00 ฿</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" class="btn-icon" onclick="copyTierToClipboard(4)" title="คัดลอกรายละเอียดราคานี้">
+                                <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Info and Footer Details -->
+                <div class="glass-card info-banner">
+                    <div class="widget-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success-color); width: 44px; height: 44px;">
+                        <i data-lucide="info" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <div>
+                        <p><strong>เกณฑ์การคำนวณ:</strong> ต้นทุนบาท = ราคาเงินต่างประเทศ x อัตราแลกเปลี่ยน | ราคาขาย = ต้นทุนบาท x ตัวคูณตามช่วงราคาที่ป้อน | ราคารวม VAT = ราคาขาย x 107%</p>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">อ้างอิงสูตรและค่าเริ่มต้นจากแผ่นงาน <strong>"อะไหล่"</strong> ในไฟล์ คำนวณราคาอะไหล่.xlsx</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">
+        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+        <span id="toast-message">คัดลอกข้อมูลสำเร็จ!</span>
+    </div>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- App Script -->
+    <script src="app.js"></script>
+</body>
+</html>

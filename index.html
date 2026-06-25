@@ -30,6 +30,8 @@
         }
     </script>
     
+    <link rel="stylesheet" href="./parts-price-native.css">
+
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -179,6 +181,9 @@
                     <button onclick="App.switchTab('spare-parts')" data-tab-btn="spare-parts" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
                         <i data-lucide="box" class="w-4 h-4"></i> รายการอะไหล่
                     </button>
+                    <button onclick="App.switchTab('parts-price')" data-tab-btn="parts-price" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
+                        <i data-lucide="receipt-text" class="w-4 h-4"></i> คำนวณราคาอะไหล่
+                    </button>
                     <button onclick="App.switchTab('product-info')" data-tab-btn="product-info" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
                         <i data-lucide="clipboard-list" class="w-4 h-4"></i> ข้อมูลผลิตภัณฑ์
                     </button>
@@ -264,6 +269,15 @@
                             </div>
                         </div>
 
+                        <div onclick="App.switchTab('parts-price')" class="glass-panel glass-panel-hover rounded-3xl p-5 flex items-center gap-4 cursor-pointer">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center border border-emerald-500/20 shrink-0">
+                                <i data-lucide="receipt-text" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <div class="text-xl font-black leading-tight text-emerald-700">Price Calc</div>
+                                <div class="text-xs font-semibold text-slate-400">ศูนย์คำนวณราคาอะไหล่และ Cartridge</div>
+                            </div>
+                        </div>
                         <!-- Stat Card 2 -->
                         <div onclick="App.switchTab('product-info')" class="glass-panel glass-panel-hover rounded-3xl p-5 flex items-center gap-4 cursor-pointer">
                             <div class="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center border border-blue-500/20 shrink-0">
@@ -330,6 +344,514 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- ==================== TAB: PARTS PRICE CALCULATOR ==================== -->
+                <div id="tab-parts-price" class="tab-content space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-extrabold text-lg flex items-center gap-2 text-slate-800">
+                                <i data-lucide="receipt-text" class="text-emerald-600"></i> คำนวณราคาอะไหล่และ Cartridge
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">ใช้งานเป็นส่วนหนึ่งของ Laser Engineer Rev.01 โดยตรง ไม่ซ้อน iframe</p>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-1 flex w-full sm:w-auto">
+                            <button type="button" onclick="PartsPriceIntegrated.switchTool('spare')" id="parts-native-tab-spare" class="flex-1 sm:flex-none py-2 px-4 rounded-xl text-xs font-bold transition-all text-blue-600 bg-white/70 shadow-sm border border-white/60">ราคาอะไหล่</button>
+                            <button type="button" onclick="PartsPriceIntegrated.switchTool('cartridge')" id="parts-native-tab-cartridge" class="flex-1 sm:flex-none py-2 px-4 rounded-xl text-xs font-bold transition-all text-slate-500 hover:bg-white/30">ราคา Cartridge</button>
+                        </div>
+                    </div>
+
+                    <section id="parts-native-panel-spare" class="parts-native-panel">
+                        <div id="pp-spare-root" class="parts-native-root parts-spare-root">
+<div class="app-container">
+        <!-- Dashboard Header -->
+        <header class="glass-card">
+            <div class="brand-section">
+                <div class="brand-logo">
+                    <i data-lucide="cpu"></i>
+                </div>
+                <div class="brand-title">
+                    <h1>เครื่องมือคำนวณราคาอะไหล่</h1>
+                    <p>SaaS Price Engine • USD & EUR Spare Parts Pricing</p>
+                </div>
+            </div>
+            <div class="meta-info">
+                <div class="meta-item">
+                    <i data-lucide="database"></i>
+                    <span>ฐานข้อมูล: อะไหล่</span>
+                </div>
+                <div class="meta-item">
+                    <i data-lucide="calendar"></i>
+                    <span id="pp-spare-current-date">--/--/----</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Grid Layout -->
+        <div class="dashboard-grid">
+            
+            <!-- Left Side Control Panel -->
+            <div class="control-sidebar">
+                
+                <!-- Input Panel -->
+                <div class="glass-card control-panel">
+                    <div class="panel-title">
+                        <i data-lucide="settings"></i>
+                        <span>ตั้งค่าการคำนวณ</span>
+                    </div>
+
+                    <!-- Currency Switcher tabs -->
+                    <div class="currency-tabs">
+                        <button type="button" class="tab-btn active" id="pp-spare-tab-usd" onclick="PartsPriceIntegrated.spare.switchCurrency('USD')">
+                            <i data-lucide="dollar-sign"></i>
+                            <span>USD ($)</span>
+                        </button>
+                        <button type="button" class="tab-btn" id="pp-spare-tab-eur" onclick="PartsPriceIntegrated.spare.switchCurrency('EUR')">
+                            <i data-lucide="euro"></i>
+                            <span>Euro (€)</span>
+                        </button>
+                    </div>
+
+                    <!-- Price Input -->
+                    <div class="form-group">
+                        <label for="pp-spare-input-price">ราคาอะไหล่ต้นทาง</label>
+                        <div class="input-container">
+                            <span class="input-icon" id="pp-spare-currency-icon"><i data-lucide="dollar-sign"></i></span>
+                            <input type="number" id="pp-spare-input-price" placeholder="0.00" min="0" step="0.01" oninput="PartsPriceIntegrated.spare.calculate()">
+                            <span class="currency-badge" id="pp-spare-currency-badge">USD</span>
+                        </div>
+                        <!-- Quick presets -->
+                        <div class="quick-presets">
+                            <button type="button" class="preset-btn" onclick="PartsPriceIntegrated.spare.applyPreset(100)">100</button>
+                            <button type="button" class="preset-btn" onclick="PartsPriceIntegrated.spare.applyPreset(500)">500</button>
+                            <button type="button" class="preset-btn" onclick="PartsPriceIntegrated.spare.applyPreset(1000)">1,000</button>
+                            <button type="button" class="preset-btn" onclick="PartsPriceIntegrated.spare.applyPreset(1500)">1,500</button>
+                            <button type="button" class="preset-btn" onclick="PartsPriceIntegrated.spare.applyPreset(2000)">2,000</button>
+                            <button type="button" class="preset-btn" onclick="PartsPriceIntegrated.spare.applyPreset(5000)">5,000</button>
+                        </div>
+                    </div>
+
+                    <!-- Exchange Rate Input -->
+                    <div class="form-group">
+                        <label for="pp-spare-input-rate">อัตราแลกเปลี่ยน (THB)</label>
+                        <div class="input-container">
+                            <span class="input-icon"><i data-lucide="trending-up"></i></span>
+                            <input type="number" id="pp-spare-input-rate" placeholder="36" min="0" step="0.01" oninput="PartsPriceIntegrated.spare.calculate()">
+                            <button type="button" class="btn-icon" style="position: absolute; right: 0.5rem; width: 28px; height: 28px; border-radius: 6px; padding: 0;" onclick="PartsPriceIntegrated.spare.resetExchangeRate()" title="รีเซ็ตค่าเริ่มต้น">
+                                <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="reset-form-btn" onclick="PartsPriceIntegrated.spare.resetCalculator()">
+                        <i data-lucide="rotate-ccw"></i>
+                        <span>รีเซ็ตค่าที่ป้อน</span>
+                    </button>
+                </div>
+
+                <!-- Cost Summary Card -->
+                <div class="glass-card summary-widget">
+                    <div class="widget-icon">
+                        <i data-lucide="coins"></i>
+                    </div>
+                    <div class="widget-details">
+                        <span class="widget-label">ต้นทุนแปลเป็นเงินบาท (THB)</span>
+                        <span class="widget-value" id="pp-spare-cost-thb">0.00 ฿</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side Results Panel -->
+            <div class="main-content">
+                
+                <!-- Section Header -->
+                <div class="section-header">
+                    <div class="section-title">
+                        <i data-lucide="trending-up"></i>
+                        <span>สรุปการตั้งราคาแยกตามช่วงราคาป้อนเข้า (Price Tiers)</span>
+                    </div>
+                </div>
+
+                <!-- Results Grid (The 4 Tiers) -->
+                <div class="tiers-grid">
+                    
+                    <!-- Tier 1 Card -->
+                    <div class="glass-card tier-card animate-fade" id="pp-spare-tier-card-1" style="animation-delay: 0.05s;">
+                        <div class="tier-bg-badge">1</div>
+                        <div class="tier-header">
+                            <div>
+                                <span class="tier-name">ระดับที่ 1</span>
+                                <div>
+                                    <span class="tier-range">ราคา 1 - 500 USD / Euro</span>
+                                    <span class="active-badge"><i data-lucide="sparkles" style="width: 10px; height: 10px;"></i> ตรงกับช่วงราคานี้</span>
+                                </div>
+                            </div>
+                            <span class="tier-multiplier">ตัวคูณ 4.0x</span>
+                        </div>
+                        <div class="tier-price-display">
+                            <div class="price-box">
+                                <span class="price-label">ราคาขายแนะนำ (ก่อน VAT)</span>
+                                <span class="price-value-main" id="pp-spare-t1-price">0.00 ฿</span>
+                                <span class="price-value-vat" id="pp-spare-t1-price-vat">
+                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                    รวม VAT 7%: <span id="pp-spare-t1-vat-val">0.00</span> ฿
+                                </span>
+                            </div>
+                        </div>
+                        <div class="discounts-section">
+                            <span class="discount-header-label">ราคาหักส่วนลดพันธมิตร</span>
+                            <div class="discounts-grid">
+                                <div class="discount-item">
+                                    <span class="discount-pct d10">ลด 10%</span>
+                                    <span class="discount-val" id="pp-spare-t1-d10">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d15">ลด 15%</span>
+                                    <span class="discount-val" id="pp-spare-t1-d15">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d20">ลด 20%</span>
+                                    <span class="discount-val" id="pp-spare-t1-d20">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d25">ลด 25%</span>
+                                    <span class="discount-val" id="pp-spare-t1-d25">0.00 ฿</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" class="btn-icon" onclick="PartsPriceIntegrated.spare.copyTierToClipboard(1)" title="คัดลอกรายละเอียดราคานี้">
+                                <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tier 2 Card -->
+                    <div class="glass-card tier-card animate-fade" id="pp-spare-tier-card-2" style="animation-delay: 0.1s;">
+                        <div class="tier-bg-badge">2</div>
+                        <div class="tier-header">
+                            <div>
+                                <span class="tier-name">ระดับที่ 2</span>
+                                <div>
+                                    <span class="tier-range">ราคา 501 - 1,000 USD / Euro</span>
+                                    <span class="active-badge"><i data-lucide="sparkles" style="width: 10px; height: 10px;"></i> ตรงกับช่วงราคานี้</span>
+                                </div>
+                            </div>
+                            <span class="tier-multiplier">ตัวคูณ 3.0x</span>
+                        </div>
+                        <div class="tier-price-display">
+                            <div class="price-box">
+                                <span class="price-label">ราคาขายแนะนำ (ก่อน VAT)</span>
+                                <span class="price-value-main" id="pp-spare-t2-price">0.00 ฿</span>
+                                <span class="price-value-vat" id="pp-spare-t2-price-vat">
+                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                    รวม VAT 7%: <span id="pp-spare-t2-vat-val">0.00</span> ฿
+                                </span>
+                            </div>
+                        </div>
+                        <div class="discounts-section">
+                            <span class="discount-header-label">ราคาหักส่วนลดพันธมิตร</span>
+                            <div class="discounts-grid">
+                                <div class="discount-item">
+                                    <span class="discount-pct d10">ลด 10%</span>
+                                    <span class="discount-val" id="pp-spare-t2-d10">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d15">ลด 15%</span>
+                                    <span class="discount-val" id="pp-spare-t2-d15">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d20">ลด 20%</span>
+                                    <span class="discount-val" id="pp-spare-t2-d20">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d25">ลด 25%</span>
+                                    <span class="discount-val" id="pp-spare-t2-d25">0.00 ฿</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" class="btn-icon" onclick="PartsPriceIntegrated.spare.copyTierToClipboard(2)" title="คัดลอกรายละเอียดราคานี้">
+                                <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tier 3 Card -->
+                    <div class="glass-card tier-card animate-fade" id="pp-spare-tier-card-3" style="animation-delay: 0.15s;">
+                        <div class="tier-bg-badge">3</div>
+                        <div class="tier-header">
+                            <div>
+                                <span class="tier-name">ระดับที่ 3</span>
+                                <div>
+                                    <span class="tier-range">ราคา 1,001 - 1,500 USD / Euro</span>
+                                    <span class="active-badge"><i data-lucide="sparkles" style="width: 10px; height: 10px;"></i> ตรงกับช่วงราคานี้</span>
+                                </div>
+                            </div>
+                            <span class="tier-multiplier">ตัวคูณ 2.0x</span>
+                        </div>
+                        <div class="tier-price-display">
+                            <div class="price-box">
+                                <span class="price-label">ราคาขายแนะนำ (ก่อน VAT)</span>
+                                <span class="price-value-main" id="pp-spare-t3-price">0.00 ฿</span>
+                                <span class="price-value-vat" id="pp-spare-t3-price-vat">
+                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                    รวม VAT 7%: <span id="pp-spare-t3-vat-val">0.00</span> ฿
+                                </span>
+                            </div>
+                        </div>
+                        <div class="discounts-section">
+                            <span class="discount-header-label">ราคาหักส่วนลดพันธมิตร</span>
+                            <div class="discounts-grid">
+                                <div class="discount-item">
+                                    <span class="discount-pct d10">ลด 10%</span>
+                                    <span class="discount-val" id="pp-spare-t3-d10">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d15">ลด 15%</span>
+                                    <span class="discount-val" id="pp-spare-t3-d15">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d20">ลด 20%</span>
+                                    <span class="discount-val" id="pp-spare-t3-d20">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d25">ลด 25%</span>
+                                    <span class="discount-val" id="pp-spare-t3-d25">0.00 ฿</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" class="btn-icon" onclick="PartsPriceIntegrated.spare.copyTierToClipboard(3)" title="คัดลอกรายละเอียดราคานี้">
+                                <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tier 4 Card -->
+                    <div class="glass-card tier-card animate-fade" id="pp-spare-tier-card-4" style="animation-delay: 0.2s;">
+                        <div class="tier-bg-badge">4</div>
+                        <div class="tier-header">
+                            <div>
+                                <span class="tier-name">ระดับที่ 4</span>
+                                <div>
+                                    <span class="tier-range">ราคา 1,501 USD / Euro ขึ้นไป</span>
+                                    <span class="active-badge"><i data-lucide="sparkles" style="width: 10px; height: 10px;"></i> ตรงกับช่วงราคานี้</span>
+                                </div>
+                            </div>
+                            <span class="tier-multiplier">ตัวคูณ 1.5x</span>
+                        </div>
+                        <div class="tier-price-display">
+                            <div class="price-box">
+                                <span class="price-label">ราคาขายแนะนำ (ก่อน VAT)</span>
+                                <span class="price-value-main" id="pp-spare-t4-price">0.00 ฿</span>
+                                <span class="price-value-vat" id="pp-spare-t4-price-vat">
+                                    <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+                                    รวม VAT 7%: <span id="pp-spare-t4-vat-val">0.00</span> ฿
+                                </span>
+                            </div>
+                        </div>
+                        <div class="discounts-section">
+                            <span class="discount-header-label">ราคาหักส่วนลดพันธมิตร</span>
+                            <div class="discounts-grid">
+                                <div class="discount-item">
+                                    <span class="discount-pct d10">ลด 10%</span>
+                                    <span class="discount-val" id="pp-spare-t4-d10">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d15">ลด 15%</span>
+                                    <span class="discount-val" id="pp-spare-t4-d15">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d20">ลด 20%</span>
+                                    <span class="discount-val" id="pp-spare-t4-d20">0.00 ฿</span>
+                                </div>
+                                <div class="discount-item">
+                                    <span class="discount-pct d25">ลด 25%</span>
+                                    <span class="discount-val" id="pp-spare-t4-d25">0.00 ฿</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" class="btn-icon" onclick="PartsPriceIntegrated.spare.copyTierToClipboard(4)" title="คัดลอกรายละเอียดราคานี้">
+                                <i data-lucide="copy" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Info and Footer Details -->
+                <div class="glass-card info-banner">
+                    <div class="widget-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success-color); width: 44px; height: 44px;">
+                        <i data-lucide="info" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <div>
+                        <p><strong>เกณฑ์การคำนวณ:</strong> ต้นทุนบาท = ราคาเงินต่างประเทศ x อัตราแลกเปลี่ยน | ราคาขาย = ต้นทุนบาท x ตัวคูณตามช่วงราคาที่ป้อน | ราคารวม VAT = ราคาขาย x 107%</p>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">อ้างอิงสูตรและค่าเริ่มต้นจากแผ่นงาน <strong>"อะไหล่"</strong> ในไฟล์ คำนวณราคาอะไหล่.xlsx</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="pp-spare-toast" class="toast">
+        <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+        <span id="pp-spare-toast-message">คัดลอกข้อมูลสำเร็จ!</span>
+    </div>
+
+    <!-- Lucide Icons CDN -->
+    
+    <!-- App Script -->
+                        </div>
+                    </section>
+
+                    <section id="parts-native-panel-cartridge" class="parts-native-panel hidden">
+                        <div id="pp-cart-root" class="parts-native-root parts-cartridge-root">
+<main class="shell">
+    <header class="topbar panel">
+      <div class="brand-block">
+        <div class="brand-icon" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/><path d="M2 12h20"/><path d="m5 7-3 5 3 5"/><path d="m19 7 3 5-3 5"/></svg>
+        </div>
+        <div>
+          <p class="eyebrow">Enterprise Cartridge Dashboard</p>
+          <h1>คำนวณราคาขาย Cartridge</h1>
+        </div>
+      </div>
+      <div class="source-chip">
+        <svg class="chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h6"/></svg>
+        อ้างอิง Sheet: Cartridge
+      </div>
+    </header>
+
+    <section class="calculator-grid">
+      <aside class="panel controls-panel">
+        <div class="panel-title">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M9 3v18"/><path d="M3 9h18"/></svg>
+          <span>ตั้งค่าการคำนวณ</span>
+        </div>
+
+        <div class="field">
+          <label for="pp-cart-machineSelect">เลือกเครื่อง</label>
+          <select id="pp-cart-machineSelect"></select>
+        </div>
+
+        <div class="field">
+          <label for="pp-cart-cartridgeSelect">เลือก Cartridge</label>
+          <select id="pp-cart-cartridgeSelect"></select>
+        </div>
+
+        <div class="info-box" id="pp-cart-cartridgeInfo"></div>
+
+        <div class="field">
+          <label for="pp-cart-remainingShots">Shot คงเหลือ</label>
+          <div class="number-control">
+            <input id="pp-cart-remainingShots" type="number" min="0" step="1" value="1000" inputmode="numeric">
+            <span>Shot</span>
+          </div>
+          <div class="quick-buttons" id="pp-cart-quickButtons"></div>
+        </div>
+
+        <fieldset class="field radio-card">
+          <legend>ระยะเวลาหลังขาย</legend>
+          <label>
+            <input type="radio" name="pp-cart-warranty" value="year1" checked>
+            <span>ภายใน 1 ปี รวมประกัน (50%)</span>
+          </label>
+          <label>
+            <input type="radio" name="pp-cart-warranty" value="year2">
+            <span>หลังจาก 1 ปี ไม่เกิน 2 ปี (20%)</span>
+          </label>
+        </fieldset>
+
+        <button id="pp-cart-copyButton" class="primary-button" type="button">
+          <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+          คัดลอกผลคำนวณ
+        </button>
+
+        <button id="pp-cart-resetButton" class="secondary-button" type="button">
+          <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg>
+          รีเซ็ตค่าที่ป้อน
+        </button>
+      </aside>
+
+      <section class="results-stack">
+        <div class="result-hero panel">
+          <div>
+            <p class="result-label">
+              <svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 1 1 2.4-3.2L12 7z"/><path d="M12 7h4.5a2.5 2.5 0 1 0-2.4-3.2L12 7z"/></svg>
+              ส่วนลดสำหรับสั่งซื้อ Cartridge ใหม่
+            </p>
+            <strong id="pp-cart-discountAmount">0 บาท</strong>
+            <p id="pp-cart-limitNote">คำนวณจาก Shot ที่เข้าเงื่อนไข 0 Shot</p>
+          </div>
+          <div class="payable-box">
+            <span>ราคาที่ต้องชำระหลังหักส่วนลด</span>
+            <strong id="pp-cart-payableAmount">0 บาท</strong>
+          </div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric panel">
+            <span><svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>ราคาเต็มรวม VAT</span>
+            <strong id="pp-cart-fullPrice">0 บาท</strong>
+          </div>
+          <div class="metric panel">
+            <span><svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>ราคา/Shot ที่ใช้คำนวณ</span>
+            <strong id="pp-cart-ratePerShot">0 บาท</strong>
+          </div>
+          <div class="metric panel">
+            <span><svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>Limit ตามช่วงประกัน</span>
+            <strong id="pp-cart-activeLimit">0 Shot</strong>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h2>
+              <svg class="heading-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              วิธีคำนวณ
+            </h2>
+            <span id="pp-cart-formulaTag">ปีที่ 1 · 50%</span>
+          </div>
+          <ol class="steps" id="pp-cart-formulaSteps"></ol>
+          <div class="warning" id="pp-cart-warningBox" hidden></div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h2>
+              <svg class="heading-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-7"/></svg>
+              ตารางอ้างอิงจาก Sheet Cartridge
+            </h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>เครื่อง</th>
+                  <th>Cartridge</th>
+                  <th>Total Shot</th>
+                  <th>Limit ปี 1</th>
+                  <th>Limit ปี 2</th>
+                  <th>ราคา/Shot ในสูตร</th>
+                  <th>ราคาเต็ม</th>
+                </tr>
+              </thead>
+              <tbody id="pp-cart-referenceBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="toast" id="pp-cart-toast" role="status" aria-live="polite">คัดลอกแล้ว</div>
+                        </div>
+                    </section>
                 </div>
 
                 <!-- ==================== TAB: CALCULATOR ==================== -->
@@ -1366,6 +1888,8 @@
         </div>
     </div>
 
+    <script src="./parts-price-native.js"></script>
+
     <!-- ============================================ -->
     <!-- CORE APPLICATIONS & NAMESPACED JAVASCRIPT -->
     <!-- ============================================ -->
@@ -1396,6 +1920,7 @@
                 // Trigger modules loading
                 OverviewModule.init();
                 CalculatorModule.init();
+                PartsPriceIntegrated.init();
                 SparePartsModule.init();
                 ProductInfoModule.init();
                 ARServiceModule.init();
@@ -1425,6 +1950,7 @@
                     overview: 'Overview Dashboard',
                     calculator: 'เครื่องคำนวณ Dual-Engine Calculator',
                     'spare-parts': 'ตารางข้อมูลอะไหล่พรีเมียม',
+                    'parts-price': 'คำนวณราคาอะไหล่และ Cartridge',
                     'product-info': 'ตารางรายละเอียดข้อมูลผลิตภัณฑ์',
                     debtor: 'ระบบจัดการลูกหนี้ค้างชำระ (AR Service)',
                     expenses: 'รายงานบัญชีและบันทึกค่าใช้จ่ายวิศวกร',
@@ -1592,7 +2118,6 @@
                 });
             }
         };
-
         // ============================================
         // 2. OVERVIEW DASHBOARD MODULE
         // ============================================

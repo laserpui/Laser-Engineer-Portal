@@ -1,0 +1,616 @@
+/* style.css */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+    --bg-gradient: linear-gradient(135deg, #E5FFFF 0%, #FFFFE6 50%, #FFE6FF 100%);
+    --font-primary: 'Sarabun', 'Noto Sans Thai', sans-serif;
+    --font-secondary: 'Noto Sans Thai', sans-serif;
+    
+    /* Elegant SaaS Color Palette */
+    --primary-color: #6366f1; /* Indigo */
+    --primary-hover: #4f46e5;
+    --success-color: #059669; /* Emerald Darker for contrast */
+    --warning-color: #d97706; /* Amber Darker for contrast */
+    --danger-color: #dc2626; /* Rose Darker for contrast */
+    --text-main: #1f2937; /* Dark Gray */
+    --text-muted: #6b7280; /* Gray */
+    --glass-bg: rgba(255, 255, 255, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06);
+    --glass-shadow-hover: 0 16px 48px 0 rgba(31, 38, 135, 0.12);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: var(--text-main);
+    line-height: 1.6;
+    padding: 2rem 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 1280px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Glassmorphism Common Style */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px; /* Rounded-3XL equivalent */
+    box-shadow: var(--glass-shadow);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+    box-shadow: var(--glass-shadow-hover);
+    transform: translateY(-4px);
+}
+
+/* Header Section */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+}
+
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.brand-logo {
+    background: linear-gradient(135deg, var(--primary-color), #ec4899);
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2);
+}
+
+.brand-title h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1e1b4b, var(--primary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-title p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.meta-info {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Dashboard Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Sidebar Controls */
+.control-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.control-panel {
+    padding: 2rem;
+}
+
+.panel-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #1e1b4b;
+}
+
+/* Tab buttons for Currency Selection */
+.currency-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 0.3rem;
+    margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.8rem;
+    border-radius: 12px;
+    font-family: var(--font-primary);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    background: white;
+    color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Input Fields styling */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-muted);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.8rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 14px;
+    font-family: var(--font-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+.currency-badge {
+    position: absolute;
+    right: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Quick Presets styling */
+.quick-presets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.preset-btn {
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.3);
+    padding: 0.5rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--font-primary);
+    transition: all 0.2s ease;
+}
+
+.preset-btn:hover {
+    background: white;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.reset-form-btn {
+    width: 100%;
+    border: 1px solid rgba(99, 102, 241, 0.22);
+    background: rgba(255, 255, 255, 0.58);
+    color: var(--primary-color);
+    border-radius: 14px;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-primary);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.reset-form-btn:hover {
+    background: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12);
+    transform: translateY(-1px);
+}
+
+.reset-form-btn svg {
+    width: 17px;
+    height: 17px;
+}
+
+/* Stats / Summary Card */
+.summary-widget {
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.widget-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.widget-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.widget-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.widget-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1e1b4b;
+}
+
+/* Main Content Area */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Tiers Section Header */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e1b4b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Tiers Grid */
+.tiers-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .tiers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tier Card design */
+.tier-card {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Background badge pattern for tier */
+.tier-bg-badge {
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    font-size: 8rem;
+    font-weight: 800;
+    color: rgba(99, 102, 241, 0.03);
+    pointer-events: none;
+    line-height: 1;
+}
+
+.tier-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+    padding-bottom: 1rem;
+}
+
+.tier-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e1b4b;
+}
+
+.tier-range {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    margin-top: 0.2rem;
+    display: inline-block;
+}
+
+.tier-multiplier {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.1);
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+}
+
+.tier-price-display {
+    margin-bottom: 1.5rem;
+}
+
+.price-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.price-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.price-value-main {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #1f2937;
+    line-height: 1.2;
+}
+
+.price-value-vat {
+    font-size: 1.05rem;
+    color: var(--success-color);
+    font-weight: 600;
+    margin-top: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Discount grids inside cards */
+.discounts-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.discount-header-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.2rem;
+}
+
+.discounts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+}
+
+.discount-item {
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+}
+
+.discount-item:hover {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.discount-pct {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Color codes for different discount rates */
+.discount-pct.d10 { color: #8b5cf6; } /* Violet */
+.discount-pct.d15 { color: #3b82f6; } /* Blue */
+.discount-pct.d20 { color: #d97706; } /* Amber */
+.discount-pct.d25 { color: #ec4899; } /* Pink */
+
+.discount-val {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #374151;
+    margin-top: 0.1rem;
+}
+
+/* Footer & Actions */
+.card-actions {
+    margin-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+    padding-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.btn-icon {
+    border: none;
+    background: rgba(255, 255, 255, 0.5);
+    color: #4b5563;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Info Banner */
+.info-banner {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.info-banner p {
+    font-size: 0.85rem;
+    color: #4b5563;
+}
+
+/* Modern toast notification */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(17, 24, 39, 0.9);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1000;
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* Active Cost Tier Highlight */
+.tier-card.active-tier {
+    border: 2px solid var(--primary-color);
+    background: rgba(255, 255, 255, 0.75);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+}
+
+.active-badge {
+    display: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, var(--primary-color), #ec4899);
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+}
+
+.tier-card.active-tier .active-badge {
+    display: inline-flex;
+}

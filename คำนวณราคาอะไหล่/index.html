@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ศูนย์คำนวณราคาอะไหล่และ Cartridge</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap");
+
+    :root {
+      --bg-from: #e5ffff;
+      --bg-mid: #ffffe6;
+      --bg-to: #ffe6ff;
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-strong: rgba(255, 255, 255, 0.9);
+      --line: rgba(148, 163, 184, 0.35);
+      --text: #172033;
+      --muted: #65718b;
+      --brand: #2563eb;
+      --brand-dark: #1e40af;
+      --shadow: 0 22px 55px rgba(54, 69, 106, 0.13), 0 3px 12px rgba(54, 69, 106, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Sarabun", "Noto Sans Thai", Tahoma, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 12%, rgba(147, 197, 253, 0.42), transparent 30%),
+        radial-gradient(circle at 82% 18%, rgba(251, 207, 232, 0.46), transparent 28%),
+        linear-gradient(135deg, var(--bg-from) 0%, var(--bg-mid) 52%, var(--bg-to) 100%);
+      background-attachment: fixed;
+    }
+
+    .app-shell {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 18px 0 28px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      border-radius: 24px;
+      background: var(--surface);
+      backdrop-filter: blur(22px) saturate(150%);
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      flex: 0 0 auto;
+      border-radius: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      box-shadow: 0 14px 30px rgba(37, 99, 235, 0.24);
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(20px, 2.4vw, 28px);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .page-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.55);
+      flex: 0 0 auto;
+    }
+
+    .page-tab {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 9px 14px;
+      border: 0;
+      border-radius: 13px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+      text-decoration: none;
+      transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+    }
+
+    .page-tab[aria-current="page"] {
+      color: var(--brand-dark);
+      background: var(--surface-strong);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+    }
+
+    .content-frame {
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.45);
+      box-shadow: var(--shadow);
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    iframe {
+      display: block;
+      width: 100%;
+      height: calc(100vh - 126px);
+      min-height: 720px;
+      border: 0;
+      background: transparent;
+    }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        width: min(100% - 20px, 1480px);
+        padding-top: 10px;
+      }
+
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .page-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      iframe {
+        height: calc(100vh - 176px);
+        min-height: 680px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">฿</div>
+        <div>
+          <h1>ศูนย์คำนวณราคาอะไหล่และ Cartridge</h1>
+          <p>รวม 2 เครื่องมือไว้ในเว็บเดียว เลือกหน้าที่ต้องการใช้งานจากเมนูด้านขวา</p>
+        </div>
+      </div>
+
+      <nav class="page-tabs" aria-label="เลือกหน้าคำนวณ">
+        <a class="page-tab" href="#spare-parts" data-page="spare-parts">ราคาอะไหล่</a>
+        <a class="page-tab" href="#cartridge" data-page="cartridge">ราคา Cartridge</a>
+      </nav>
+    </header>
+
+    <section class="content-frame">
+      <div class="page" id="page-spare-parts">
+        <iframe title="หน้าเครื่องมือคำนวณราคาอะไหล่" src="ราคาอะไหล่/index.html"></iframe>
+      </div>
+      <div class="page" id="page-cartridge">
+        <iframe title="หน้าเครื่องมือคำนวณราคา Cartridge" src="ราคา%20Cartridge/index.html"></iframe>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll(".page-tab"));
+    const pages = {
+      "spare-parts": document.getElementById("page-spare-parts"),
+      cartridge: document.getElementById("page-cartridge"),
+    };
+
+    function setActivePage(pageName) {
+      const activeName = pages[pageName] ? pageName : "spare-parts";
+
+      Object.entries(pages).forEach(([name, page]) => {
+        page.classList.toggle("active", name === activeName);
+      });
+
+      tabs.forEach((tab) => {
+        const isActive = tab.dataset.page === activeName;
+        tab.setAttribute("aria-current", isActive ? "page" : "false");
+      });
+    }
+
+    function pageFromHash() {
+      return window.location.hash.replace("#", "") || "spare-parts";
+    }
+
+    window.addEventListener("hashchange", () => setActivePage(pageFromHash()));
+    setActivePage(pageFromHash());
+  </script>
+</body>
+</html>

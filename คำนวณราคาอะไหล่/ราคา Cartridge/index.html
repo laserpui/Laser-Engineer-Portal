@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คำนวณราคาขาย Cartridge</title>
+  <meta name="description" content="Webapp คำนวณส่วนลดและราคาขาย Cartridge จาก Shot คงเหลือ ตามชีต Cartridge">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="gradient-mesh" aria-hidden="true"></div>
+
+  <main class="shell">
+    <header class="topbar panel">
+      <div class="brand-block">
+        <div class="brand-icon" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/><path d="M2 12h20"/><path d="m5 7-3 5 3 5"/><path d="m19 7 3 5-3 5"/></svg>
+        </div>
+        <div>
+          <p class="eyebrow">Enterprise Cartridge Dashboard</p>
+          <h1>คำนวณราคาขาย Cartridge</h1>
+        </div>
+      </div>
+      <div class="source-chip">
+        <svg class="chip-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h6"/></svg>
+        อ้างอิง Sheet: Cartridge
+      </div>
+    </header>
+
+    <section class="calculator-grid">
+      <aside class="panel controls-panel">
+        <div class="panel-title">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3z"/><path d="M9 3v18"/><path d="M3 9h18"/></svg>
+          <span>ตั้งค่าการคำนวณ</span>
+        </div>
+
+        <div class="field">
+          <label for="machineSelect">เลือกเครื่อง</label>
+          <select id="machineSelect"></select>
+        </div>
+
+        <div class="field">
+          <label for="cartridgeSelect">เลือก Cartridge</label>
+          <select id="cartridgeSelect"></select>
+        </div>
+
+        <div class="info-box" id="cartridgeInfo"></div>
+
+        <div class="field">
+          <label for="remainingShots">Shot คงเหลือ</label>
+          <div class="number-control">
+            <input id="remainingShots" type="number" min="0" step="1" value="1000" inputmode="numeric">
+            <span>Shot</span>
+          </div>
+          <div class="quick-buttons" id="quickButtons"></div>
+        </div>
+
+        <fieldset class="field radio-card">
+          <legend>ระยะเวลาหลังขาย</legend>
+          <label>
+            <input type="radio" name="warranty" value="year1" checked>
+            <span>ภายใน 1 ปี รวมประกัน (50%)</span>
+          </label>
+          <label>
+            <input type="radio" name="warranty" value="year2">
+            <span>หลังจาก 1 ปี ไม่เกิน 2 ปี (20%)</span>
+          </label>
+        </fieldset>
+
+        <button id="copyButton" class="primary-button" type="button">
+          <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+          คัดลอกผลคำนวณ
+        </button>
+
+        <button id="resetButton" class="secondary-button" type="button">
+          <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/></svg>
+          รีเซ็ตค่าที่ป้อน
+        </button>
+      </aside>
+
+      <section class="results-stack">
+        <div class="result-hero panel">
+          <div>
+            <p class="result-label">
+              <svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 1 1 2.4-3.2L12 7z"/><path d="M12 7h4.5a2.5 2.5 0 1 0-2.4-3.2L12 7z"/></svg>
+              ส่วนลดสำหรับสั่งซื้อ Cartridge ใหม่
+            </p>
+            <strong id="discountAmount">0 บาท</strong>
+            <p id="limitNote">คำนวณจาก Shot ที่เข้าเงื่อนไข 0 Shot</p>
+          </div>
+          <div class="payable-box">
+            <span>ราคาที่ต้องชำระหลังหักส่วนลด</span>
+            <strong id="payableAmount">0 บาท</strong>
+          </div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric panel">
+            <span><svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/></svg>ราคาเต็มรวม VAT</span>
+            <strong id="fullPrice">0 บาท</strong>
+          </div>
+          <div class="metric panel">
+            <span><svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>ราคา/Shot ที่ใช้คำนวณ</span>
+            <strong id="ratePerShot">0 บาท</strong>
+          </div>
+          <div class="metric panel">
+            <span><svg class="mini-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>Limit ตามช่วงประกัน</span>
+            <strong id="activeLimit">0 Shot</strong>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h2>
+              <svg class="heading-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              วิธีคำนวณ
+            </h2>
+            <span id="formulaTag">ปีที่ 1 · 50%</span>
+          </div>
+          <ol class="steps" id="formulaSteps"></ol>
+          <div class="warning" id="warningBox" hidden></div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h2>
+              <svg class="heading-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-7"/></svg>
+              ตารางอ้างอิงจาก Sheet Cartridge
+            </h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>เครื่อง</th>
+                  <th>Cartridge</th>
+                  <th>Total Shot</th>
+                  <th>Limit ปี 1</th>
+                  <th>Limit ปี 2</th>
+                  <th>ราคา/Shot ในสูตร</th>
+                  <th>ราคาเต็ม</th>
+                </tr>
+              </thead>
+              <tbody id="referenceBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">คัดลอกแล้ว</div>
+  <script src="app.js"></script>
+</body>
+</html>
