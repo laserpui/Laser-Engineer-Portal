@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8">
@@ -156,6 +156,7 @@
       display: flex;
       gap: 1rem;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -589,6 +590,10 @@
           <i data-lucide="check-circle" style="width:14px; height:14px; margin-right:4px;"></i>
           เชื่อมต่อสำเร็จ
         </span>
+        <a class="btn" href="https://docs.google.com/spreadsheets/d/15KYchaOArjTWmeku44ymrgBi5_hIN1qsZkkgnSdVLXI/edit" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="external-link"></i>
+          เปิด Google Sheet
+        </a>
         <button id="btn-refresh" class="btn" onclick="fetchData()">
           <i data-lucide="refresh-cw"></i>
           ดึงข้อมูลล่าสุด
