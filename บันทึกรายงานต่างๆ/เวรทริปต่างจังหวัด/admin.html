@@ -922,11 +922,12 @@
                   <th>ระยะเวลา</th>
                   <th>พนักงาน</th>
                   <th>ภูมิภาค / รายละเอียดงาน</th>
+                  <th style="text-align: center; width: 86px;">จัดการ</th>
                 </tr>
               </thead>
               <tbody id="trips-table-body">
                 <tr>
-                  <td colspan="4" class="no-data">กำลังโหลดข้อมูลประวัติ...</td>
+                  <td colspan="5" class="no-data">กำลังโหลดข้อมูลประวัติ...</td>
                 </tr>
               </tbody>
             </table>
@@ -1498,14 +1499,14 @@
       tbody.innerHTML = '';
 
       if (state.trips.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="no-data">ยังไม่มีประวัติการเดินทางบันทึกในระบบ</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="no-data">ยังไม่มีประวัติการเดินทางบันทึกในระบบ</td></tr>`;
         return;
       }
 
       // Read only newest 10 trips to keep admin page compact
       const recentTrips = state.trips.slice(0, 10);
 
-      recentTrips.forEach(trip => {
+      recentTrips.forEach((trip, index) => {
         const start = parseLocalDate(trip.startDate);
         const end = parseLocalDate(trip.endDate);
         const diffTime = Math.abs(end - start);
@@ -1518,13 +1519,144 @@
         row.innerHTML = `
           <td>${formattedDate}</td>
           <td style="font-weight: 600;">${diffDays} วัน</td>
-          <td style="font-weight: 600; color: #93c5fd;">${trip.employeeName}</td>
+          <td style="font-weight: 600; color: #93c5fd;">${escapeHtml(trip.employeeName)}</td>
           <td>
-            <span class="region-tag ${regionClass}">${trip.details}</span>
+            <span class="region-tag ${regionClass}">${escapeHtml(trip.details)}</span>
+          </td>
+          <td style="text-align: center;">
+            <button class="btn-icon-only" onclick="openEditTrip(${index})" title="แก้ไขรายการทริป">
+              <i data-lucide="pencil" style="width: 16px; height: 16px;"></i>
+            </button>
           </td>
         `;
         tbody.appendChild(row);
       });
+      lucide.createIcons();
+    }
+
+    async function openEditTrip(index) {
+      const trip = state.trips.slice(0, 10)[index];
+      if (!trip) return;
+
+      const employees = [...new Set([...state.queue, trip.employeeName, ...DEFAULT_EMPLOYEES].filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th'));
+      const employeeOptions = employees.map(name => `<option value="${escapeHtml(name)}" ${name === trip.employeeName ? 'selected' : ''}>${escapeHtml(name)}</option>`).join('');
+
+      const result = await Swal.fire({
+        title: 'แก้ไขประวัติทริป',
+        html: `
+          <div style="text-align: left; display: grid; gap: 12px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <label style="font-size: 12px; font-weight: 700; color: #64748b;">วันที่ไป
+                <input id="edit-trip-start" type="date" class="swal2-input" style="width:100%; margin:6px 0 0;" value="${escapeHtml(toDateInputValue(trip.startDate))}">
+              </label>
+              <label style="font-size: 12px; font-weight: 700; color: #64748b;">วันที่กลับ
+                <input id="edit-trip-end" type="date" class="swal2-input" style="width:100%; margin:6px 0 0;" value="${escapeHtml(toDateInputValue(trip.endDate))}">
+              </label>
+            </div>
+            <label style="font-size: 12px; font-weight: 700; color: #64748b;">วิศวกร
+              <select id="edit-trip-employee" class="swal2-select" style="width:100%; margin:6px 0 0;">${employeeOptions}</select>
+            </label>
+            <label style="font-size: 12px; font-weight: 700; color: #64748b;">รายละเอียด/ปลายทาง
+              <input id="edit-trip-details" class="swal2-input" style="width:100%; margin:6px 0 0;" value="${escapeHtml(trip.details || '')}">
+            </label>
+            <div style="font-size: 12px; color: #64748b; background: rgba(59,130,246,0.10); border: 1px solid rgba(59,130,246,0.18); border-radius: 12px; padding: 10px 12px;">
+              ถ้าเปลี่ยนรายชื่อ ระบบจะคืนชื่อเดิมกลับไปคิวถัดไป และส่งชื่อใหม่ไปท้ายคิวแทน
+            </div>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'บันทึกการแก้ไข',
+        cancelButtonText: 'ยกเลิก',
+        focusConfirm: false,
+        preConfirm: () => {
+          const startDate = document.getElementById('edit-trip-start').value;
+          const endDate = document.getElementById('edit-trip-end').value;
+          const employeeName = document.getElementById('edit-trip-employee').value;
+          const details = document.getElementById('edit-trip-details').value.trim();
+          if (!startDate || !endDate || !employeeName || !details) {
+            Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
+            return false;
+          }
+          if (new Date(startDate) > new Date(endDate)) {
+            Swal.showValidationMessage('วันเดินทางกลับต้องไม่ก่อนวันเดินทางไป');
+            return false;
+          }
+          return { startDate, endDate, employeeName, details };
+        }
+      });
+
+      if (!result.isConfirmed) return;
+      await updateTripRecord(trip, result.value);
+    }
+
+    async function updateTripRecord(originalTrip, changes) {
+      Swal.fire({ title: 'กำลังบันทึกการแก้ไข...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      if (appConfig.sheetsUrl && originalTrip.rowNumber) {
+        try {
+          const response = await fetch(appConfig.sheetsUrl, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+              action: 'updateTrip',
+              rowNumber: originalTrip.rowNumber,
+              originalEmployeeName: originalTrip.employeeName,
+              startDate: changes.startDate,
+              endDate: changes.endDate,
+              employeeName: changes.employeeName,
+              details: changes.details
+            })
+          });
+          const res = await response.json();
+          if (!res.success) throw new Error(res.error);
+          await loadData();
+          Swal.fire({ icon: 'success', title: 'แก้ไขทริปเรียบร้อย', timer: 1800, showConfirmButton: false });
+          return;
+        } catch (error) {
+          Swal.fire({ icon: 'error', title: 'แก้ไขไม่สำเร็จ', text: 'ไม่สามารถบันทึกลง Google Sheet ได้: ' + error.message });
+          return;
+        }
+      }
+
+      const tripIndex = state.trips.indexOf(originalTrip);
+      if (tripIndex !== -1) {
+        state.trips[tripIndex] = { ...originalTrip, ...changes };
+        state.queue = reconcileQueueAfterTripEmployeeEdit(state.queue, originalTrip.employeeName, changes.employeeName);
+        localStorage.setItem('mockTrips', JSON.stringify(state.trips));
+        localStorage.setItem('mockQueue', JSON.stringify(state.queue));
+        renderQueue();
+        renderEmployeeSelect();
+        renderTripsTable();
+        Swal.fire({ icon: 'success', title: 'แก้ไขทริป (Mock) เรียบร้อย', timer: 1500, showConfirmButton: false });
+      }
+    }
+
+    function reconcileQueueAfterTripEmployeeEdit(queue, oldName, newName) {
+      const oldEmployee = (oldName || '').trim();
+      const newEmployee = (newName || '').trim();
+      let nextQueue = queue.filter(name => name !== oldEmployee && name !== newEmployee);
+      if (oldEmployee && oldEmployee !== newEmployee) nextQueue.unshift(oldEmployee);
+      if (newEmployee) nextQueue.push(newEmployee);
+      return [...new Set(nextQueue)];
+    }
+
+    function toDateInputValue(value) {
+      if (!value) return '';
+      if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) return value.substring(0, 10);
+      const date = new Date(value);
+      if (isNaN(date.getTime())) return value.toString().substring(0, 10);
+      return date.toISOString().substring(0, 10);
+    }
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
+      return text.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     function getRegionClass(details) {

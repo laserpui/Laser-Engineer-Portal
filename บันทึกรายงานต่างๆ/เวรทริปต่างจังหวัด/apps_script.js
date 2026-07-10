@@ -111,6 +111,7 @@ function doGet(e) {
     for (let i = tripsData.length - 1; i >= 1; i--) {
       if (tripsData[i][0]) {
         trips.push({
+          rowNumber: i + 1,
           timestamp: tripsData[i][0],
           startDate: tripsData[i][1],
           endDate: tripsData[i][2],
@@ -178,6 +179,37 @@ function doPost(e) {
         queue: currentQueue
       });
 
+    } else if (action === "updateTrip") {
+      const rowNumber = Number(requestData.rowNumber);
+      const startDate = requestData.startDate;
+      const endDate = requestData.endDate;
+      const employeeName = requestData.employeeName ? requestData.employeeName.toString().trim() : "";
+      const details = requestData.details ? requestData.details.toString().trim() : "";
+      const originalEmployeeName = requestData.originalEmployeeName ? requestData.originalEmployeeName.toString().trim() : "";
+
+      if (!rowNumber || rowNumber < 2 || !startDate || !endDate || !employeeName || !details) {
+        return jsonResponse({ success: false, error: "Missing required fields for trip update" });
+      }
+      if (rowNumber > tripsSheet.getLastRow()) {
+        return jsonResponse({ success: false, error: "Trip row not found" });
+      }
+
+      const existingRow = tripsSheet.getRange(rowNumber, 1, 1, 5).getValues()[0];
+      const previousEmployeeName = originalEmployeeName || (existingRow[3] ? existingRow[3].toString().trim() : "");
+      tripsSheet.getRange(rowNumber, 2, 1, 4).setValues([[startDate, endDate, employeeName, details]]);
+
+      let currentQueue = getQueueList(queueSheet);
+      if (previousEmployeeName && previousEmployeeName !== employeeName) {
+        currentQueue = reconcileQueueAfterTripEmployeeEdit(currentQueue, previousEmployeeName, employeeName);
+        saveQueue(queueSheet, currentQueue);
+      }
+
+      return jsonResponse({
+        success: true,
+        message: "Trip updated successfully",
+        queue: currentQueue
+      });
+
     } else if (action === "updateQueue") {
       const newQueue = requestData.queue;
       if (!newQueue || !Array.isArray(newQueue)) {
@@ -228,6 +260,22 @@ function getQueueList(queueSheet) {
   }
   queue.sort((a, b) => a.order - b.order);
   return queue.map(q => q.name);
+}
+
+// Helper: restore the previous engineer to the waiting queue and move the new one to the back
+function reconcileQueueAfterTripEmployeeEdit(queueArray, oldName, newName) {
+  const oldEmployee = oldName ? oldName.toString().trim() : "";
+  const newEmployee = newName ? newName.toString().trim() : "";
+  const queue = queueArray.filter(name => name !== oldEmployee && name !== newEmployee);
+
+  if (oldEmployee && oldEmployee !== newEmployee) {
+    queue.unshift(oldEmployee);
+  }
+  if (newEmployee) {
+    queue.push(newEmployee);
+  }
+
+  return queue.filter((name, index, arr) => name && arr.indexOf(name) === index);
 }
 
 // Helper: Save queue array to sheet (deduplicated & atomic setValues)

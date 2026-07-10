@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -1765,6 +1765,7 @@
                                                     <th class="px-4 py-3 font-bold">ระยะเวลา</th>
                                                     <th class="px-4 py-3 font-bold">วิศวกร</th>
                                                     <th class="px-4 py-3 font-bold">รายละเอียด/ปลายทาง</th>
+                                                    <th class="admin-only hidden px-4 py-3 font-bold text-center">จัดการ</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="tripqueue-table-body" class="divide-y divide-slate-300/20 bg-white/10">
@@ -4959,13 +4960,13 @@
                 tbody.innerHTML = '';
 
                 if (this.trips.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="py-12 text-center text-xs text-slate-400">ยังไม่มีบันทึกประวัติการออกเดินทาง</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-xs text-slate-400">ยังไม่มีบันทึกประวัติการออกเดินทาง</td></tr>';
                     return;
                 }
 
                 // Show 10 items
                 const sliceTrips = this.trips.slice(0, 10);
-                tbody.innerHTML = sliceTrips.map(t => {
+                tbody.innerHTML = sliceTrips.map((t, index) => {
                     const start = new Date(t.startDate);
                     const end = new Date(t.endDate);
                     const diffDays = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24)) + 1;
@@ -4978,11 +4979,141 @@
                         <tr class="even:bg-white/10 hover:bg-white/30 transition-all text-xs">
                             <td class="px-4 py-3 font-semibold text-slate-500 whitespace-nowrap">${dateRange}</td>
                             <td class="px-4 py-3 font-bold text-slate-700 whitespace-nowrap">${diffDays} วัน</td>
-                            <td class="px-4 py-3 font-extrabold text-blue-700 whitespace-nowrap">${t.employeeName}</td>
-                            <td class="px-4 py-3 whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${regClass}">${t.details}</span></td>
+                            <td class="px-4 py-3 font-extrabold text-blue-700 whitespace-nowrap">${this.escapeHtml(t.employeeName)}</td>
+                            <td class="px-4 py-3 whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${regClass}">${this.escapeHtml(t.details)}</span></td>
+                            <td class="admin-only ${App.isAdmin ? '' : 'hidden'} px-4 py-3 text-center whitespace-nowrap">
+                                <button onclick="TripQueueModule.openEditTrip(${index})" class="p-1.5 rounded-lg bg-white/70 hover:bg-blue-600 hover:text-white border border-slate-200 text-blue-600 transition-all shadow-sm" title="แก้ไขรายการทริป"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                            </td>
                         </tr>
                     `;
                 }).join('');
+                lucide.createIcons();
+            },
+
+            async openEditTrip(index) {
+                const trip = this.trips.slice(0, 10)[index];
+                if (!trip) return;
+
+                const employees = [...new Set([...this.queue, trip.employeeName, ...App.employees].filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th'));
+                const employeeOptions = employees.map(name => `<option value="${this.escapeHtml(name)}" ${name === trip.employeeName ? 'selected' : ''}>${this.escapeHtml(name)}</option>`).join('');
+
+                const result = await Swal.fire({
+                    title: 'แก้ไขประวัติทริป',
+                    html: `
+                        <div class="text-left space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="text-xs font-bold text-slate-500">วันที่ไป
+                                    <input id="edit-trip-start" type="date" class="swal2-input" style="width:100%; margin:6px 0 0;" value="${this.escapeHtml(this.toDateInputValue(trip.startDate))}">
+                                </label>
+                                <label class="text-xs font-bold text-slate-500">วันที่กลับ
+                                    <input id="edit-trip-end" type="date" class="swal2-input" style="width:100%; margin:6px 0 0;" value="${this.escapeHtml(this.toDateInputValue(trip.endDate))}">
+                                </label>
+                            </div>
+                            <label class="text-xs font-bold text-slate-500 block">วิศวกร
+                                <select id="edit-trip-employee" class="swal2-select" style="width:100%; margin:6px 0 0;">${employeeOptions}</select>
+                            </label>
+                            <label class="text-xs font-bold text-slate-500 block">รายละเอียด/ปลายทาง
+                                <input id="edit-trip-details" class="swal2-input" style="width:100%; margin:6px 0 0;" value="${this.escapeHtml(trip.details || '')}">
+                            </label>
+                            <div class="text-[11px] text-slate-500 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
+                                ถ้าเปลี่ยนรายชื่อ ระบบจะคืนชื่อเดิมกลับไปคิวถัดไป และส่งชื่อใหม่ไปท้ายคิวแทน
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'บันทึกการแก้ไข',
+                    cancelButtonText: 'ยกเลิก',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const startDate = document.getElementById('edit-trip-start').value;
+                        const endDate = document.getElementById('edit-trip-end').value;
+                        const employeeName = document.getElementById('edit-trip-employee').value;
+                        const details = document.getElementById('edit-trip-details').value.trim();
+                        if (!startDate || !endDate || !employeeName || !details) {
+                            Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
+                            return false;
+                        }
+                        if (new Date(startDate) > new Date(endDate)) {
+                            Swal.showValidationMessage('วันเดินทางกลับต้องไม่ก่อนวันออกเดินทาง');
+                            return false;
+                        }
+                        return { startDate, endDate, employeeName, details };
+                    }
+                });
+
+                if (!result.isConfirmed) return;
+                await this.updateTripRecord(trip, result.value);
+            },
+
+            async updateTripRecord(originalTrip, changes) {
+                Swal.fire({ title: 'กำลังบันทึกการแก้ไข...', didOpen: () => Swal.showLoading() });
+
+                if (this.sheetsUrl && originalTrip.rowNumber) {
+                    try {
+                        const response = await fetch(this.sheetsUrl, {
+                            method: 'POST',
+                            mode: 'cors',
+                            headers: { 'Content-Type': 'text/plain' },
+                            body: JSON.stringify({
+                                action: 'updateTrip',
+                                rowNumber: originalTrip.rowNumber,
+                                originalEmployeeName: originalTrip.employeeName,
+                                startDate: changes.startDate,
+                                endDate: changes.endDate,
+                                employeeName: changes.employeeName,
+                                details: changes.details
+                            })
+                        });
+                        const res = await response.json();
+                        if (!res.success) throw new Error(res.error);
+                        Swal.fire({ icon: 'success', title: 'แก้ไขทริปเรียบร้อย', timer: 1800, showConfirmButton: false });
+                        await this.loadData();
+                        return;
+                    } catch (err) {
+                        Swal.fire({ icon: 'error', title: 'แก้ไขไม่สำเร็จ', text: err.message });
+                        return;
+                    }
+                }
+
+                const tripIndex = this.trips.indexOf(originalTrip);
+                if (tripIndex !== -1) {
+                    this.trips[tripIndex] = { ...originalTrip, ...changes };
+                    this.queue = this.reconcileQueueAfterTripEmployeeEdit(this.queue, originalTrip.employeeName, changes.employeeName);
+                    localStorage.setItem('mockTrips', JSON.stringify(this.trips));
+                    localStorage.setItem('mockQueue', JSON.stringify(this.queue));
+                    this.renderQueue();
+                    this.updateFormEmployeeSelect();
+                    this.renderTripsTable();
+                    this.updateWidgets();
+                    Swal.fire({ icon: 'success', title: 'แก้ไขทริปออฟไลน์แล้ว', timer: 1500, showConfirmButton: false });
+                }
+            },
+
+            reconcileQueueAfterTripEmployeeEdit(queue, oldName, newName) {
+                const oldEmployee = (oldName || '').trim();
+                const newEmployee = (newName || '').trim();
+                let nextQueue = queue.filter(name => name !== oldEmployee && name !== newEmployee);
+                if (oldEmployee && oldEmployee !== newEmployee) nextQueue.unshift(oldEmployee);
+                if (newEmployee) nextQueue.push(newEmployee);
+                return [...new Set(nextQueue)];
+            },
+
+            toDateInputValue(value) {
+                if (!value) return '';
+                if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) return value.substring(0, 10);
+                const date = new Date(value);
+                if (isNaN(date.getTime())) return value.toString().substring(0, 10);
+                return date.toISOString().substring(0, 10);
+            },
+
+            escapeHtml(text) {
+                if (text === null || text === undefined) return '';
+                return text.toString()
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
             },
 
             getRegionClass(details) {
