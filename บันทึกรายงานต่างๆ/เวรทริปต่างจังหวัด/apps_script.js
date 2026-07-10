@@ -41,10 +41,12 @@ function initSpreadsheet() {
   let tripsSheet = ss.getSheetByName(SHEET_TRIPS);
   if (!tripsSheet) {
     tripsSheet = ss.insertSheet(SHEET_TRIPS);
-    tripsSheet.appendRow(["Timestamp", "Departure Date", "Return Date", "Employee Name", "Work Details"]);
+    tripsSheet.appendRow(["Timestamp", "Departure Date", "Return Date", "Employee Name", "Work Details", "Original Queue Index"]);
     // Format header
-    tripsSheet.getRange("A1:E1").setFontWeight("bold").setBackground("#f3f4f6");
+    tripsSheet.getRange("A1:F1").setFontWeight("bold").setBackground("#f3f4f6");
     tripsSheet.setFrozenRows(1);
+  } else {
+    ensureTripsMetadataColumns(tripsSheet);
   }
 
   // 2. Setup Queue Sheet
@@ -116,7 +118,8 @@ function doGet(e) {
           startDate: tripsData[i][1],
           endDate: tripsData[i][2],
           employeeName: tripsData[i][3].toString().trim(),
-          details: tripsData[i][4]
+          details: tripsData[i][4],
+          originalQueueIndex: normalizeQueueIndex(tripsData[i][5])
         });
       }
     }
@@ -156,13 +159,14 @@ function doPost(e) {
         return jsonResponse({ success: false, error: "Missing required fields" });
       }
 
-      // 1. Add record to Trips sheet
-      const timestamp = new Date();
-      tripsSheet.appendRow([timestamp, startDate, endDate, employeeName.trim(), details.trim()]);
-
-      // 2. Rotate queue if requested
+      // 1. Capture queue position before saving and rotating
       let currentQueue = getQueueList(queueSheet);
       const nameToRotate = employeeName.trim();
+      const originalQueueIndex = currentQueue.indexOf(nameToRotate);
+
+      // 2. Add record to Trips sheet
+      const timestamp = new Date();
+      tripsSheet.appendRow([timestamp, startDate, endDate, employeeName.trim(), details.trim(), originalQueueIndex >= 0 ? originalQueueIndex : ""]);
       
       if (rotateQueue && currentQueue.includes(nameToRotate)) {
         // Move the selected person to the back of the queue
@@ -194,13 +198,14 @@ function doPost(e) {
         return jsonResponse({ success: false, error: "Trip row not found" });
       }
 
-      const existingRow = tripsSheet.getRange(rowNumber, 1, 1, 5).getValues()[0];
+      const existingRow = tripsSheet.getRange(rowNumber, 1, 1, 6).getValues()[0];
       const previousEmployeeName = originalEmployeeName || (existingRow[3] ? existingRow[3].toString().trim() : "");
+      const originalQueueIndex = normalizeQueueIndex(existingRow[5]);
       tripsSheet.getRange(rowNumber, 2, 1, 4).setValues([[startDate, endDate, employeeName, details]]);
 
       let currentQueue = getQueueList(queueSheet);
       if (previousEmployeeName && previousEmployeeName !== employeeName) {
-        currentQueue = reconcileQueueAfterTripEmployeeEdit(currentQueue, previousEmployeeName, employeeName);
+        currentQueue = reconcileQueueAfterTripEmployeeEdit(currentQueue, previousEmployeeName, employeeName, originalQueueIndex);
         saveQueue(queueSheet, currentQueue);
       }
 
@@ -243,6 +248,22 @@ function doPost(e) {
   }
 }
 
+function ensureTripsMetadataColumns(tripsSheet) {
+  if (tripsSheet.getMaxColumns() < 6) {
+    tripsSheet.insertColumnsAfter(tripsSheet.getMaxColumns(), 6 - tripsSheet.getMaxColumns());
+  }
+  if (!tripsSheet.getRange(1, 6).getValue()) {
+    tripsSheet.getRange(1, 6).setValue("Original Queue Index");
+  }
+  tripsSheet.getRange("A1:F1").setFontWeight("bold").setBackground("#f3f4f6");
+}
+
+function normalizeQueueIndex(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const num = Number(value);
+  return Number.isFinite(num) && num >= 0 ? Math.floor(num) : null;
+}
+
 // Helper: Get queue as simple array of names in order (with deduplication)
 function getQueueList(queueSheet) {
   const data = queueSheet.getDataRange().getValues();
@@ -262,20 +283,38 @@ function getQueueList(queueSheet) {
   return queue.map(q => q.name);
 }
 
-// Helper: restore the previous engineer to the waiting queue and move the new one to the back
-function reconcileQueueAfterTripEmployeeEdit(queueArray, oldName, newName) {
+// Helper: restore the previous engineer to their original queue slot and move the new one to the back
+function reconcileQueueAfterTripEmployeeEdit(queueArray, oldName, newName, originalQueueIndex) {
   const oldEmployee = oldName ? oldName.toString().trim() : "";
   const newEmployee = newName ? newName.toString().trim() : "";
   const queue = queueArray.filter(name => name !== oldEmployee && name !== newEmployee);
 
   if (oldEmployee && oldEmployee !== newEmployee) {
-    queue.unshift(oldEmployee);
+    const restoreIndex = getRestoreQueueIndex(queue, oldEmployee, originalQueueIndex);
+    queue.splice(restoreIndex, 0, oldEmployee);
   }
   if (newEmployee) {
     queue.push(newEmployee);
   }
 
   return queue.filter((name, index, arr) => name && arr.indexOf(name) === index);
+}
+
+function getRestoreQueueIndex(queue, employeeName, originalQueueIndex) {
+  if (originalQueueIndex !== null && originalQueueIndex !== undefined) {
+    return Math.max(0, Math.min(Number(originalQueueIndex), queue.length));
+  }
+
+  const employeeDefaultIndex = DEFAULT_EMPLOYEES.indexOf(employeeName);
+  if (employeeDefaultIndex >= 0) {
+    const nextDefaultIndex = queue.findIndex(name => {
+      const defaultIndex = DEFAULT_EMPLOYEES.indexOf(name);
+      return defaultIndex >= 0 && defaultIndex > employeeDefaultIndex;
+    });
+    if (nextDefaultIndex >= 0) return nextDefaultIndex;
+  }
+
+  return 0;
 }
 
 // Helper: Save queue array to sheet (deduplicated & atomic setValues)

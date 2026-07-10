@@ -1403,7 +1403,8 @@
           startDate,
           endDate,
           employeeName,
-          details
+          details,
+          originalQueueIndex: state.queue.indexOf(employeeName)
         };
 
         if (appConfig.sheetsUrl) {
@@ -1622,7 +1623,7 @@
       const tripIndex = state.trips.indexOf(originalTrip);
       if (tripIndex !== -1) {
         state.trips[tripIndex] = { ...originalTrip, ...changes };
-        state.queue = reconcileQueueAfterTripEmployeeEdit(state.queue, originalTrip.employeeName, changes.employeeName);
+        state.queue = reconcileQueueAfterTripEmployeeEdit(state.queue, originalTrip.employeeName, changes.employeeName, originalTrip.originalQueueIndex);
         localStorage.setItem('mockTrips', JSON.stringify(state.trips));
         localStorage.setItem('mockQueue', JSON.stringify(state.queue));
         renderQueue();
@@ -1632,13 +1633,34 @@
       }
     }
 
-    function reconcileQueueAfterTripEmployeeEdit(queue, oldName, newName) {
+    function reconcileQueueAfterTripEmployeeEdit(queue, oldName, newName, originalQueueIndex) {
       const oldEmployee = (oldName || '').trim();
       const newEmployee = (newName || '').trim();
-      let nextQueue = queue.filter(name => name !== oldEmployee && name !== newEmployee);
-      if (oldEmployee && oldEmployee !== newEmployee) nextQueue.unshift(oldEmployee);
+      const nextQueue = queue.filter(name => name !== oldEmployee && name !== newEmployee);
+      if (oldEmployee && oldEmployee !== newEmployee) {
+        const restoreIndex = getRestoreQueueIndex(nextQueue, oldEmployee, originalQueueIndex);
+        nextQueue.splice(restoreIndex, 0, oldEmployee);
+      }
       if (newEmployee) nextQueue.push(newEmployee);
       return [...new Set(nextQueue)];
+    }
+
+    function getRestoreQueueIndex(queue, employeeName, originalQueueIndex) {
+      const numericIndex = Number(originalQueueIndex);
+      if (Number.isFinite(numericIndex) && numericIndex >= 0) {
+        return Math.max(0, Math.min(Math.floor(numericIndex), queue.length));
+      }
+
+      const employeeDefaultIndex = DEFAULT_EMPLOYEES.indexOf(employeeName);
+      if (employeeDefaultIndex >= 0) {
+        const nextDefaultIndex = queue.findIndex(name => {
+          const defaultIndex = DEFAULT_EMPLOYEES.indexOf(name);
+          return defaultIndex >= 0 && defaultIndex > employeeDefaultIndex;
+        });
+        if (nextDefaultIndex >= 0) return nextDefaultIndex;
+      }
+
+      return 0;
     }
 
     function toDateInputValue(value) {
