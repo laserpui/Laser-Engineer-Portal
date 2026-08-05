@@ -16,6 +16,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="../fast-table-performance.js"></script>
     
     <!-- Google Fonts: Noto Sans Thai, Sarabun, Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -287,6 +288,7 @@
         // ตัวแปรต่างๆ
         // ==========================================
         let csvUrl = 'https://docs.google.com/spreadsheets/d/1JuneOZnbJJ_r7JdNW6Rnd-LZcQ9sAAPb__VVSc4ZtbY/export?format=csv&gid=1031226843';
+        FastTableUtils.installCsvFetchCache([csvUrl]);
 
         let rawData = [];
         let headers = [];
@@ -533,14 +535,16 @@
         }
 
         // ดักจับการเปลี่ยนแปลงเพื่อกรองข้อมูล
-        searchInput.addEventListener('input', applyFilters);
-        searchInput2.addEventListener('input', applyFilters);
-        startDateInput.addEventListener('change', applyFilters);
-        endDateInput.addEventListener('change', applyFilters);
+        const debouncedApplyFilters = FastTableUtils.debounce(() => { currentPage = 1; applyFilters(); }, 220);
+        searchInput.addEventListener('input', debouncedApplyFilters);
+        searchInput2.addEventListener('input', debouncedApplyFilters);
+        startDateInput.addEventListener('change', () => { currentPage = 1; applyFilters(); });
+        endDateInput.addEventListener('change', () => { currentPage = 1; applyFilters(); });
         
         clearDateBtn.addEventListener('click', () => {
             startDateInput.value = '';
             endDateInput.value = '';
+            currentPage = 1;
             applyFilters();
         });
 
@@ -549,6 +553,7 @@
             searchInput2.value = '';
             startDateInput.value = '';
             endDateInput.value = '';
+            currentPage = 1;
             applyFilters();
             showToast("รีเซ็ตตัวกรองทั้งหมดแล้ว");
         }
@@ -680,13 +685,13 @@
 
         // ฟังก์ชัน Export CSV
         exportBtn.addEventListener('click', function() {
-            if (!currentDisplayedData || currentDisplayedData.length === 0) {
+            if (!fullDisplayedData || fullDisplayedData.length === 0) {
                 showToast("ไม่มีข้อมูลให้ส่งออกในขณะนี้", true);
                 return;
             }
 
             const exportHeaders = currentHeaderOrder.map(colIndex => headers[colIndex] || '-');
-            const exportRows = currentDisplayedData.map(row => {
+            const exportRows = fullDisplayedData.map(row => {
                 return currentHeaderOrder.map(colIndex => {
                     return row[colIndex] ? row[colIndex].toString().trim() : '';
                 });
@@ -733,12 +738,33 @@
             tableWrapper.scrollLeft = scrollLeft - ((x - startX) * 1.5); 
         });
 
+
+        // Render only 100 rows per page so large sheets do not create thousands of DOM nodes at once.
+        const baseRenderRows = renderRows;
+        const pageSize = 100;
+        let currentPage = 1;
+        let fullDisplayedData = [];
+        renderRows = function(dataToRender, order) {
+            fullDisplayedData = dataToRender;
+            const totalPages = Math.max(1, Math.ceil(dataToRender.length / pageSize));
+            currentPage = Math.min(Math.max(1, currentPage), totalPages);
+            const start = (currentPage - 1) * pageSize;
+            const visibleRows = dataToRender.slice(start, start + pageSize);
+            baseRenderRows(visibleRows, order);
+            FastTableUtils.renderPager(tableWrapper, currentPage, dataToRender.length, pageSize, nextPage => {
+                currentPage = nextPage;
+                renderRows(fullDisplayedData, order);
+                tableWrapper.scrollTop = 0;
+            });
+        };
+
         refreshBtn.addEventListener('click', function() {
             searchInput.value = ''; 
             searchInput2.value = ''; 
             startDateInput.value = '';
             endDateInput.value = '';
-            loadData(); 
+            currentPage = 1;
+            FastTableUtils.clearCsv(csvUrl).finally(() => loadData());
         });
 
         window.onload = loadData;

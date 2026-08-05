@@ -35,6 +35,7 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="./fast-table-performance.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
@@ -1066,7 +1067,7 @@
                                 <input type="text" id="spareparts-search-2" placeholder="ค้นหาคำที่ 2..." class="input-glass pl-9 pr-4 py-2 text-xs w-[140px] sm:w-[180px]">
                                 <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400"></i>
                             </div>
-                            <button onclick="SparePartsModule.loadData()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all" title="รีเฟรชข้อมูล"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i></button>
+                            <button onclick="SparePartsModule.loadData(true)" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all" title="รีเฟรชข้อมูล"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i></button>
                             <button onclick="SparePartsModule.resetSearch()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600 flex items-center gap-1.5" title="รีเซ็ตการค้นหา"><i data-lucide="filter-x" class="w-4 h-4"></i> รีเซ็ต</button>
                         </div>
                     </div>
@@ -1133,7 +1134,7 @@
                             </div>
 
                             <button onclick="ProductInfoModule.clearDateFilters()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600">ล้างวันที่</button>
-                            <button onclick="ProductInfoModule.loadData()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all" title="รีเฟรชข้อมูล"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i></button>
+                            <button onclick="ProductInfoModule.loadData(true)" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all" title="รีเฟรชข้อมูล"><i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i></button>
                             <button onclick="ProductInfoModule.resetFilters()" class="p-2 rounded-xl bg-white/40 border border-white/60 hover:bg-white/70 shadow-sm transition-all text-xs font-semibold text-slate-600 flex items-center gap-1.5" title="รีเซ็ตการค้นหาและตัวกรอง"><i data-lucide="filter-x" class="w-4 h-4"></i> รีเซ็ต</button>
                             <button onclick="ProductInfoModule.exportCsv()" class="py-2 px-3 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/10 hover:-translate-y-0.5 transition-all flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5"></i> Export</button>
                         </div>
@@ -1955,6 +1956,9 @@
                 document.querySelector(`[data-tab-btn="${tabId}"]`).classList.remove('text-slate-600', 'hover:bg-white/30');
 
                 this.currentTab = tabId;
+
+                if (tabId === 'spare-parts') SparePartsModule.ensureLoaded();
+                if (tabId === 'product-info') ProductInfoModule.ensureLoaded();
 
                 // Update Top bar Header Title
                 const titles = {
@@ -5505,6 +5509,104 @@
                 });
             }
         };
+
+
+        // Performance layer for large Google Sheets tables:
+        // cache CSV briefly, load the two heavy tabs on demand, debounce search and paginate DOM rows.
+        FastTableUtils.installCsvFetchCache([SparePartsModule.csvUrl, ProductInfoModule.csvUrl]);
+
+        function optimizeLargeTableModule(module, options) {
+            const originalLoadData = module.loadData.bind(module);
+            const originalRenderTable = module.renderTable.bind(module);
+            const originalSetupDragScroll = module.setupDragScroll.bind(module);
+            const originalExportCsv = options.exportAll && module.exportCsv ? module.exportCsv.bind(module) : null;
+            let initialized = false;
+
+            module.pageSize = 100;
+            module.currentPage = 1;
+            module._fullDisplayedData = [];
+            module._loading = false;
+            module._dragScrollReady = false;
+
+            module.init = function() {
+                if (initialized) return;
+                initialized = true;
+                const runSearch = FastTableUtils.debounce(() => {
+                    this.currentPage = 1;
+                    this[options.searchMethod]();
+                }, 220);
+                options.searchIds.forEach(id => document.getElementById(id).addEventListener('input', runSearch));
+                (options.changeIds || []).forEach(id => document.getElementById(id).addEventListener('change', () => {
+                    this.currentPage = 1;
+                    this[options.searchMethod]();
+                }));
+            };
+
+            module.ensureLoaded = function() {
+                this.init();
+                if (this.rows.length === 0 && !this._loading) this.loadData();
+            };
+
+            module.loadData = async function(forceRefresh = false) {
+                if (this._loading) return;
+                this._loading = true;
+                this.currentPage = 1;
+                try {
+                    if (forceRefresh) await FastTableUtils.clearCsv(this.csvUrl);
+                    await originalLoadData();
+                } finally {
+                    this._loading = false;
+                }
+            };
+
+            module.setupDragScroll = function() {
+                if (this._dragScrollReady) return;
+                this._dragScrollReady = true;
+                originalSetupDragScroll();
+            };
+
+            module.renderTable = function(dataToRender) {
+                this._fullDisplayedData = dataToRender;
+                const totalPages = Math.max(1, Math.ceil(dataToRender.length / this.pageSize));
+                this.currentPage = Math.min(Math.max(1, this.currentPage), totalPages);
+                const start = (this.currentPage - 1) * this.pageSize;
+                const visibleRows = dataToRender.slice(start, start + this.pageSize);
+                this.currentDisplayedData = visibleRows;
+                originalRenderTable(visibleRows);
+
+                const anchor = document.getElementById(options.wrapId);
+                FastTableUtils.renderPager(anchor, this.currentPage, dataToRender.length, this.pageSize, nextPage => {
+                    this.currentPage = nextPage;
+                    this.renderTable(this._fullDisplayedData);
+                    anchor.scrollTop = 0;
+                });
+            };
+
+            if (originalExportCsv) {
+                module.exportCsv = function() {
+                    const visibleRows = this.currentDisplayedData;
+                    this.currentDisplayedData = this._fullDisplayedData;
+                    try {
+                        originalExportCsv();
+                    } finally {
+                        this.currentDisplayedData = visibleRows;
+                    }
+                };
+            }
+        }
+
+        optimizeLargeTableModule(SparePartsModule, {
+            searchMethod: 'performSearch',
+            searchIds: ['spareparts-search-1', 'spareparts-search-2'],
+            wrapId: 'spareparts-table-wrap'
+        });
+        optimizeLargeTableModule(ProductInfoModule, {
+            searchMethod: 'applyFilters',
+            searchIds: ['products-search-1', 'products-search-2'],
+            changeIds: ['products-start-date', 'products-end-date'],
+            wrapId: 'products-table-wrap',
+            exportAll: true
+        });
 
         // Initialize App on DOM load
         document.addEventListener('DOMContentLoaded', () => {

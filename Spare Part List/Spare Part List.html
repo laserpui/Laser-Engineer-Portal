@@ -20,6 +20,7 @@
 
     <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="../fast-table-performance.js"></script>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -1011,6 +1012,7 @@
         // ==========================================
         
         let csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQOSNZKaFdRehYMImiL6ow6MoH45V701AanbB7sthTqbSlpHP_TPLImV2lHrh2xdZcKB_CH20gKG7-r/pub?output=csv';
+        FastTableUtils.installCsvFetchCache([csvUrl]);
 
         let rawData = [];
         let headers = [];
@@ -1360,8 +1362,9 @@
             rowCountEl.textContent = filteredRows.length;
         }
 
-        searchInput1.addEventListener('input', performSearch);
-        searchInput2.addEventListener('input', performSearch);
+        const debouncedPerformSearch = FastTableUtils.debounce(() => { currentPage = 1; performSearch(); }, 220);
+        searchInput1.addEventListener('input', debouncedPerformSearch);
+        searchInput2.addEventListener('input', debouncedPerformSearch);
 
         // ระบบลากเพื่อเลื่อนซ้ายขวา (Drag to scroll)
         let isDown = false;
@@ -1398,13 +1401,35 @@
         function resetSearch() {
             searchInput1.value = '';
             searchInput2.value = '';
+            currentPage = 1;
             performSearch();
         }
 
+
+        // Render only 100 rows per page so large sheets do not create thousands of DOM nodes at once.
+        const baseRenderRows = renderRows;
+        const pageSize = 100;
+        let currentPage = 1;
+        let fullDisplayedData = [];
+        renderRows = function(dataToRender, order) {
+            fullDisplayedData = dataToRender;
+            const totalPages = Math.max(1, Math.ceil(dataToRender.length / pageSize));
+            currentPage = Math.min(Math.max(1, currentPage), totalPages);
+            const start = (currentPage - 1) * pageSize;
+            const visibleRows = dataToRender.slice(start, start + pageSize);
+            baseRenderRows(visibleRows, order);
+            FastTableUtils.renderPager(tableWrapper, currentPage, dataToRender.length, pageSize, nextPage => {
+                currentPage = nextPage;
+                renderRows(fullDisplayedData, order);
+                tableWrapper.scrollTop = 0;
+            });
+        };
+
         refreshBtn.addEventListener('click', function() {
             searchInput1.value = ''; 
-            searchInput2.value = ''; 
-            loadData(); 
+            searchInput2.value = '';
+            currentPage = 1;
+            FastTableUtils.clearCsv(csvUrl).finally(() => loadData());
         });
 
         window.onload = loadData;
