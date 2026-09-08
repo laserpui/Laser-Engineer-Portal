@@ -110,6 +110,19 @@
             transform: translateY(0);
         }
 
+        /* PM uses its own vertical scroll area; prevent a second page scrollbar. */
+        body.pm-scroll-active {
+            height: 100vh;
+            height: 100dvh;
+            overflow-y: hidden;
+        }
+        body.pm-scroll-active footer {
+            display: none;
+        }
+        body.pm-scroll-active main {
+            padding-bottom: 0 !important;
+        }
+
         /* Consistent SweetAlert layout across desktop and mobile */
         .swal2-container {
             z-index: 100000 !important;
@@ -473,7 +486,7 @@
                         </button>
                     </div>
                     <div class="glass-panel rounded-3xl overflow-hidden border border-white/60 shadow-sm bg-white/20">
-                        <iframe id="platinum-plan-frame" data-src="./pm-platinum-plan/index.html" title="PM Platinum Plan" class="block w-full border-0 bg-transparent" style="height: max(760px, calc(100vh - 190px));"></iframe>
+                        <iframe id="platinum-plan-frame" data-src="./pm-platinum-plan/index.html" title="PM Platinum Plan" class="block w-full border-0 bg-transparent" style="height: calc(100vh - 220px); min-height: 360px;"></iframe>
                     </div>
                 </div>
 
@@ -2072,6 +2085,10 @@
                 HolidayWorkModule.init();
                 TripQueueModule.init();
                 CSATModule.init();
+
+                const platinumFrame = document.getElementById('platinum-plan-frame');
+                platinumFrame.addEventListener('load', () => this.resizePlatinumPlanFrame());
+                window.addEventListener('resize', () => this.resizePlatinumPlanFrame());
             },
 
             switchTab(tabId) {
@@ -2086,6 +2103,10 @@
                 const nextTab = document.getElementById(`tab-${tabId}`);
                 nextTab.classList.add('active');
                 this.resetTypedInputs(nextTab);
+
+                const isPlatinumPlan = tabId === 'platinum-plan';
+                document.body.classList.toggle('pm-scroll-active', isPlatinumPlan);
+                if (isPlatinumPlan) window.scrollTo({ top: 0, behavior: 'auto' });
                 document.querySelector(`[data-tab-btn="${tabId}"]`).classList.add('bg-white/50', 'text-blue-600', 'shadow-sm', 'border', 'border-white/60');
                 document.querySelector(`[data-tab-btn="${tabId}"]`).classList.remove('text-slate-600', 'hover:bg-white/30');
 
@@ -2150,6 +2171,16 @@
                 const frame = document.getElementById('platinum-plan-frame');
                 if (!frame) return;
                 frame.src = frame.dataset.src;
+                requestAnimationFrame(() => this.resizePlatinumPlanFrame());
+            },
+
+            resizePlatinumPlanFrame() {
+                if (this.currentTab !== 'platinum-plan') return;
+                const frame = document.getElementById('platinum-plan-frame');
+                if (!frame) return;
+                const frameTop = frame.getBoundingClientRect().top;
+                const availableHeight = Math.max(360, window.innerHeight - frameTop - 12);
+                frame.style.height = `${Math.round(availableHeight)}px`;
             },
 
             reloadPlatinumPlan() {
