@@ -1,0 +1,1467 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PM Platinum Plan</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@0.468.0"></script>
+
+  <style>
+    :root{
+      --bg1:#E5FFFF;
+      --bg2:#FFFFE6;
+      --bg3:#FFE6FF;
+      --ink:#143737;
+      --muted:#5d7979;
+      --line:rgba(255,255,255,.42);
+      --glass:rgba(255,255,255,.44);
+      --glass-2:rgba(255,255,255,.58);
+      --primary:#0f766e;
+      --primary-strong:#0a625c;
+      --primary-soft:rgba(15,118,110,.12);
+      --success:#0f766e;
+      --danger:#c2410c;
+      --warning:#9a6700;
+      --shadow-lg:0 18px 50px rgba(20,55,55,.12);
+      --shadow-md:0 12px 28px rgba(20,55,55,.08);
+      --radius-3xl:30px;
+      --radius-2xl:24px;
+      --radius-xl:18px;
+      --radius-lg:14px;
+      --transition:.24s cubic-bezier(.2,.8,.2,1);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:"Noto Sans Thai","Sarabun",system-ui,-apple-system,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255,255,255,.8), transparent 28%),
+        radial-gradient(circle at 90% 8%, rgba(255,255,255,.75), transparent 24%),
+        linear-gradient(135deg,var(--bg1) 0%, var(--bg2) 50%, var(--bg3) 100%);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    .ambient{position:fixed; inset:0; pointer-events:none; z-index:0}
+    .blob{
+      position:absolute; border-radius:50%; filter:blur(26px); opacity:.42;
+      animation:float 15s ease-in-out infinite;
+    }
+    .blob.b1{width:260px;height:260px;left:-60px;top:60px;background:rgba(255,255,255,.56)}
+    .blob.b2{width:320px;height:320px;right:-80px;top:90px;background:rgba(229,255,255,.8);animation-delay:-3s}
+    .blob.b3{width:240px;height:240px;left:20%;bottom:3%;background:rgba(255,230,255,.56);animation-delay:-6s}
+    .blob.b4{width:210px;height:210px;right:12%;bottom:10%;background:rgba(255,255,230,.62);animation-delay:-8s}
+    @keyframes float{
+      0%,100%{transform:translateY(0) translateX(0)}
+      50%{transform:translateY(-12px) translateX(10px)}
+    }
+
+    .page{
+      position:relative;
+      z-index:1;
+      width:min(1120px, calc(100% - 24px));
+      margin:22px auto 34px;
+    }
+
+    .glass{
+      background:var(--glass);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow-lg);
+      backdrop-filter:blur(18px) saturate(150%);
+      -webkit-backdrop-filter:blur(18px) saturate(150%);
+      border-radius:var(--radius-3xl);
+    }
+
+    .hero{
+      padding:26px 28px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    .hero h1{
+      margin:0;
+      font-size:clamp(26px, 4vw, 40px);
+      line-height:1.08;
+      font-weight:800;
+      letter-spacing:-.02em;
+    }
+    .hero p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .hero-actions{
+      display:flex;
+      gap:10px;
+      flex-shrink:0;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.58);
+      border:1px solid rgba(255,255,255,.45);
+      font-size:13px;
+      font-weight:700;
+      box-shadow:0 8px 18px rgba(20,55,55,.05);
+      color:var(--ink);
+    }
+    .chip .icon{width:16px;height:16px;color:var(--primary)}
+
+    .grid{
+      display:grid;
+      grid-template-columns:minmax(340px,.94fr) minmax(340px,1.06fr);
+      gap:18px;
+    }
+
+    .card{
+      padding:24px;
+      transition:transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    }
+    .card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 22px 52px rgba(20,55,55,.13);
+      border-color:rgba(255,255,255,.56);
+    }
+
+    .card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .title-wrap{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+    .icon-shell{
+      width:44px;height:44px;
+      border-radius:14px;
+      display:grid;place-items:center;
+      background:rgba(255,255,255,.58);
+      border:1px solid rgba(255,255,255,.46);
+      box-shadow:0 8px 18px rgba(20,55,55,.05);
+      flex-shrink:0;
+    }
+    .icon-shell .icon{width:20px;height:20px;color:var(--primary)}
+    h2{
+      margin:0;
+      font-size:22px;
+      font-weight:800;
+      letter-spacing:-.01em;
+    }
+
+    .ghost-btn, .action-btn, .history-btn{
+      border:none;
+      border-radius:18px;
+      font:inherit;
+      cursor:pointer;
+      transition:transform var(--transition), box-shadow var(--transition), background var(--transition), border-color var(--transition), opacity var(--transition);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      white-space:nowrap;
+      text-decoration:none;
+    }
+    .ghost-btn:hover, .action-btn:hover, .history-btn:hover{transform:translateY(-1px)}
+    .ghost-btn:active, .action-btn:active, .history-btn:active{transform:translateY(0)}
+    .ghost-btn:disabled, .action-btn:disabled, .history-btn:disabled{opacity:.6;cursor:wait;transform:none}
+
+    .ghost-btn{
+      min-height:48px;
+      padding:10px 14px;
+      background:rgba(255,255,255,.6);
+      border:1px solid rgba(255,255,255,.46);
+      color:var(--ink);
+      box-shadow:0 10px 22px rgba(20,55,55,.05);
+      font-weight:700;
+    }
+
+    .edit-banner{
+      display:none;
+      margin-bottom:16px;
+      padding:13px 15px;
+      border-radius:18px;
+      background:rgba(255,247,232,.74);
+      border:1px solid rgba(243,215,161,.88);
+      color:var(--warning);
+      font-size:13px;
+      font-weight:700;
+      animation:fadeInUp .22s ease;
+    }
+    .edit-banner.show{display:block}
+    @keyframes fadeInUp{
+      from{opacity:0; transform:translateY(6px)}
+      to{opacity:1; transform:translateY(0)}
+    }
+
+    .form-section{display:grid; gap:16px}
+    .field{display:grid; gap:8px}
+    .field label{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:13px;
+      font-weight:700;
+      color:#214848;
+    }
+    .field label .icon{width:16px;height:16px;color:var(--primary)}
+
+    .input-shell{position:relative}
+    .input, .textarea{
+      width:100%;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.46);
+      background:rgba(255,255,255,.58);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 8px 22px rgba(20,55,55,.04);
+      font:inherit;
+      color:var(--ink);
+      outline:none;
+      transition:box-shadow var(--transition), border-color var(--transition), background var(--transition), transform var(--transition);
+    }
+    .input{
+      padding:15px 18px;
+      min-height:56px;
+    }
+    .textarea{
+      min-height:116px;
+      padding:15px 18px;
+      line-height:1.7;
+      resize:vertical;
+    }
+    .input::placeholder, .textarea::placeholder{color:#6a8a8a}
+    .input:focus, .textarea:focus{
+      border-color:rgba(15,118,110,.34);
+      background:rgba(255,255,255,.68);
+      box-shadow:0 0 0 4px rgba(15,118,110,.10), 0 12px 28px rgba(20,55,55,.05);
+      transform:translateY(-1px);
+    }
+
+    .money-wrap .suffix{
+      position:absolute;
+      right:18px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+      background:rgba(255,255,255,.7);
+      border:1px solid rgba(255,255,255,.52);
+      padding:6px 10px;
+      border-radius:999px;
+      pointer-events:none;
+    }
+    .money-wrap .input{padding-right:82px}
+
+    .plan-shell{display:grid; gap:14px}
+    .price-ribbon{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:16px 18px;
+      border-radius:22px;
+      background:linear-gradient(135deg, rgba(255,255,255,.6), rgba(255,255,255,.42));
+      border:1px solid rgba(255,255,255,.5);
+      box-shadow:0 10px 22px rgba(20,55,55,.05);
+    }
+    .price-ribbon span{
+      font-size:13px;
+      font-weight:700;
+      color:var(--muted);
+    }
+    .price-ribbon strong{
+      font-size:28px;
+      line-height:1.2;
+      font-weight:800;
+      color:var(--primary-strong);
+      letter-spacing:-.02em;
+    }
+
+    .rate-note{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:18px;
+      background:rgba(255,255,255,.46);
+      border:1px solid rgba(255,255,255,.42);
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+    .rate-note .icon{width:16px;height:16px;color:var(--primary)}
+
+    .plan-rows{display:grid; gap:10px}
+    .plan-row{
+      display:grid;
+      grid-template-columns:1fr auto auto;
+      align-items:center;
+      gap:14px;
+      padding:16px 18px;
+      border-radius:20px;
+      background:rgba(255,255,255,.47);
+      border:1px solid rgba(255,255,255,.44);
+      box-shadow:0 10px 22px rgba(20,55,55,.04);
+      transition:transform var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+    .plan-row:hover{
+      transform:translateY(-1px);
+      background:rgba(255,255,255,.56);
+      box-shadow:0 12px 26px rgba(20,55,55,.08);
+    }
+    .plan-year{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+      font-size:17px;
+      font-weight:800;
+    }
+    .plan-year .icon{width:18px;height:18px;color:var(--primary)}
+    .plan-rate{
+      min-width:76px;
+      text-align:center;
+      padding:8px 14px;
+      border-radius:999px;
+      background:var(--primary-soft);
+      color:var(--primary-strong);
+      font-size:13px;
+      font-weight:800;
+    }
+    .plan-amount{
+      text-align:right;
+      white-space:nowrap;
+      font-size:19px;
+      font-weight:800;
+      color:var(--ink);
+    }
+
+    .actions{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-top:4px;
+    }
+    .action-btn{
+      min-height:56px;
+      padding:12px 16px;
+      font-weight:700;
+      box-shadow:0 12px 24px rgba(20,55,55,.07);
+    }
+    .action-btn .icon{width:18px;height:18px}
+    .action-btn.primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--primary),var(--primary-strong));
+      border:1px solid rgba(15,118,110,.24);
+    }
+    .action-btn.secondary{
+      color:var(--ink);
+      background:rgba(255,255,255,.6);
+      border:1px solid rgba(255,255,255,.46);
+    }
+    .action-btn.outline{
+      color:var(--primary-strong);
+      background:rgba(255,255,255,.42);
+      border:1px solid rgba(15,118,110,.18);
+    }
+
+    .msg{
+      min-height:0;
+      margin-top:4px;
+      font-size:13px;
+      font-weight:700;
+    }
+    .msg:empty{display:none}
+    .msg.ok{color:var(--success)}
+    .msg.err{color:var(--danger)}
+
+    .history{
+      margin-top:18px;
+      padding:24px;
+    }
+    .history-head{
+      display:grid;
+      grid-template-columns:minmax(220px,1fr) auto auto auto;
+      gap:12px;
+      align-items:center;
+      margin:16px 0 10px;
+    }
+    .search-wrap{position:relative}
+    .search-wrap .icon{
+      position:absolute;
+      left:16px;
+      top:50%;
+      transform:translateY(-50%);
+      width:18px;height:18px;
+      color:var(--muted);
+      pointer-events:none;
+    }
+    .search-wrap .input{padding-left:46px}
+
+    .history-btn{
+      min-height:54px;
+      padding:11px 16px;
+      font-weight:700;
+      background:rgba(255,255,255,.58);
+      border:1px solid rgba(255,255,255,.46);
+      color:var(--ink);
+      box-shadow:0 10px 22px rgba(20,55,55,.05);
+    }
+    .history-meta{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:14px;
+    }
+
+    .record-list{display:grid; gap:12px}
+    .record{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:16px;
+      align-items:center;
+      padding:16px 18px;
+      border-radius:22px;
+      background:rgba(255,255,255,.47);
+      border:1px solid rgba(255,255,255,.44);
+      box-shadow:0 10px 22px rgba(20,55,55,.05);
+      transition:transform var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+    .record:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,.56);
+      box-shadow:0 18px 32px rgba(20,55,55,.08);
+    }
+    .record-main{
+      display:grid;
+      gap:10px;
+      align-content:center;
+      min-width:0;
+    }
+    .record-title{
+      font-size:18px;
+      font-weight:800;
+      margin-bottom:0;
+      line-height:1.35;
+      word-break:break-word;
+    }
+    .record-price{
+      margin-top:0;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:rgba(255,255,255,.56);
+      border:1px solid rgba(255,255,255,.44);
+      padding:8px 12px;
+      border-radius:999px;
+      box-shadow:0 8px 18px rgba(20,55,55,.04);
+      color:var(--primary-strong);
+      font-size:13px;
+      font-weight:800;
+    }
+    .record-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:flex-end;
+    }
+    .small-btn{
+      min-height:44px;
+      padding:10px 14px;
+      border-radius:16px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .empty{
+      text-align:center;
+      padding:26px 16px;
+      border-radius:22px;
+      background:rgba(255,255,255,.38);
+      border:1px solid rgba(255,255,255,.4);
+      color:var(--muted);
+      box-shadow:0 10px 22px rgba(20,55,55,.04);
+    }
+
+
+    .delete-btn{
+      color:#b42318;
+      background:rgba(255,255,255,.58);
+      border:1px solid rgba(180,35,24,.14);
+    }
+    .delete-btn:hover{
+      background:rgba(255,240,238,.78);
+      border-color:rgba(180,35,24,.24);
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:100;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(20,55,55,.22);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    .modal-backdrop.show{
+      display:flex;
+      animation:modalFade .18s ease;
+    }
+    .modal-card{
+      width:min(440px,100%);
+      padding:22px;
+      border-radius:26px;
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(255,255,255,.58);
+      box-shadow:0 24px 70px rgba(20,55,55,.20);
+      backdrop-filter:blur(20px) saturate(160%);
+      -webkit-backdrop-filter:blur(20px) saturate(160%);
+      animation:modalUp .22s ease;
+    }
+    .modal-icon{
+      width:48px;height:48px;
+      display:grid;place-items:center;
+      border-radius:16px;
+      background:rgba(180,35,24,.09);
+      color:#b42318;
+      margin-bottom:14px;
+    }
+    .modal-icon .icon{width:22px;height:22px}
+    .modal-card h3{
+      margin:0 0 6px;
+      font-size:20px;
+      font-weight:800;
+    }
+    .modal-card p{
+      margin:0 0 16px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+    .modal-machine{
+      display:block;
+      margin-top:4px;
+      color:var(--ink);
+      font-weight:800;
+      word-break:break-word;
+    }
+    .modal-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:16px;
+    }
+    .danger-btn{
+      min-height:50px;
+      border:none;
+      border-radius:16px;
+      font:inherit;
+      font-weight:800;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      color:#fff;
+      background:linear-gradient(135deg,#d92d20,#b42318);
+      box-shadow:0 12px 24px rgba(180,35,24,.18);
+      transition:transform var(--transition),opacity var(--transition);
+    }
+    .danger-btn:hover{transform:translateY(-1px)}
+    .danger-btn:disabled{opacity:.6;cursor:wait;transform:none}
+    @keyframes modalFade{from{opacity:0}to{opacity:1}}
+    @keyframes modalUp{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+
+    .total-ribbon{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:16px 18px;
+      border-radius:20px;
+      color:#fff;
+      background:linear-gradient(135deg,var(--primary),var(--primary-strong));
+      box-shadow:0 12px 26px rgba(15,118,110,.18);
+    }
+    .total-ribbon span{font-size:13px;font-weight:700;opacity:.9}
+    .total-ribbon strong{font-size:24px;font-weight:800;white-space:nowrap}
+    .record.deleted{opacity:.82}
+    .restore-btn{color:var(--primary-strong);border-color:rgba(15,118,110,.2)}
+    .danger-btn.restore-mode{background:linear-gradient(135deg,var(--primary),var(--primary-strong));box-shadow:0 12px 24px rgba(15,118,110,.18)}
+
+    .toast-wrap{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:50;
+      display:grid;
+      gap:10px;
+      width:min(360px, calc(100vw - 28px));
+      pointer-events:none;
+    }
+    .toast{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      padding:14px 16px;
+      border-radius:20px;
+      background:rgba(255,255,255,.76);
+      border:1px solid rgba(255,255,255,.48);
+      box-shadow:0 16px 34px rgba(20,55,55,.12);
+      backdrop-filter:blur(16px) saturate(160%);
+      -webkit-backdrop-filter:blur(16px) saturate(160%);
+      animation:toastIn .24s ease;
+      pointer-events:auto;
+    }
+    .toast.ok{border-color:rgba(15,118,110,.18)}
+    .toast.err{border-color:rgba(194,65,12,.18)}
+    .toast .icon{width:18px;height:18px;margin-top:1px;flex-shrink:0}
+    .toast.ok .icon{color:var(--success)}
+    .toast.err .icon{color:var(--danger)}
+    .toast strong{display:block;margin-bottom:2px;font-size:13px}
+    .toast span{display:block;color:var(--muted);font-size:12px;line-height:1.6}
+    @keyframes toastIn{
+      from{opacity:0; transform:translateY(10px)}
+      to{opacity:1; transform:translateY(0)}
+    }
+
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+      .hero{flex-direction:column; align-items:flex-start}
+    }
+
+    @media (max-width: 760px){
+      .page{width:min(100% - 16px, 1120px); margin:16px auto 24px}
+      .hero, .card, .history{padding:18px}
+      .card-head{align-items:flex-start}
+      .hero-actions{width:100%}
+      .chip{width:100%; justify-content:center}
+      .actions{grid-template-columns:1fr}
+      .history-head{grid-template-columns:1fr}
+      .record{grid-template-columns:1fr}
+      .record-main{gap:8px}
+      .record-actions{justify-content:flex-start}
+      .plan-row{grid-template-columns:1fr; align-items:flex-start}
+      .plan-year, .plan-amount{width:100%}
+      .plan-rate{text-align:left}
+      .price-ribbon{flex-direction:column; align-items:flex-start}
+      .price-ribbon strong{font-size:24px}
+      .ghost-btn,.history-btn,.action-btn{width:100%}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *, *::before, *::after{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        transition-duration:.01ms !important;
+        scroll-behavior:auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <div class="blob b4"></div>
+  </div>
+
+  <main class="page">
+    <section class="hero glass">
+      <div>
+        <h1>PM Platinum Plan</h1>
+        <p>คำนวณ • บันทึก • เรียกใช้ย้อนหลัง</p>
+      </div>
+      <div class="hero-actions">
+        <div id="connectionChip" class="chip" role="status">
+          <i id="connectionIcon" class="icon" data-lucide="loader-circle"></i>
+          <span id="connectionText">กำลังเชื่อมต่อ...</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <section class="card glass">
+        <div class="card-head">
+          <div class="title-wrap">
+            <div class="icon-shell"><i class="icon" data-lucide="file-pen-line"></i></div>
+            <h2>ข้อมูลรายการ</h2>
+          </div>
+
+          <button class="ghost-btn" onclick="newRecord()">
+            <i class="icon" data-lucide="plus"></i>
+            <span>รายการใหม่</span>
+          </button>
+        </div>
+
+        <div id="editBanner" class="edit-banner"></div>
+
+        <div class="form-section">
+          <div class="field">
+            <label for="machine"><i class="icon" data-lucide="cpu"></i>ชื่อเครื่อง *</label>
+            <div class="input-shell">
+              <input id="machine" class="input" type="text" maxlength="200" autocomplete="off" placeholder="กรอกชื่อเครื่อง">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="price"><i class="icon" data-lucide="banknote"></i>ราคาเครื่อง *</label>
+            <div class="input-shell money-wrap">
+              <input id="price" class="input" type="text" inputmode="decimal" autocomplete="off" placeholder="0">
+              <span class="suffix">บาท</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="note"><i class="icon" data-lucide="notebook-pen"></i>หมายเหตุ</label>
+            <div class="input-shell">
+              <textarea id="note" class="textarea" maxlength="5000" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card glass">
+        <div class="card-head">
+          <div class="title-wrap">
+            <div class="icon-shell"><i class="icon" data-lucide="chart-column-big"></i></div>
+            <h2>Platinum Plan</h2>
+          </div>
+        </div>
+
+        <div class="plan-shell">
+          <div class="price-ribbon">
+            <span>Machine Price</span>
+            <strong id="displayPrice">฿0</strong>
+          </div>
+
+          <div id="rateNote" class="rate-note">
+            <i class="icon" data-lucide="info"></i>
+            <span>กำลังโหลดอัตรา...</span>
+          </div>
+
+          <div id="planRows" class="plan-rows"></div>
+
+          <div class="total-ribbon">
+            <span>รวม Platinum Plan 5 ปี</span>
+            <strong id="total">฿0</strong>
+          </div>
+
+          <div class="actions">
+            <button id="saveBtn" class="action-btn primary" onclick="saveData()">
+              <i class="icon" data-lucide="save"></i>
+              <span>บันทึก</span>
+            </button>
+            <button class="action-btn secondary" onclick="copyCurrent()">
+              <i class="icon" data-lucide="copy"></i>
+              <span>Copy</span>
+            </button>
+            <button class="action-btn outline" onclick="shareCurrentImage()">
+              <i class="icon" data-lucide="image-plus"></i>
+              <span>แชร์เป็นรูป</span>
+            </button>
+          </div>
+
+          <div id="msg" class="msg"></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="history glass">
+      <div class="title-wrap">
+        <div class="icon-shell"><i class="icon" data-lucide="history"></i></div>
+        <h2>ประวัติข้อมูล</h2>
+      </div>
+
+      <div class="history-head">
+        <div class="search-wrap">
+          <i class="icon" data-lucide="search"></i>
+          <input
+            id="historySearch"
+            class="input"
+            type="search"
+            placeholder="ค้นหา ชื่อเครื่อง / Record ID / หมายเหตุ"
+            onkeydown="if(event.key==='Enter') loadRecords()"
+          >
+        </div>
+
+        <button class="history-btn" onclick="loadRecords()">
+          <i class="icon" data-lucide="search"></i>
+          <span>ค้นหา</span>
+        </button>
+
+        <button class="history-btn" onclick="clearSearch()">
+          <i class="icon" data-lucide="refresh-cw"></i>
+          <span>ทั้งหมด</span>
+        </button>
+
+        <button id="trashToggleBtn" class="history-btn" onclick="toggleTrash()">
+          <i class="icon" data-lucide="trash-2"></i>
+          <span>ถังขยะ</span>
+        </button>
+      </div>
+
+      <div id="historyMeta" class="history-meta"></div>
+      <div id="recordList" class="record-list"></div>
+    </section>
+  </main>
+
+  <div id="toastRoot" class="toast-wrap" aria-live="polite" aria-atomic="true"></div>
+
+  <iframe name="saveFrame" id="saveFrame" style="display:none"></iframe>
+  <form id="saveForm" method="post" target="saveFrame" style="display:none">
+    <input type="hidden" name="action" value="save">
+    <input type="hidden" name="payload" id="savePayload">
+  </form>
+
+  <form id="deleteForm" method="post" target="saveFrame" style="display:none">
+    <input id="mutationAction" type="hidden" name="action" value="delete">
+    <input type="hidden" name="payload" id="deletePayload">
+  </form>
+
+  <div id="deleteModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="deleteTitle" aria-describedby="deleteDescription" onclick="if(event.target===this) closeDeleteModal()">
+    <div class="modal-card" tabindex="-1">
+      <div class="modal-icon"><i class="icon" data-lucide="trash-2"></i></div>
+      <h3 id="deleteTitle">ลบข้อมูล</h3>
+      <p id="deleteDescription">
+        รายการนี้จะถูกย้ายไปถังขยะและสามารถกู้คืนได้
+        <span id="deleteMachineName" class="modal-machine"></span>
+      </p>
+
+      <div class="field">
+        <label for="deletePassword"><i class="icon" data-lucide="key-round"></i>รหัสผ่านผู้ดูแล</label>
+        <div class="input-shell">
+          <input
+            id="deletePassword"
+            class="input"
+            type="password"
+            autocomplete="current-password"
+            placeholder="กรอกรหัสผ่าน"
+            onkeydown="if(event.key==='Enter') confirmDelete()"
+          >
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="ghost-btn" type="button" onclick="closeDeleteModal()">ยกเลิก</button>
+        <button id="confirmDeleteBtn" class="danger-btn" type="button" onclick="confirmDelete()">
+          <i class="icon" data-lucide="trash-2"></i>
+          <span>ลบข้อมูล</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    let defaultRates=[
+      {year:'Year 1',rate:.08},{year:'Year 2',rate:.12},{year:'Year 3',rate:.15},
+      {year:'Year 4',rate:.18},{year:'Year 5',rate:.20}
+    ];
+    let rates=cloneRates(defaultRates),currentRecordId='',recordCache=[],pendingDeleteRecord=null;
+    let historyMode='active',mutationMode='delete',savedSnapshot='',modalReturnFocus=null;
+    const $=id=>document.getElementById(id);
+
+    function apiUrl(){
+      const u=(window.APP_CONFIG&&window.APP_CONFIG.API_URL||'').trim();
+      if(!u||u.includes('PASTE_YOUR')) throw new Error('กรุณาใส่ Apps Script Web App URL ในไฟล์ config.js');
+      return u;
+    }
+
+    function jsonp(params){
+      return new Promise((resolve,reject)=>{
+        let cb='ppcb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+        const s=document.createElement('script');
+        const timer=setTimeout(()=>{cleanup();reject(new Error('เชื่อมต่อ Backend ไม่สำเร็จ'));},15000);
+        function cleanup(){clearTimeout(timer);delete window[cb];s.remove();}
+        window[cb]=data=>{cleanup();data&&data.ok===false?reject(new Error(data.error||'Backend error')):resolve(data);};
+        const q=new URLSearchParams({...params,callback:cb});
+        s.src=apiUrl()+'?'+q.toString();
+        s.onerror=()=>{cleanup();reject(new Error('โหลดข้อมูลจาก Backend ไม่สำเร็จ'));};
+        document.body.appendChild(s);
+      });
+    }
+
+    async function init(){
+      $('price').addEventListener('input',renderPlan);
+      $('price').addEventListener('blur',handlePriceBlur);
+      ['machine','price','note'].forEach(id=>$(id).addEventListener('input',updateDirtyState));
+      window.addEventListener('beforeunload',e=>{if(hasUnsavedChanges()){e.preventDefault();e.returnValue='';}});
+      document.addEventListener('keydown',handleModalKeydown);
+      renderPlan();
+      try{
+        const res=await jsonp({action:'rates'});
+        if(res.rates&&res.rates.length===5){
+          defaultRates=cloneRates(res.rates);
+          rates=cloneRates(defaultRates);
+        }
+        $('rateNote').innerHTML='<i class="icon" data-lucide="badge-check"></i><span>ใช้อัตราจาก Settings</span>';
+        renderPlan();
+        setConnectionState(true);
+      }catch(e){showError(e);setConnectionState(false)}
+      savedSnapshot=formSnapshot();
+      await loadRecords();
+      refreshIcons();
+    }
+
+    function refreshIcons(){
+      if(window.lucide){ window.lucide.createIcons(); }
+    }
+
+    function cloneRates(r){return(r||[]).map(x=>({year:String(x.year||''),rate:Number(x.rate)||0}));}
+    function parsePrice(v){const n=Number(String(v||'').replace(/,/g,'').replace(/[^\d.]/g,''));return Number.isFinite(n)?n:0;}
+    function money(n){return new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',maximumFractionDigits:0}).format(Number(n)||0);}
+    function number(n){return new Intl.NumberFormat('th-TH',{maximumFractionDigits:0}).format(Number(n)||0);}
+    function formatPercent(rate){const p=Number(rate||0)*100;return Number.isInteger(p)?p+'%':p.toFixed(2).replace(/0+$/,'').replace(/\.$/,'')+'%';}
+    function handlePriceBlur(e){const n=parsePrice(e.target.value);e.target.value=n?number(n):'';renderPlan();updateDirtyState();}
+    function calcFor(price,planRates){
+      const p=Number(price)||0,items=cloneRates(planRates).map(x=>({...x,amount:round2(p*x.rate)}));
+      return{price:p,items,total:round2(items.reduce((s,x)=>s+x.amount,0))};
+    }
+    function calc(){return calcFor(parsePrice($('price').value),rates);}
+    function round2(n){return Math.round((Number(n)+Number.EPSILON)*100)/100;}
+
+    function renderPlan(){
+      const c=calc();
+      $('displayPrice').textContent=money(c.price);
+      const totalEl=$('total');
+      if(totalEl) totalEl.textContent=money(c.total);
+      $('planRows').innerHTML=c.items.map(x=>`
+        <div class="plan-row">
+          <div class="plan-year">
+            <i class="icon" data-lucide="badge-dollar-sign"></i>
+            <span>${escapeHtml(x.year)}</span>
+          </div>
+          <div class="plan-rate">${formatPercent(x.rate)}</div>
+          <div class="plan-amount">${money(x.amount)}</div>
+        </div>
+      `).join('');
+      if(currentRecordId){
+        $('rateNote').innerHTML='<i class="icon" data-lucide="folders"></i><span>ใช้อัตราที่บันทึกไว้</span>';
+      }
+      refreshIcons();
+    }
+
+    function setConnectionState(connected){
+      $('connectionText').textContent=connected?'เชื่อมต่อระบบแล้ว':'เชื่อมต่อระบบไม่ได้';
+      $('connectionIcon').setAttribute('data-lucide',connected?'cloud-check':'cloud-off');
+      refreshIcons();
+    }
+
+    function formSnapshot(){
+      return JSON.stringify({
+        recordId:currentRecordId,
+        machine:$('machine').value.trim(),
+        price:parsePrice($('price').value),
+        note:$('note').value.trim(),
+        rates:cloneRates(rates)
+      });
+    }
+    function hasUnsavedChanges(){return !!savedSnapshot&&formSnapshot()!==savedSnapshot;}
+    function updateDirtyState(){
+      if(currentRecordId)updateEditBanner();
+    }
+
+    function createRequestId(){
+      return 'REQ-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+    }
+
+    async function waitForOperation(requestId){
+      let lastError=null;
+      for(let i=0;i<12;i++){
+        await wait(600);
+        try{
+          const result=await jsonp({action:'operation',requestId:requestId});
+          if(result.pending)continue;
+          if(result.ok===false)throw new Error(result.error||'Backend ทำรายการไม่สำเร็จ');
+          return result;
+        }catch(e){lastError=e;if(e.message!=='เชื่อมต่อ Backend ไม่สำเร็จ')throw e;}
+      }
+      throw lastError||new Error('Backend ไม่ยืนยันผลภายในเวลาที่กำหนด กรุณาตรวจสอบข้อมูลก่อนลองใหม่');
+    }
+
+    function getFormData(){return{recordId:currentRecordId,machine:$('machine').value.trim(),machinePrice:parsePrice($('price').value),note:$('note').value.trim(),rates:cloneRates(rates)};}
+    function validate(d){if(!d.machine)return'กรุณากรอกชื่อเครื่อง';if(!d.machinePrice||d.machinePrice<=0)return'กรุณากรอกราคาเครื่อง';return'';}
+
+    async function saveData(){
+      const data=getFormData(),err=validate(data);if(err)return showError(err);
+      const btn=$('saveBtn');btn.disabled=true;setMsg('กำลังบันทึก...','');
+      if(!data.recordId)data.recordId=(crypto.randomUUID?crypto.randomUUID():'WEB-'+Date.now()+'-'+Math.random().toString(36).slice(2));
+      currentRecordId=data.recordId;
+      data.requestId=createRequestId();
+      $('saveForm').action=apiUrl();
+      $('savePayload').value=JSON.stringify(data);
+      $('saveForm').submit();
+
+      try{
+        await waitForOperation(data.requestId);
+        savedSnapshot=formSnapshot();
+        updateEditBanner();
+        renderPlan();
+        setConnectionState(true);
+        setMsg('บันทึกและตรวจสอบเรียบร้อยแล้ว','ok');
+        await loadRecords();
+      }catch(e){showError(e);setConnectionState(false)}
+      finally{$('savePayload').value='';btn.disabled=false;}
+    }
+
+    function newRecord(){
+      if(hasUnsavedChanges()&&!window.confirm('มีข้อมูลที่ยังไม่ได้บันทึก ต้องการทิ้งข้อมูลนี้หรือไม่?'))return;
+      currentRecordId='';
+      rates=cloneRates(defaultRates);
+      $('machine').value='';
+      $('price').value='';
+      $('note').value='';
+      updateEditBanner();
+      $('rateNote').innerHTML='<i class="icon" data-lucide="badge-check"></i><span>ใช้อัตราจาก Settings</span>';
+      renderPlan();
+      savedSnapshot=formSnapshot();
+      setMsg('พร้อมสร้างรายการใหม่','ok');
+      refreshIcons();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function updateEditBanner(){
+      const box=$('editBanner');
+      if(!currentRecordId){
+        box.classList.remove('show');
+        box.textContent='';
+        $('saveBtn').innerHTML='<i class="icon" data-lucide="save"></i><span>บันทึก</span>';
+        refreshIcons();
+        return;
+      }
+      box.classList.add('show');
+      box.textContent=hasUnsavedChanges()?'มีการแก้ไขที่ยังไม่ได้บันทึก':'กำลังแก้ไขรายการที่บันทึกไว้';
+      $('saveBtn').innerHTML='<i class="icon" data-lucide="save"></i><span>อัปเดต</span>';
+      refreshIcons();
+    }
+
+    async function loadRecords(){
+      try{
+        const q=$('historySearch').value.trim();
+        $('historyMeta').textContent='กำลังโหลดข้อมูล...';
+        $('recordList').innerHTML='';
+        const res=await jsonp({action:historyMode==='trash'?'trash':'list',q:q,limit:'100'});
+        recordCache=Array.isArray(res.records)?res.records:[];
+        sortRecordsAlphabetically();
+        renderRecordList();
+        setConnectionState(true);
+      }catch(e){
+        $('historyMeta').textContent='';
+        showError(e);
+        setConnectionState(false);
+      }
+    }
+
+    function sortRecordsAlphabetically(){
+      const collator=new Intl.Collator(['en','th'],{sensitivity:'base',numeric:true});
+      recordCache.sort((a,b)=>{
+        const nameA=String(a&&a.machine||'').trim();
+        const nameB=String(b&&b.machine||'').trim();
+        if(!nameA&&!nameB)return 0;
+        if(!nameA)return 1;
+        if(!nameB)return -1;
+        return collator.compare(nameA,nameB);
+      });
+    }
+
+    function renderRecordList(){
+      $('historyMeta').textContent=recordCache.length?`${historyMode==='trash'?'ถังขยะ':'รายการปัจจุบัน'} ${recordCache.length} รายการ • เรียง A–Z`:'';
+      if(!recordCache.length){
+        $('recordList').innerHTML=`<div class="empty">${historyMode==='trash'?'ถังขยะว่าง':'ยังไม่พบข้อมูล'}</div>`;
+        return;
+      }
+
+      $('recordList').innerHTML=recordCache.map((r,i)=>`
+        <div class="record">
+          <div class="record-main">
+            <div class="record-title">${escapeHtml(r.machine||'-')}</div>
+            <div class="record-price">
+              <span class="pill"><i class="icon" data-lucide="banknote"></i>ราคาเครื่อง ${money(r.machinePrice)}</span>
+            </div>
+          </div>
+          <div class="record-actions">
+            ${historyMode==='active'?`<button class="history-btn small-btn" onclick="useRecord(${i})">
+              <i class="icon" data-lucide="square-arrow-out-up-right"></i><span>เรียกใช้</span>
+            </button>`:''}
+            <button class="history-btn small-btn" onclick="copyRecord(${i})">
+              <i class="icon" data-lucide="copy"></i><span>Copy</span>
+            </button>
+            <button class="history-btn small-btn ${historyMode==='active'?'delete-btn':''}" onclick="openMutationModal(${i},'${historyMode==='active'?'delete':'restore'}')">
+              <i class="icon" data-lucide="${historyMode==='active'?'trash-2':'rotate-ccw'}"></i><span>${historyMode==='active'?'ย้ายไปถังขยะ':'กู้คืน'}</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      refreshIcons();
+    }
+
+    function toggleTrash(){
+      historyMode=historyMode==='active'?'trash':'active';
+      $('trashToggleBtn').innerHTML=historyMode==='trash'
+        ?'<i class="icon" data-lucide="list"></i><span>รายการปัจจุบัน</span>'
+        :'<i class="icon" data-lucide="trash-2"></i><span>ถังขยะ</span>';
+      loadRecords();
+      refreshIcons();
+    }
+
+    function useRecord(i){
+      const r=recordCache[i]; if(!r)return;
+      if(hasUnsavedChanges()&&!window.confirm('มีข้อมูลที่ยังไม่ได้บันทึก ต้องการเรียกใช้รายการอื่นหรือไม่?'))return;
+      currentRecordId=r.recordId||'';
+      rates=r.rates&&r.rates.length===5?cloneRates(r.rates):cloneRates(defaultRates);
+      $('machine').value=r.machine||'';
+      $('price').value=r.machinePrice?number(r.machinePrice):'';
+      $('note').value=r.note||'';
+      savedSnapshot=formSnapshot();
+      updateEditBanner();
+      renderPlan();
+      setMsg('ดึงข้อมูลกลับมาแล้ว','ok');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+
+    function openMutationModal(i,mode){
+      const r=recordCache[i];
+      if(!r)return;
+      pendingDeleteRecord=r;
+      mutationMode=mode==='restore'?'restore':'delete';
+      modalReturnFocus=document.activeElement;
+      $('deleteMachineName').textContent=r.machine||r.recordId||'';
+      $('deletePassword').value='';
+      $('mutationAction').value=mutationMode;
+      $('deleteTitle').textContent=mutationMode==='restore'?'กู้คืนข้อมูล':'ย้ายข้อมูลไปถังขยะ';
+      $('deleteDescription').childNodes[0].textContent=mutationMode==='restore'
+        ?'รายการนี้จะกลับไปอยู่ในประวัติข้อมูล '
+        :'รายการนี้จะถูกย้ายไปถังขยะและสามารถกู้คืนได้ ';
+      $('confirmDeleteBtn').innerHTML=mutationMode==='restore'
+        ?'<i class="icon" data-lucide="rotate-ccw"></i><span>กู้คืนข้อมูล</span>'
+        :'<i class="icon" data-lucide="trash-2"></i><span>ย้ายไปถังขยะ</span>';
+      $('deleteModal').classList.add('show');
+      $('deleteModal').setAttribute('aria-hidden','false');
+      refreshIcons();
+      setTimeout(()=>$('deletePassword').focus(),80);
+    }
+
+    function closeDeleteModal(){
+      pendingDeleteRecord=null;
+      $('deletePassword').value='';
+      $('deletePayload').value='';
+      $('deleteModal').classList.remove('show');
+      $('deleteModal').setAttribute('aria-hidden','true');
+      if(modalReturnFocus&&modalReturnFocus.focus)modalReturnFocus.focus();
+      modalReturnFocus=null;
+    }
+
+    function handleModalKeydown(event){
+      if(!$('deleteModal').classList.contains('show'))return;
+      if(event.key==='Escape'){
+        event.preventDefault();
+        closeDeleteModal();
+        return;
+      }
+      if(event.key!=='Tab')return;
+      const focusable=[...$('deleteModal').querySelectorAll('button,input')].filter(el=>!el.disabled);
+      if(!focusable.length)return;
+      const first=focusable[0],last=focusable[focusable.length-1];
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+    }
+
+    async function confirmDelete(){
+      if(!pendingDeleteRecord)return;
+      const password=$('deletePassword').value;
+      if(!password){
+        showError('กรุณากรอกรหัสผ่าน');
+        $('deletePassword').focus();
+        return;
+      }
+
+      const recordId=pendingDeleteRecord.recordId;
+      const machineName=pendingDeleteRecord.machine||'';
+      const requestId=createRequestId();
+      const btn=$('confirmDeleteBtn');
+      btn.disabled=true;
+
+      try{
+        $('deleteForm').action=apiUrl();
+        $('deletePayload').value=JSON.stringify({
+          recordId:recordId,
+          password:password,
+          requestId:requestId
+        });
+        $('deleteForm').submit();
+
+        await waitForOperation(requestId);
+
+        closeDeleteModal();
+
+        if(mutationMode==='delete'&&currentRecordId===recordId){
+          currentRecordId='';
+          rates=cloneRates(defaultRates);
+          $('machine').value='';
+          $('price').value='';
+          $('note').value='';
+          updateEditBanner();
+          $('rateNote').innerHTML='<i class="icon" data-lucide="badge-check"></i><span>ใช้อัตราจาก Settings</span>';
+          renderPlan();
+          savedSnapshot=formSnapshot();
+        }
+
+        setMsg(`${mutationMode==='restore'?'กู้คืน':'ย้ายไปถังขยะ'} ${machineName || 'รายการ'} เรียบร้อยแล้ว`,'ok');
+        await loadRecords();
+      }catch(err){
+        showError(err);
+      }finally{
+        btn.disabled=false;
+        $('deletePayload').value='';
+      }
+    }
+
+    function clearSearch(){$('historySearch').value='';loadRecords();}
+    function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+
+    async function copyCurrent(){
+      const d=getFormData(),e=validate(d); if(e)return showError(e);
+      await copyText(buildShareTextFromData(d));
+    }
+    async function copyRecord(i){
+      const r=recordCache[i]; if(!r)return;
+      await copyText(buildShareTextFromData(recordToData(r)));
+    }
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        setMsg('Copy เรียบร้อยแล้ว','ok');
+      }catch(_){
+        const ta=document.createElement('textarea');
+        ta.value=text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        setMsg('Copy เรียบร้อยแล้ว','ok');
+      }
+    }
+
+    function recordToData(r){return{recordId:r.recordId||'',machine:r.machine||'',machinePrice:Number(r.machinePrice)||0,note:r.note||'',rates:r.rates?cloneRates(r.rates):cloneRates(defaultRates)};}
+
+    function buildShareTextFromData(d){
+      const c=calcFor(d.machinePrice,d.rates),rows=c.items.map(x=>`${x.year}  ${formatPercent(x.rate)}  = ${number(x.amount)} บาท`).join('\n');
+      return[
+        'PLATINUM PLAN',
+        '',
+        `Machine: ${d.machine}`,
+        `Machine Price: ${number(c.price)} บาท`,
+        '',
+        rows,
+        d.note?`Note: ${d.note}`:''
+      ].filter((x,i,a)=>x!==''||a[i-1]!=='').join('\n').trim();
+    }
+
+    async function shareCurrentImage(){
+      const d=getFormData(),e=validate(d); if(e)return showError(e);
+      if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+      const canvas=createCardCanvas(d),blob=await new Promise(r=>canvas.toBlob(r,'image/png',1));
+      if(!blob)return showError('ไม่สามารถสร้างไฟล์รูปได้');
+      const safe=(d.machine||'Platinum-Plan').replace(/[\\/:*?"<>|]+/g,'-');
+      const file=new File([blob],`${safe}-Platinum-Plan.png`,{type:'image/png'});
+      try{
+        if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+          await navigator.share({title:'Platinum Plan',text:`${d.machine} - Platinum Plan`,files:[file]});
+          setMsg('เปิดเมนูแชร์รูปแล้ว','ok');
+        }else{
+          const a=document.createElement('a');
+          a.href=URL.createObjectURL(blob);
+          a.download=file.name;
+          a.click();
+          setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+          setMsg('สร้างไฟล์ PNG แล้ว','ok');
+        }
+      }catch(err){ if(err&&err.name!=='AbortError') showError(err); }
+    }
+
+    function createCardCanvas(d){
+      const c=calcFor(d.machinePrice,d.rates);
+      const hasNote=!!(d.note && d.note.trim());
+      const W=1200;
+      const H=hasNote ? 1150 : 1040;
+      const canvas=document.createElement('canvas');
+      canvas.width=W; canvas.height=H;
+      const ctx=canvas.getContext('2d');
+
+      const grad=ctx.createLinearGradient(0,0,W,H);
+      grad.addColorStop(0,'#E5FFFF');
+      grad.addColorStop(.5,'#FFFFE6');
+      grad.addColorStop(1,'#FFE6FF');
+      ctx.fillStyle=grad;
+      ctx.fillRect(0,0,W,H);
+
+      roundRect(ctx,64,64,W-128,H-128,34);
+      ctx.fillStyle='rgba(255,255,255,.76)';
+      ctx.fill();
+
+      ctx.save();
+      ctx.fillStyle='rgba(255,255,255,.9)';
+      roundRect(ctx,64,64,W-128,205,34);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.fillStyle='#0f766e';
+      ctx.font='700 54px "Noto Sans Thai", Arial, sans-serif';
+      ctx.fillText('PLATINUM PLAN',116,150);
+      ctx.fillStyle='#527575';
+      ctx.font='400 28px "Noto Sans Thai", Arial, sans-serif';
+      ctx.fillText('LASER ENGINEER CO., LTD.',116,205);
+
+      let y=360;
+      ctx.fillStyle='#123636';
+      ctx.font='700 42px "Noto Sans Thai", Arial, sans-serif';
+      y=wrapText(ctx,d.machine,116,y,968,50)+60;
+
+      ctx.fillStyle='#527575';
+      ctx.font='700 24px "Noto Sans Thai", Arial, sans-serif';
+      ctx.fillText('Machine Price',116,y);
+      ctx.textAlign='right';
+      ctx.fillStyle='#0a625c';
+      ctx.font='700 42px "Noto Sans Thai", Arial, sans-serif';
+      ctx.fillText(money(c.price),1080,y);
+      ctx.textAlign='left';
+
+      y+=58;
+      ctx.strokeStyle='rgba(18,54,54,.12)';
+      ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.moveTo(116,y);
+      ctx.lineTo(1084,y);
+      ctx.stroke();
+      y+=72;
+
+      c.items.forEach(item=>{
+        roundRect(ctx,104,y-42,992,58,18);
+        ctx.fillStyle='rgba(255,255,255,.48)';
+        ctx.fill();
+
+        ctx.fillStyle='#123636';
+        ctx.font='700 29px "Noto Sans Thai", Arial, sans-serif';
+        ctx.fillText(item.year,132,y-4);
+
+        roundRect(ctx,445,y-34,92,34,999);
+        ctx.fillStyle='rgba(15,118,110,.12)';
+        ctx.fill();
+
+        ctx.fillStyle='#0a625c';
+        ctx.font='700 20px "Noto Sans Thai", Arial, sans-serif';
+        ctx.fillText(formatPercent(item.rate),472,y-11);
+
+        ctx.textAlign='right';
+        ctx.fillStyle='#123636';
+        ctx.font='700 31px "Noto Sans Thai", Arial, sans-serif';
+        ctx.fillText(money(item.amount),1065,y-4);
+        ctx.textAlign='left';
+
+        y+=78;
+      });
+
+      if(hasNote){
+        y+=24;
+        ctx.fillStyle='#527575';
+        ctx.font='400 24px "Noto Sans Thai", Arial, sans-serif';
+        wrapText(ctx,'Note: ' + d.note,116,y,968,34);
+      }
+
+      return canvas;
+    }
+
+    function roundRect(ctx,x,y,w,h,r){
+      r=Math.min(r,w/2,h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+r,y);
+      ctx.arcTo(x+w,y,x+w,y+h,r);
+      ctx.arcTo(x+w,y+h,x,y+h,r);
+      ctx.arcTo(x,y+h,x,y,r);
+      ctx.arcTo(x,y,x+w,y,r);
+      ctx.closePath();
+    }
+    function wrapText(ctx,text,x,y,maxWidth,lineHeight){
+      const source=String(text||'');
+      const words=typeof Intl.Segmenter==='function'
+        ?[...new Intl.Segmenter('th',{granularity:'word'}).segment(source)].map(x=>x.segment)
+        :Array.from(source);
+      let line='';
+      for(let i=0;i<words.length;i++){
+        const test=line+words[i];
+        if(ctx.measureText(test).width>maxWidth&&i>0){
+          ctx.fillText(line,x,y);
+          line=words[i];
+          y+=lineHeight;
+        }else line=test;
+      }
+      ctx.fillText(line,x,y);
+      return y;
+    }
+
+    function setMsg(text,cls){
+      $('msg').className='msg ' + (cls||'');
+      $('msg').textContent=text||'';
+      if(text) pushToast(text, cls==='err' ? 'err' : 'ok');
+    }
+
+    function showError(err){
+      const text=typeof err==='string'?err:(err&&err.message?err.message:'เกิดข้อผิดพลาด');
+      $('msg').className='msg err';
+      $('msg').textContent=text;
+      pushToast(text,'err');
+    }
+
+    function pushToast(text, type='ok'){
+      const root=$('toastRoot');
+      const el=document.createElement('div');
+      el.className='toast ' + type;
+      el.innerHTML=`
+        <i class="icon" data-lucide="${type==='err' ? 'circle-alert' : 'badge-check'}"></i>
+        <div>
+          <strong>${type==='err' ? 'ไม่สำเร็จ' : 'สำเร็จ'}</strong>
+          <span>${escapeHtml(text)}</span>
+        </div>
+      `;
+      root.appendChild(el);
+      refreshIcons();
+      setTimeout(()=>{el.style.opacity='0'; el.style.transform='translateY(10px)';},3400);
+      setTimeout(()=>el.remove(),3800);
+    }
+
+    function escapeHtml(str){
+      return String(str??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    }
+
+    init();
+  </script>
+</body>
+</html>

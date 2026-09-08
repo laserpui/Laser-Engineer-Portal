@@ -110,13 +110,112 @@
             transform: translateY(0);
         }
 
-        /* SweetAlert Glassmorphism Override */
+        /* Consistent SweetAlert layout across desktop and mobile */
+        .swal2-container {
+            z-index: 100000 !important;
+            padding: 1rem !important;
+            font-family: 'Sarabun', 'Noto Sans Thai', sans-serif !important;
+        }
         .swal2-popup {
-            background: rgba(255, 255, 255, 0.9) !important;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            width: min(32rem, calc(100vw - 2rem)) !important;
+            max-width: 100% !important;
+            padding: 1.75rem !important;
+            box-sizing: border-box !important;
+            color: #334155 !important;
+            background: rgba(255, 255, 255, 0.96) !important;
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
             border-radius: 1.5rem !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 24px 64px rgba(15, 23, 42, 0.2) !important;
+        }
+        .swal2-title {
+            margin: 0 !important;
+            padding: 0 !important;
+            color: #1e293b !important;
+            font-size: 1.35rem !important;
+            line-height: 1.45 !important;
+            font-weight: 800 !important;
+        }
+        .swal2-html-container {
+            margin: 0.75rem 0 0 !important;
+            padding: 0 !important;
+            color: #64748b !important;
+            line-height: 1.65 !important;
+            overflow-wrap: anywhere;
+        }
+        .swal2-icon {
+            margin: 0 auto 1rem !important;
+        }
+        .swal2-input,
+        .swal2-select,
+        .swal2-textarea {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: 3rem !important;
+            margin: 1rem 0 0 !important;
+            padding: 0.65rem 0.9rem !important;
+            box-sizing: border-box !important;
+            border: 1px solid rgba(148, 163, 184, 0.55) !important;
+            border-radius: 0.9rem !important;
+            background: rgba(255, 255, 255, 0.78) !important;
+            color: #1e293b !important;
+            font-family: inherit !important;
+            font-size: 0.95rem !important;
+            box-shadow: none !important;
+        }
+        .swal2-input:focus,
+        .swal2-select:focus,
+        .swal2-textarea:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16) !important;
+            outline: none !important;
+        }
+        .swal2-actions {
+            width: 100% !important;
+            margin: 1.5rem 0 0 !important;
+            gap: 0.75rem !important;
+        }
+        .swal2-styled {
+            min-height: 2.75rem !important;
+            margin: 0 !important;
+            padding: 0.65rem 1.2rem !important;
+            border-radius: 0.9rem !important;
+            font-family: inherit !important;
+            font-size: 0.9rem !important;
+            font-weight: 700 !important;
+            box-shadow: none !important;
+        }
+        .swal2-validation-message {
+            margin: 1rem 0 0 !important;
+            border-radius: 0.8rem !important;
+            font-family: inherit !important;
+        }
+        .swal2-popup.swal2-toast {
+            width: auto !important;
+            padding: 0.8rem 1rem !important;
+            border-radius: 1rem !important;
+        }
+        .swal2-toast .swal2-title {
+            font-size: 0.9rem !important;
+            line-height: 1.4 !important;
+        }
+        @media (max-width: 480px) {
+            .swal2-container {
+                padding: 0.75rem !important;
+            }
+            .swal2-popup {
+                width: calc(100vw - 1.5rem) !important;
+                padding: 1.25rem !important;
+                border-radius: 1.25rem !important;
+            }
+            .swal2-actions {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+            }
+            .swal2-styled {
+                width: 100% !important;
+            }
         }
         
         .pulse-dot {
@@ -184,6 +283,9 @@
                     </button>
                     <button onclick="App.switchTab('parts-price')" data-tab-btn="parts-price" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
                         <i data-lucide="receipt-text" class="w-4 h-4"></i> คำนวณราคาอะไหล่
+                    </button>
+                    <button onclick="App.switchTab('platinum-plan')" data-tab-btn="platinum-plan" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
+                        <i data-lucide="gem" class="w-4 h-4"></i> PM Platinum Plan
                     </button>
                     <button onclick="App.switchTab('product-info')" data-tab-btn="product-info" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
                         <i data-lucide="clipboard-list" class="w-4 h-4"></i> ข้อมูลผลิตภัณฑ์
@@ -279,6 +381,16 @@
                                 <div class="text-xs font-semibold text-slate-400">ศูนย์คำนวณราคาอะไหล่และ Cartridge</div>
                             </div>
                         </div>
+                        <div onclick="App.switchTab('platinum-plan')" class="glass-panel glass-panel-hover rounded-3xl p-5 flex items-center gap-4 cursor-pointer">
+                            <div class="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-600 flex items-center justify-center border border-violet-500/20 shrink-0">
+                                <i data-lucide="gem" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <div class="text-xl font-black leading-tight text-violet-700">5-Year Plan</div>
+                                <div class="text-xs font-semibold text-slate-400">คำนวณและจัดเก็บ PM Platinum Plan</div>
+                            </div>
+                        </div>
+
                         <!-- Stat Card 2 -->
                         <div onclick="App.switchTab('product-info')" class="glass-panel glass-panel-hover rounded-3xl p-5 flex items-center gap-4 cursor-pointer">
                             <div class="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center border border-blue-500/20 shrink-0">
@@ -344,6 +456,24 @@
                                 <div class="text-xs font-semibold text-slate-400">คะแนนเฉลี่ย CSAT</div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- ==================== TAB: PM PLATINUM PLAN ==================== -->
+                <div id="tab-platinum-plan" class="tab-content space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="font-extrabold text-lg flex items-center gap-2 text-slate-800">
+                                <i data-lucide="gem" class="text-violet-600"></i> PM Platinum Plan
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">คำนวณ บันทึก และเรียกดูแผนบำรุงรักษา Platinum Plan 5 ปี</p>
+                        </div>
+                        <button type="button" onclick="App.reloadPlatinumPlan()" class="py-2 px-3 rounded-xl bg-white/50 border border-white/70 text-xs font-bold text-slate-600 hover:bg-white/80 transition-all inline-flex items-center justify-center gap-1.5">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> โหลดหน้าใหม่
+                        </button>
+                    </div>
+                    <div class="glass-panel rounded-3xl overflow-hidden border border-white/60 shadow-sm bg-white/20">
+                        <iframe id="platinum-plan-frame" data-src="./pm-platinum-plan/index.html" title="PM Platinum Plan" class="block w-full border-0 bg-transparent" style="height: max(760px, calc(100vh - 190px));"></iframe>
                     </div>
                 </div>
 
@@ -1917,6 +2047,8 @@
             machines: ["Air Cooling", "Biaxis Pico", "Biaxis QS", "Cellec", "Cellec V", "Co2 1000Nain", "Healite II", "Light Walker", "Pico Plus", "Profacial", "SP Dynamis", "Spectra", "Spectra XT", "SP Spectro", "Star Walker PQX", "Time Walker", "UltraCel Q+", "Vaser 2.2", "WinBack", "XP Dynamis", "XP Focus", "XS Dynamis"],
 
             init() {
+                this.prepareCleanInputs();
+
                 // Render today's date in overview
                 const d = new Date();
                 document.getElementById('overview-today-date').innerText = d.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -1951,7 +2083,9 @@
                 document.querySelector(`[data-tab-btn="${this.currentTab}"]`).classList.add('text-slate-600', 'hover:bg-white/30');
 
                 // Show new tab
-                document.getElementById(`tab-${tabId}`).classList.add('active');
+                const nextTab = document.getElementById(`tab-${tabId}`);
+                nextTab.classList.add('active');
+                this.resetTypedInputs(nextTab);
                 document.querySelector(`[data-tab-btn="${tabId}"]`).classList.add('bg-white/50', 'text-blue-600', 'shadow-sm', 'border', 'border-white/60');
                 document.querySelector(`[data-tab-btn="${tabId}"]`).classList.remove('text-slate-600', 'hover:bg-white/30');
 
@@ -1959,6 +2093,7 @@
 
                 if (tabId === 'spare-parts') SparePartsModule.ensureLoaded();
                 if (tabId === 'product-info') ProductInfoModule.ensureLoaded();
+                if (tabId === 'platinum-plan') this.ensurePlatinumPlanLoaded();
 
                 // Update Top bar Header Title
                 const titles = {
@@ -1966,6 +2101,7 @@
                     calculator: 'เครื่องคำนวณ Dual-Engine Calculator',
                     'spare-parts': 'ตารางข้อมูลอะไหล่พรีเมียม',
                     'parts-price': 'คำนวณราคาอะไหล่และ Cartridge',
+                    'platinum-plan': 'PM Platinum Plan 5 ปี',
                     'product-info': 'ตารางรายละเอียดข้อมูลผลิตภัณฑ์',
                     debtor: 'ระบบจัดการลูกหนี้ค้างชำระ (AR Service)',
                     expenses: 'รายงานบัญชีและบันทึกค่าใช้จ่ายวิศวกร',
@@ -1981,6 +2117,49 @@
                     sidebar.classList.add('hidden');
                     sidebar.classList.remove('flex');
                 }
+            },
+
+            prepareCleanInputs() {
+                document.querySelectorAll('form').forEach(form => form.setAttribute('autocomplete', 'off'));
+                document.querySelectorAll('input:not([type="hidden"]), textarea').forEach(field => {
+                    field.setAttribute('autocomplete', 'off');
+                });
+                this.resetTypedInputs(document);
+            },
+
+            resetTypedInputs(scope = document) {
+                const selector = [
+                    'input[type="text"]',
+                    'input[type="search"]',
+                    'input[type="email"]',
+                    'input[type="tel"]',
+                    'input[type="url"]',
+                    'input[type="password"]',
+                    'textarea'
+                ].join(',');
+                scope.querySelectorAll(selector).forEach(field => {
+                    if (field.classList.contains('note-input-element') || field.closest('.swal2-popup')) return;
+                    if (field.value !== '') {
+                        field.value = '';
+                        field.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                });
+            },
+
+            ensurePlatinumPlanLoaded() {
+                const frame = document.getElementById('platinum-plan-frame');
+                if (!frame) return;
+                frame.src = frame.dataset.src;
+            },
+
+            reloadPlatinumPlan() {
+                const frame = document.getElementById('platinum-plan-frame');
+                if (!frame) return;
+                if (!frame.src) {
+                    frame.src = frame.dataset.src;
+                    return;
+                }
+                frame.contentWindow.location.reload();
             },
 
             toggleSidebar() {
@@ -2025,9 +2204,12 @@
                         title: 'เข้าสู่ระบบแอดมิน',
                         input: 'password',
                         inputPlaceholder: 'กรอกรหัสผ่านผู้ดูแลระบบ...',
+                        inputValue: '',
                         inputAttributes: {
+                            autocomplete: 'new-password',
                             autocapitalize: 'off',
-                            autocorrect: 'off'
+                            autocorrect: 'off',
+                            spellcheck: 'false'
                         },
                         showCancelButton: true,
                         confirmButtonText: 'ยืนยันรหัส',
@@ -5611,6 +5793,10 @@
         // Initialize App on DOM load
         document.addEventListener('DOMContentLoaded', () => {
             App.init();
+        });
+
+        window.addEventListener('pageshow', event => {
+            if (event.persisted) App.prepareCleanInputs();
         });
     </script>
 </body>
