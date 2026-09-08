@@ -741,7 +741,7 @@
           <div class="field">
             <label for="note"><i class="icon" data-lucide="notebook-pen"></i>หมายเหตุ</label>
             <div class="input-shell">
-              <textarea id="note" class="textarea" maxlength="5000" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+              <textarea id="note" class="textarea" maxlength="5000" autocomplete="off" data-lpignore="true" data-1p-ignore="true" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
             </div>
           </div>
         </div>
@@ -806,6 +806,13 @@
             id="historySearch"
             class="input"
             type="search"
+            name="pm_history_query"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-1p-ignore="true"
             placeholder="ค้นหา ชื่อเครื่อง / Record ID / หมายเหตุ"
             onkeydown="if(event.key==='Enter') loadRecords()"
           >
@@ -861,7 +868,12 @@
             id="deletePassword"
             class="input"
             type="password"
-            autocomplete="current-password"
+            autocomplete="new-password"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-1p-ignore="true"
             placeholder="กรอกรหัสผ่าน"
             onkeydown="if(event.key==='Enter') confirmDelete()"
           >
@@ -888,6 +900,43 @@
     let historyMode='active',mutationMode='delete',savedSnapshot='',modalReturnFocus=null;
     const $=id=>document.getElementById(id);
 
+    function armPmAutofillGuards(ids=['machine','price','note','historySearch','deletePassword']){
+      ids.forEach(id=>{
+        const field=$(id);
+        if(!field)return;
+        field.dataset.clearBrowserAutofill='true';
+        if(field.dataset.autofillGuardBound==='true')return;
+        field.dataset.autofillGuardBound='true';
+        field.addEventListener('focus',()=>{
+          if(field.dataset.clearBrowserAutofill!=='true')return;
+          field.value='';
+          field.dataset.clearBrowserAutofill='false';
+          field.dispatchEvent(new Event('input',{bubbles:true}));
+        });
+      });
+    }
+
+    function disarmPmAutofillGuards(ids=['machine','price','note']){
+      ids.forEach(id=>{const field=$(id);if(field)field.dataset.clearBrowserAutofill='false';});
+    }
+
+    function resetPmInputControls(){
+      document.querySelectorAll('form').forEach(form=>{
+        form.setAttribute('autocomplete','off');
+        form.reset();
+      });
+      document.querySelectorAll('input:not([type="hidden"]), textarea').forEach(field=>{
+        field.setAttribute('autocomplete','off');
+        field.setAttribute('data-lpignore','true');
+        field.setAttribute('data-1p-ignore','true');
+      });
+      ['machine','price','note','historySearch','deletePassword','savePayload','deletePayload'].forEach(id=>{
+        const field=$(id);
+        if(field)field.value='';
+      });
+      armPmAutofillGuards();
+    }
+
     function apiUrl(){
       const u=(window.APP_CONFIG&&window.APP_CONFIG.API_URL||'').trim();
       if(!u||u.includes('PASTE_YOUR')) throw new Error('กรุณาใส่ Apps Script Web App URL ในไฟล์ config.js');
@@ -909,6 +958,7 @@
     }
 
     async function init(){
+      resetPmInputControls();
       $('price').addEventListener('input',renderPlan);
       $('price').addEventListener('blur',handlePriceBlur);
       ['machine','price','note'].forEach(id=>$(id).addEventListener('input',updateDirtyState));
@@ -1043,6 +1093,7 @@
       renderPlan();
       savedSnapshot=formSnapshot();
       setMsg('พร้อมสร้างรายการใหม่','ok');
+      armPmAutofillGuards(['machine','price','note']);
       refreshIcons();
       window.scrollTo({top:0,behavior:'smooth'});
     }
@@ -1134,6 +1185,7 @@
     function useRecord(i){
       const r=recordCache[i]; if(!r)return;
       if(hasUnsavedChanges()&&!window.confirm('มีข้อมูลที่ยังไม่ได้บันทึก ต้องการเรียกใช้รายการอื่นหรือไม่?'))return;
+      disarmPmAutofillGuards();
       currentRecordId=r.recordId||'';
       rates=r.rates&&r.rates.length===5?cloneRates(r.rates):cloneRates(defaultRates);
       $('machine').value=r.machine||'';
@@ -1155,6 +1207,7 @@
       modalReturnFocus=document.activeElement;
       $('deleteMachineName').textContent=r.machine||r.recordId||'';
       $('deletePassword').value='';
+      armPmAutofillGuards(['deletePassword']);
       $('mutationAction').value=mutationMode;
       $('deleteTitle').textContent=mutationMode==='restore'?'กู้คืนข้อมูล':'ย้ายข้อมูลไปถังขยะ';
       $('deleteDescription').childNodes[0].textContent=mutationMode==='restore'
@@ -1461,6 +1514,7 @@
       return String(str??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
     }
 
+    window.addEventListener('pageshow',()=>resetPmInputControls());
     init();
   </script>
 </body>
