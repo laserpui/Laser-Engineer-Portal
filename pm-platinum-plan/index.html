@@ -49,6 +49,16 @@
       overflow-x:hidden;
     }
 
+    @keyframes autofill-detected{
+      from{opacity:.999}
+      to{opacity:1}
+    }
+    input:-webkit-autofill,
+    textarea:-webkit-autofill{
+      animation-name:autofill-detected;
+      animation-duration:.01s;
+    }
+
     .ambient{position:fixed; inset:0; pointer-events:none; z-index:0}
     .blob{
       position:absolute; border-radius:50%; filter:blur(26px); opacity:.42;
@@ -907,13 +917,43 @@
         field.dataset.clearBrowserAutofill='true';
         if(field.dataset.autofillGuardBound==='true')return;
         field.dataset.autofillGuardBound='true';
+
         field.addEventListener('focus',()=>{
+          if(field.dataset.clearBrowserAutofill==='true')field.value='';
+        });
+
+        field.addEventListener('beforeinput',event=>{
           if(field.dataset.clearBrowserAutofill!=='true')return;
-          field.value='';
+          const inputType=event.inputType||'';
+          if(inputType==='insertReplacementText'){
+            event.preventDefault();
+            field.value='';
+            return;
+          }
           field.dataset.clearBrowserAutofill='false';
-          field.dispatchEvent(new Event('input',{bubbles:true}));
+        });
+
+        field.addEventListener('input',event=>{
+          if(field.dataset.clearBrowserAutofill!=='true'||event.inputType==='insertText')return;
+          requestAnimationFrame(()=>{
+            if(field.dataset.clearBrowserAutofill==='true')field.value='';
+          });
+        });
+
+        field.addEventListener('animationstart',event=>{
+          if(event.animationName==='autofill-detected'&&field.dataset.clearBrowserAutofill==='true')field.value='';
         });
       });
+    }
+
+    function sweepPmBrowserAutofill(){
+      document.querySelectorAll('[data-clear-browser-autofill="true"]').forEach(field=>{
+        if(!field.matches(':focus')||field.value!=='')field.value='';
+      });
+    }
+
+    function schedulePmAutofillSweeps(){
+      [0,60,250,800].forEach(delay=>setTimeout(sweepPmBrowserAutofill,delay));
     }
 
     function disarmPmAutofillGuards(ids=['machine','price','note']){
@@ -935,6 +975,7 @@
         if(field)field.value='';
       });
       armPmAutofillGuards();
+      schedulePmAutofillSweeps();
     }
 
     function apiUrl(){

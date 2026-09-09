@@ -123,6 +123,18 @@
             padding-bottom: 0 !important;
         }
 
+        /* Let JavaScript detect Chrome/Edge autofill that happens after page load. */
+        @keyframes autofill-detected {
+            from { opacity: 0.999; }
+            to { opacity: 1; }
+        }
+        input:-webkit-autofill,
+        textarea:-webkit-autofill,
+        select:-webkit-autofill {
+            animation-name: autofill-detected;
+            animation-duration: 0.01s;
+        }
+
         /* Consistent SweetAlert layout across desktop and mobile */
         .swal2-container {
             z-index: 100000 !important;
@@ -486,7 +498,7 @@
                         </button>
                     </div>
                     <div class="glass-panel rounded-3xl overflow-hidden border border-white/60 shadow-sm bg-white/20">
-                        <iframe id="platinum-plan-frame" data-src="./pm-platinum-plan/index.html" title="PM Platinum Plan" class="block w-full border-0 bg-transparent" style="height: calc(100vh - 220px); min-height: 360px;"></iframe>
+                        <iframe id="platinum-plan-frame" data-src="./pm-platinum-plan/index.html?v=20260909-1" title="PM Platinum Plan" class="block w-full border-0 bg-transparent" style="height: calc(100vh - 220px); min-height: 360px;"></iframe>
                     </div>
                 </div>
 
@@ -2105,6 +2117,7 @@
                 this.resetInputControls(nextTab);
                 this.restoreSystemDefaults(nextTab);
                 this.armAutofillGuards(nextTab);
+                this.scheduleAutofillSweeps(nextTab);
 
                 const isPlatinumPlan = tabId === 'platinum-plan';
                 document.body.classList.toggle('pm-scroll-active', isPlatinumPlan);
@@ -2154,6 +2167,7 @@
                 this.resetInputControls(document);
                 this.restoreSystemDefaults(document);
                 this.armAutofillGuards(document);
+                this.scheduleAutofillSweeps(document);
             },
 
             resetInputControls(scope = document) {
@@ -2209,12 +2223,46 @@
                     field.dataset.clearBrowserAutofill = 'true';
                     if (field.dataset.autofillGuardBound === 'true') return;
                     field.dataset.autofillGuardBound = 'true';
+
                     field.addEventListener('focus', () => {
                         if (field.dataset.clearBrowserAutofill !== 'true') return;
                         field.value = '';
-                        field.dataset.clearBrowserAutofill = 'false';
-                        field.dispatchEvent(new Event('input', { bubbles: true }));
                     });
+
+                    field.addEventListener('beforeinput', event => {
+                        if (field.dataset.clearBrowserAutofill !== 'true') return;
+                        const inputType = event.inputType || '';
+                        if (inputType === 'insertReplacementText') {
+                            event.preventDefault();
+                            field.value = '';
+                            return;
+                        }
+                        field.dataset.clearBrowserAutofill = 'false';
+                    });
+
+                    field.addEventListener('input', event => {
+                        if (field.dataset.clearBrowserAutofill !== 'true' || event.inputType === 'insertText') return;
+                        requestAnimationFrame(() => {
+                            if (field.dataset.clearBrowserAutofill === 'true') field.value = '';
+                        });
+                    });
+
+                    field.addEventListener('animationstart', event => {
+                        if (event.animationName !== 'autofill-detected' || field.dataset.clearBrowserAutofill !== 'true') return;
+                        field.value = '';
+                    });
+                });
+            },
+
+            sweepBrowserAutofill(scope = document) {
+                scope.querySelectorAll('[data-clear-browser-autofill="true"]').forEach(field => {
+                    if (!field.matches(':focus') || field.value !== '') field.value = '';
+                });
+            },
+
+            scheduleAutofillSweeps(scope = document) {
+                [0, 60, 250, 800].forEach(delay => {
+                    setTimeout(() => this.sweepBrowserAutofill(scope), delay);
                 });
             },
 
