@@ -1367,7 +1367,7 @@
     function recordToData(r){return{recordId:r.recordId||'',machine:r.machine||'',machinePrice:Number(r.machinePrice)||0,note:r.note||'',rates:r.rates?cloneRates(r.rates):cloneRates(defaultRates)};}
 
     function buildShareTextFromData(d){
-      const c=calcFor(d.machinePrice,d.rates),rows=c.items.map(x=>`${x.year}  ${formatPercent(x.rate)}  = ${number(x.amount)} บาท`).join('\n');
+      const c=calcFor(d.machinePrice,d.rates),rows=c.items.map(x=>`${x.year}  = ${number(x.amount)} บาท`).join('\n');
       return[
         'PLATINUM PLAN',
         '',
@@ -1465,14 +1465,6 @@
         ctx.fillStyle='#123636';
         ctx.font='700 29px "Noto Sans Thai", Arial, sans-serif';
         ctx.fillText(item.year,132,y-4);
-
-        roundRect(ctx,445,y-34,92,34,999);
-        ctx.fillStyle='rgba(15,118,110,.12)';
-        ctx.fill();
-
-        ctx.fillStyle='#0a625c';
-        ctx.font='700 20px "Noto Sans Thai", Arial, sans-serif';
-        ctx.fillText(formatPercent(item.rate),472,y-11);
 
         ctx.textAlign='right';
         ctx.fillStyle='#123636';
