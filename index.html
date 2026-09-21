@@ -111,15 +111,18 @@
         }
 
         /* PM uses its own vertical scroll area; prevent a second page scrollbar. */
-        body.pm-scroll-active {
+        body.pm-scroll-active,
+        body.kpi-scroll-active {
             height: 100vh;
             height: 100dvh;
             overflow-y: hidden;
         }
-        body.pm-scroll-active footer {
+        body.pm-scroll-active footer,
+        body.kpi-scroll-active footer {
             display: none;
         }
-        body.pm-scroll-active main {
+        body.pm-scroll-active main,
+        body.kpi-scroll-active main {
             padding-bottom: 0 !important;
         }
 
@@ -278,7 +281,7 @@
     <div class="flex flex-col lg:flex-row min-h-screen">
         
         <!-- Sidebar Navigation -->
-        <aside id="sidebar" class="hidden lg:flex lg:w-80 w-full shrink-0 glass-panel lg:border-r border-b border-white/50 flex-col justify-between p-6 z-30 transition-all duration-300 lg:sticky lg:top-0 lg:h-screen">
+        <aside id="sidebar" class="hidden lg:flex lg:w-80 w-full shrink-0 glass-panel lg:border-r border-b border-white/50 flex-col justify-between p-6 z-30 transition-all duration-300 lg:sticky lg:top-0 lg:h-screen overflow-y-auto">
             <div class="flex flex-col gap-6">
                 <!-- Sidebar Brand Header -->
                 <div class="flex items-center justify-between">
@@ -311,6 +314,9 @@
                     </button>
                     <button onclick="App.switchTab('platinum-plan')" data-tab-btn="platinum-plan" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
                         <i data-lucide="gem" class="w-4 h-4"></i> PM Platinum Plan
+                    </button>
+                    <button onclick="App.switchTab('kpi-manager')" data-tab-btn="kpi-manager" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
+                        <i data-lucide="gauge" class="w-4 h-4"></i> Service KPI Manager
                     </button>
                     <button onclick="App.switchTab('product-info')" data-tab-btn="product-info" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-left font-semibold text-sm transition-all duration-200 text-slate-600 hover:bg-white/30">
                         <i data-lucide="clipboard-list" class="w-4 h-4"></i> ข้อมูลผลิตภัณฑ์
@@ -415,6 +421,15 @@
                                 <div class="text-xs font-semibold text-slate-400">คำนวณและจัดเก็บ PM Platinum Plan</div>
                             </div>
                         </div>
+                        <div onclick="App.switchTab('kpi-manager')" class="glass-panel glass-panel-hover rounded-3xl p-5 flex items-center gap-4 cursor-pointer">
+                            <div class="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-600 flex items-center justify-center border border-sky-500/20 shrink-0">
+                                <i data-lucide="gauge" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <div class="text-xl font-black leading-tight text-sky-700">Service KPI</div>
+                                <div class="text-xs font-semibold text-slate-400">ประเมินและติดตามผลการปฏิบัติงาน</div>
+                            </div>
+                        </div>
 
                         <!-- Stat Card 2 -->
                         <div onclick="App.switchTab('product-info')" class="glass-panel glass-panel-hover rounded-3xl p-5 flex items-center gap-4 cursor-pointer">
@@ -499,6 +514,24 @@
                     </div>
                     <div class="glass-panel rounded-3xl overflow-hidden border border-white/60 shadow-sm bg-white/20">
                         <iframe id="platinum-plan-frame" data-src="./pm-platinum-plan/index.html?v=20260909-1" title="PM Platinum Plan" class="block w-full border-0 bg-transparent" style="height: calc(100vh - 220px); min-height: 360px;"></iframe>
+                    </div>
+                </div>
+
+                <!-- ==================== TAB: SERVICE KPI MANAGER ==================== -->
+                <div id="tab-kpi-manager" class="tab-content space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="font-extrabold text-lg flex items-center gap-2 text-slate-800">
+                                <i data-lucide="gauge" class="text-sky-600"></i> Service KPI Manager
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">ประเมิน บันทึก แก้ไข และติดตามผลการปฏิบัติงานของทีม Service</p>
+                        </div>
+                        <button type="button" onclick="App.reloadKpiManager()" class="py-2 px-3 rounded-xl bg-white/50 border border-white/70 text-xs font-bold text-slate-600 hover:bg-white/80 transition-all inline-flex items-center justify-center gap-1.5">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> โหลดหน้าใหม่
+                        </button>
+                    </div>
+                    <div class="glass-panel rounded-3xl overflow-hidden border border-white/60 shadow-sm bg-white/20">
+                        <iframe id="kpi-manager-frame" data-src="./service-kpi-manager/index.html?v=20260921-1" title="Service KPI Manager" class="block w-full border-0 bg-transparent" style="height: calc(100vh - 220px); min-height: 360px;"></iframe>
                     </div>
                 </div>
 
@@ -2101,6 +2134,9 @@
                 const platinumFrame = document.getElementById('platinum-plan-frame');
                 platinumFrame.addEventListener('load', () => this.resizePlatinumPlanFrame());
                 window.addEventListener('resize', () => this.resizePlatinumPlanFrame());
+                const kpiFrame = document.getElementById('kpi-manager-frame');
+                kpiFrame.addEventListener('load', () => this.resizeKpiManagerFrame());
+                window.addEventListener('resize', () => this.resizeKpiManagerFrame());
             },
 
             switchTab(tabId) {
@@ -2120,8 +2156,10 @@
                 this.scheduleAutofillSweeps(nextTab);
 
                 const isPlatinumPlan = tabId === 'platinum-plan';
+                const isKpiManager = tabId === 'kpi-manager';
                 document.body.classList.toggle('pm-scroll-active', isPlatinumPlan);
-                if (isPlatinumPlan) window.scrollTo({ top: 0, behavior: 'auto' });
+                document.body.classList.toggle('kpi-scroll-active', isKpiManager);
+                if (isPlatinumPlan || isKpiManager) window.scrollTo({ top: 0, behavior: 'auto' });
                 document.querySelector(`[data-tab-btn="${tabId}"]`).classList.add('bg-white/50', 'text-blue-600', 'shadow-sm', 'border', 'border-white/60');
                 document.querySelector(`[data-tab-btn="${tabId}"]`).classList.remove('text-slate-600', 'hover:bg-white/30');
 
@@ -2130,6 +2168,7 @@
                 if (tabId === 'spare-parts') SparePartsModule.ensureLoaded();
                 if (tabId === 'product-info') ProductInfoModule.ensureLoaded();
                 if (tabId === 'platinum-plan') this.ensurePlatinumPlanLoaded();
+                if (tabId === 'kpi-manager') this.ensureKpiManagerLoaded();
 
                 // Update Top bar Header Title
                 const titles = {
@@ -2138,6 +2177,7 @@
                     'spare-parts': 'ตารางข้อมูลอะไหล่พรีเมียม',
                     'parts-price': 'คำนวณราคาอะไหล่และ Cartridge',
                     'platinum-plan': 'PM Platinum Plan 5 ปี',
+                    'kpi-manager': 'Service KPI Manager',
                     'product-info': 'ตารางรายละเอียดข้อมูลผลิตภัณฑ์',
                     debtor: 'ระบบจัดการลูกหนี้ค้างชำระ (AR Service)',
                     expenses: 'รายงานบัญชีและบันทึกค่าใช้จ่ายวิศวกร',
@@ -2286,6 +2326,32 @@
                 const frame = document.getElementById('platinum-plan-frame');
                 if (!frame) return;
                 if (!frame.src) {
+                    frame.src = frame.dataset.src;
+                    return;
+                }
+                frame.contentWindow.location.reload();
+            },
+
+            ensureKpiManagerLoaded() {
+                const frame = document.getElementById('kpi-manager-frame');
+                if (!frame) return;
+                if (!frame.getAttribute('src')) frame.src = frame.dataset.src;
+                requestAnimationFrame(() => this.resizeKpiManagerFrame());
+            },
+
+            resizeKpiManagerFrame() {
+                if (this.currentTab !== 'kpi-manager') return;
+                const frame = document.getElementById('kpi-manager-frame');
+                if (!frame) return;
+                const frameTop = frame.getBoundingClientRect().top;
+                const availableHeight = Math.max(360, window.innerHeight - frameTop - 12);
+                frame.style.height = Math.round(availableHeight) + 'px';
+            },
+
+            reloadKpiManager() {
+                const frame = document.getElementById('kpi-manager-frame');
+                if (!frame) return;
+                if (!frame.getAttribute('src')) {
                     frame.src = frame.dataset.src;
                     return;
                 }

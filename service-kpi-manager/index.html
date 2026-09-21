@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ระบบประเมินผลงานรายวันสำหรับผู้จัดการฝ่ายบริการและผู้ช่วยผู้จัดการฝ่ายบริการ" />
+    <meta name="theme-color" content="#e5ffff" />
+    <title>Service KPI Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"><i data-lucide="chart-no-axes-combined"></i></div>
+          <div><strong>Service KPI Manager</strong><span>Laser Engineer Co., Ltd.</span></div>
+        </div>
+        <nav class="nav" aria-label="เมนูหลัก">
+          <button class="nav-item active" data-view="dashboard"><i data-lucide="layout-dashboard"></i><span>ภาพรวม</span></button>
+          <button class="nav-item" data-view="evaluation"><i data-lucide="clipboard-check"></i><span>ประเมินผล</span></button>
+          <button class="nav-item" data-view="history"><i data-lucide="history"></i><span>ประวัติ</span></button>
+          <button class="nav-item" data-view="criteria"><i data-lucide="list-checks"></i><span>เกณฑ์คะแนน</span></button>
+        </nav>
+        <button class="team-button" id="openTeamSettings"><i data-lucide="users-round"></i><span><strong>รายชื่อผู้จัดการ</strong><small id="teamStatus">ยังไม่ได้บันทึกชื่อ</small></span><i data-lucide="chevron-right"></i></button>
+        <div class="sidebar-note"><span class="status-dot"></span><span id="connectionLabel">กำลังตรวจสอบการเชื่อมต่อ</span></div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <button class="menu-button icon-button" id="menuButton" aria-label="เปิดเมนู"><i data-lucide="menu"></i></button>
+          <div><h1 id="pageTitle">Service KPI Manager</h1><p id="pageSubtitle">ติดตามคุณภาพการบริหารงานบริการแบบรายเดือนและรายปี</p></div>
+          <button class="primary compact" data-go="evaluation"><i data-lucide="plus"></i><span>สร้างแบบประเมิน</span></button>
+        </header>
+
+        <div id="alert" class="alert" role="status" hidden></div>
+
+        <section class="view active" id="dashboardView">
+          <div class="toolbar card">
+            <div class="period-switch" aria-label="เลือกรูปแบบสรุป">
+              <button class="period-button active" type="button" data-period="month">รายเดือน</button>
+              <button class="period-button" type="button" data-period="year">รายปี</button>
+            </div>
+            <label id="monthControl"><span><i data-lucide="calendar-days"></i> เดือนที่รายงาน</span><input type="month" id="dashboardMonth" /></label>
+            <label id="yearControl" hidden><span><i data-lucide="calendar-range"></i> ปีที่รายงาน</span><select id="dashboardYear"></select></label>
+            <button class="secondary" id="refreshButton"><i data-lucide="refresh-cw"></i>รีเฟรชข้อมูล</button>
+            <button class="secondary export-button" id="exportButton" disabled><i data-lucide="download"></i>ส่งออกรายงาน</button>
+            <div class="sync-time" id="syncTime">ยังไม่มีการอัปเดต</div>
+          </div>
+          <div class="stats-grid">
+            <article class="stat-card cyan"><div class="stat-icon"><i data-lucide="users"></i></div><span>ผู้จัดการที่ได้รับการประเมิน</span><strong id="employeeCount">0</strong><small id="employeePeriodLabel">คนในเดือนนี้</small></article>
+            <article class="stat-card yellow"><div class="stat-icon"><i data-lucide="clipboard-check"></i></div><span>แบบประเมินรายวัน</span><strong id="evaluationCount">0</strong><small id="evaluationPeriodLabel">รายการในเดือนนี้</small></article>
+            <article class="stat-card pink"><div class="stat-icon"><i data-lucide="chart-spline"></i></div><span>คะแนนเฉลี่ยรวม</span><strong id="averageScore">—</strong><small>จาก 100 คะแนน</small></article>
+          </div>
+          <article class="card trend-card">
+            <div class="card-heading"><div><h2 id="trendTitle">แนวโน้มคะแนนรายวัน</h2><p id="trendSubtitle">ดูการเปลี่ยนแปลงของคะแนนในเดือนที่เลือก</p></div><span class="chart-legend"><i></i>คะแนนเฉลี่ย</span></div>
+            <div id="trendChart" class="trend-chart"></div>
+          </article>
+          <div class="dashboard-grid">
+            <article class="card"><div class="card-heading"><div><h2>คะแนนเฉลี่ยรายบุคคล</h2><p>เฉพาะแบบประเมินที่มีคะแนน</p></div></div><div id="employeeAverages" class="rank-list empty-state">ยังไม่มีข้อมูลในเดือนนี้</div></article>
+            <article class="card"><div class="card-heading"><div><h2>สัดส่วนผลการประเมิน</h2><p>จำแนกตามระดับผลงาน</p></div></div><div id="ratingSummary" class="rating-list empty-state">ยังไม่มีข้อมูลในเดือนนี้</div></article>
+          </div>
+          <article class="card recent-card"><div class="card-heading"><div><h2>รายการล่าสุด</h2><p>ผลการประเมินรายวันที่บันทึกล่าสุด</p></div><button class="text-button" data-go="history">ดูทั้งหมด <i data-lucide="arrow-right"></i></button></div><div id="recentRecords" class="table-wrap"></div></article>
+        </section>
+
+        <section class="view" id="evaluationView">
+          <form id="evaluationForm" novalidate>
+            <div id="editModeBanner" class="edit-mode-banner" hidden>
+              <div><i data-lucide="file-pen-line"></i><div><strong>กำลังแก้ไขรายการที่บันทึกไว้</strong><span id="editModeDescription">ตรวจสอบข้อมูลให้ครบก่อนบันทึกการแก้ไข</span></div></div>
+              <button type="button" class="text-button" id="cancelEditMode"><i data-lucide="x"></i>ยกเลิกการแก้ไข</button>
+            </div>
+            <article class="card form-intro">
+              <div class="step-number">1</div><div><h2>ข้อมูลแบบประเมิน</h2><p>เลือกประเภทและระบุผู้รับการประเมิน</p></div>
+              <div class="form-grid">
+                <label class="wide">ตำแหน่งที่ประเมิน<select id="assessmentKind" required></select></label>
+                <label>วันที่ประเมิน<input type="date" id="assessmentDate" required /></label>
+                <label>ผู้รับการประเมิน<select id="employeeName" required></select></label>
+              </div>
+            </article>
+            <article class="card criteria-form-card">
+              <div class="section-head"><div class="step-number">2</div><div><h2 id="criteriaFormTitle">ให้คะแนนตามเกณฑ์</h2><p id="criteriaFormHelp">กรอกคะแนนทุกหัวข้อโดยอ้างอิงจากหลักฐานที่ตรวจสอบได้</p></div><div class="score-preview"><span>คะแนนรวม</span><strong id="scorePreview">—</strong><small id="ratingPreview">รอการประเมิน</small></div></div>
+              <div id="criteriaForm"></div>
+            </article>
+            <article class="card notes-card">
+              <div class="step-number">3</div><div><h2>หลักฐานและการติดตาม</h2><p>สรุปข้อมูลอ้างอิง ผลลัพธ์ หรือประเด็นที่ต้องดำเนินการต่อ</p></div>
+              <label class="wide"><span class="sr-only">หลักฐานและการติดตาม</span><textarea id="evidence" maxlength="5000" rows="5" placeholder="เช่น แผนงานประจำวัน งานค้าง ข้อร้องเรียน สิ่งที่ต้องทำ ผู้รับผิดชอบ และกำหนดเสร็จ..."></textarea></label>
+              <div id="lowScoreNotice" class="guidance" hidden>คะแนนต่ำกว่า 70 ควรระบุสิ่งที่ต้องปรับปรุง ผู้รับผิดชอบ และกำหนดเสร็จให้ชัดเจน</div>
+              <div class="form-actions"><button type="button" class="secondary" id="resetForm">ล้างข้อมูล</button><button type="submit" class="primary" id="submitButton">บันทึกแบบประเมิน</button></div>
+            </article>
+          </form>
+        </section>
+
+        <section class="view" id="historyView">
+          <article class="card">
+            <div class="card-heading history-heading"><div><h2>ประวัติการประเมิน</h2><p>ตรวจสอบผลย้อนหลังตามเดือน</p></div><label>เดือนที่ต้องการ<input type="month" id="historyMonth" /></label></div>
+            <div id="historyRecords" class="table-wrap"></div>
+          </article>
+        </section>
+
+        <section class="view" id="criteriaView">
+          <div class="criteria-reference-head"><div><h2>มาตรฐานการประเมิน</h2><p>ใช้เกณฑ์เดียวกันทุกครั้งและอ้างอิงจากผลลัพธ์ที่สังเกตได้</p></div></div>
+          <div id="criteriaReference"></div>
+          <article class="card score-guide"><h2>ความหมายของคะแนน 1–5</h2><div id="scoreGuide"></div></article>
+        </section>
+      </main>
+    </div>
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="modal-backdrop" id="teamModal" hidden>
+      <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="teamModalTitle">
+        <div class="modal-head"><div><span class="eyebrow">ข้อมูลทีม</span><h2 id="teamModalTitle">บันทึกรายชื่อผู้จัดการ</h2><p>ชื่อจะถูกจดจำบนอุปกรณ์นี้และเลือกให้อัตโนมัติในแบบประเมิน</p></div><button class="icon-button" id="closeTeamSettings" aria-label="ปิด"><i data-lucide="x"></i></button></div>
+        <form id="teamForm" class="team-form">
+          <label><span><i data-lucide="user-round-cog"></i> ผู้จัดการฝ่ายบริการ</span><input id="managerName" type="text" maxlength="120" placeholder="ชื่อ–นามสกุล" required /></label>
+          <label><span><i data-lucide="user-round-check"></i> ผู้ช่วยผู้จัดการฝ่ายบริการ</span><input id="assistantName" type="text" maxlength="120" placeholder="ชื่อ–นามสกุล" required /></label>
+          <div class="modal-actions"><button type="button" class="secondary" id="cancelTeamSettings">ยกเลิก</button><button type="submit" class="primary"><i data-lucide="save"></i>บันทึกรายชื่อ</button></div>
+        </form>
+      </section>
+    </div>
+    <div class="modal-backdrop" id="recordModal" hidden>
+      <section class="modal-card record-modal-card" role="dialog" aria-modal="true" aria-labelledby="recordModalTitle">
+        <div class="modal-head"><div><span class="eyebrow">ข้อมูลที่บันทึกแล้ว</span><h2 id="recordModalTitle">รายละเอียดผลประเมิน</h2><p>ตรวจสอบข้อมูล คะแนน และหลักฐานของรายการนี้</p></div><button class="icon-button" id="closeRecordModal" aria-label="ปิด"><i data-lucide="x"></i></button></div>
+        <div class="readonly-banner"><i data-lucide="shield-check"></i><div><strong>ตรวจสอบก่อนแก้ไข</strong><span>กดแก้ไขข้อมูลเพื่อเปิดรายการนี้ในแบบประเมิน แล้วบันทึกทับรายการเดิมอย่างปลอดภัย</span></div></div>
+        <div id="recordSummary" class="record-summary"></div>
+        <div><h3 class="detail-heading">คะแนนแต่ละหัวข้อ</h3><div id="recordScores" class="record-scores"></div></div>
+        <div><h3 class="detail-heading">หลักฐานและการติดตาม</h3><div id="recordEvidence" class="record-evidence"></div></div>
+        <div class="modal-actions record-actions"><button type="button" class="secondary" id="dismissRecordModal">ปิดหน้าต่าง</button><button type="button" class="danger-button" id="deleteRecordButton"><i data-lucide="trash-2"></i>ลบข้อมูล</button><button type="button" class="primary" id="editRecordButton"><i data-lucide="file-pen-line"></i>แก้ไขข้อมูล</button></div>
+      </section>
+    </div>
+    <div class="modal-backdrop confirm-backdrop" id="confirmModal" hidden>
+      <section class="modal-card confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+        <div class="confirm-icon" id="confirmIcon"><i data-lucide="triangle-alert"></i></div>
+        <h2 id="confirmTitle">ยืนยันการทำรายการ</h2>
+        <p id="confirmMessage">กรุณาตรวจสอบข้อมูลก่อนดำเนินการต่อ</p>
+        <div class="modal-actions"><button type="button" class="secondary" id="cancelConfirm">ยกเลิก</button><button type="button" class="primary" id="acceptConfirm">ยืนยัน</button></div>
+      </section>
+    </div>
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
