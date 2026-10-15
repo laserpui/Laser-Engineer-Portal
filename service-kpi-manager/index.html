@@ -21,6 +21,7 @@
         <nav class="nav" aria-label="เมนูหลัก">
           <button class="nav-item active" data-view="dashboard"><i data-lucide="layout-dashboard"></i><span>ภาพรวม</span></button>
           <button class="nav-item" data-view="evaluation"><i data-lucide="clipboard-check"></i><span>ประเมินผล</span></button>
+          <button class="nav-item" data-view="calendar"><i data-lucide="calendar-off"></i><span>วันหยุด / วันลา</span></button>
           <button class="nav-item" data-view="history"><i data-lucide="history"></i><span>ประวัติ</span></button>
           <button class="nav-item" data-view="criteria"><i data-lucide="list-checks"></i><span>เกณฑ์คะแนน</span></button>
         </nav>
@@ -79,6 +80,11 @@
                 <label>ผู้รับการประเมิน<select id="employeeName" required></select></label>
               </div>
             </article>
+            <div id="evaluationDayNotice" class="non-working-notice" hidden>
+              <i data-lucide="calendar-off"></i>
+              <div><strong id="evaluationDayNoticeTitle">วันนี้เป็นวันหยุด</strong><span id="evaluationDayNoticeText">ระบบจะไม่นำวันนี้ไปประเมินคะแนน</span></div>
+              <button type="button" class="text-button" data-go="calendar">ดูปฏิทิน</button>
+            </div>
             <article class="card criteria-form-card">
               <div class="section-head"><div class="step-number">2</div><div><h2 id="criteriaFormTitle">ให้คะแนนตามเกณฑ์</h2><p id="criteriaFormHelp">กรอกคะแนนทุกหัวข้อโดยอ้างอิงจากหลักฐานที่ตรวจสอบได้</p></div><div class="score-preview"><span>คะแนนรวม</span><strong id="scorePreview">—</strong><small id="ratingPreview">รอการประเมิน</small></div></div>
               <div id="criteriaForm"></div>
@@ -90,6 +96,47 @@
               <div class="form-actions"><button type="button" class="secondary" id="resetForm">ล้างข้อมูล</button><button type="submit" class="primary" id="submitButton">บันทึกแบบประเมิน</button></div>
             </article>
           </form>
+        </section>
+
+        <section class="view" id="calendarView">
+          <article class="toolbar card holiday-toolbar">
+            <div><span class="eyebrow">ปฏิทินการทำงาน</span><h2>วันหยุดและวันลา</h2><p>เสาร์–อาทิตย์ถูกกำหนดเป็นวันหยุดอัตโนมัติ และไม่นำไปคิดคะแนน</p></div>
+            <label><span><i data-lucide="calendar-days"></i> เดือนที่แสดง</span><input type="month" id="holidayMonth" /></label>
+            <button type="button" class="secondary" id="refreshHolidayButton"><i data-lucide="refresh-cw"></i>รีเฟรช</button>
+          </article>
+
+          <div class="holiday-summary-grid">
+            <article class="holiday-summary workday"><span>วันทำงานตามปฏิทิน</span><strong id="workdayCount">0</strong><small>หักเสาร์–อาทิตย์และนักขัตฤกษ์</small></article>
+            <article class="holiday-summary weekend"><span>เสาร์–อาทิตย์</span><strong id="weekendCount">0</strong><small>หยุดประจำอัตโนมัติ</small></article>
+            <article class="holiday-summary public"><span>วันหยุดนักขัตฤกษ์</span><strong id="publicHolidayCount">0</strong><small>วันที่บันทึกไว้ในเดือนนี้</small></article>
+            <article class="holiday-summary leave"><span>วันลา</span><strong id="leaveCount">0</strong><small>รายการลารายบุคคล</small></article>
+          </div>
+
+          <div class="holiday-layout">
+            <form id="dayStatusForm" class="card status-editor" novalidate>
+              <div class="card-heading"><div><h2>เพิ่มวันหยุดหรือวันลา</h2><p>รายการที่บันทึกจะไม่ถูกรวมเป็นคะแนนประเมิน</p></div><span class="status-editor-icon"><i data-lucide="calendar-plus"></i></span></div>
+              <div class="status-form-grid">
+                <label>วันที่<input type="date" id="statusDate" required /></label>
+                <label>ประเภท<select id="statusType" required><option value="public_holiday">วันหยุดนักขัตฤกษ์</option><option value="leave">วันลา</option></select></label>
+                <label id="statusEmployeeWrap" hidden>ผู้ลา<select id="statusEmployee"></select></label>
+                <label id="leaveTypeWrap" hidden>ประเภทการลา<select id="leaveType"><option value="annual">ลาพักร้อน</option><option value="sick">ลาป่วย</option><option value="personal">ลากิจ</option><option value="other">ลาอื่นๆ</option></select></label>
+                <label class="wide">ชื่อวันหยุด / หัวข้อ<input type="text" id="statusTitle" maxlength="120" placeholder="เช่น วันจักรี หรือ ลาป่วย" required /></label>
+                <label class="wide">หมายเหตุ (ไม่บังคับ)<textarea id="statusNote" maxlength="500" rows="3" placeholder="รายละเอียดเพิ่มเติมหรือเอกสารอ้างอิง"></textarea></label>
+              </div>
+              <div class="form-actions"><button type="reset" class="secondary" id="resetDayStatus">ล้างข้อมูล</button><button type="submit" class="primary" id="saveDayStatus"><i data-lucide="save"></i>บันทึกสถานะวัน</button></div>
+            </form>
+
+            <article class="card calendar-card">
+              <div class="card-heading"><div><h2 id="calendarTitle">ปฏิทินประจำเดือน</h2><p>สีของวันที่ช่วยแยกวันทำงาน วันหยุด และวันลา</p></div></div>
+              <div class="calendar-legend"><span><i class="legend-workday"></i>วันทำงาน</span><span><i class="legend-weekend"></i>เสาร์–อาทิตย์</span><span><i class="legend-public"></i>นักขัตฤกษ์</span><span><i class="legend-leave"></i>มีวันลา</span></div>
+              <div id="holidayCalendar" class="holiday-calendar"></div>
+            </article>
+          </div>
+
+          <article class="card holiday-records-card">
+            <div class="card-heading"><div><h2>รายการที่บันทึก</h2><p>วันหยุดนักขัตฤกษ์และวันลาของเดือนที่เลือก</p></div></div>
+            <div id="holidayRecords" class="holiday-records"></div>
+          </article>
         </section>
 
         <section class="view" id="historyView">

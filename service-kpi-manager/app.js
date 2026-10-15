@@ -57,7 +57,11 @@ const RATING_LABELS = {
 };
 
 const TEAM_STORAGE_KEY = "service-kpi-team-v1";
-const state = { records: [], historyRecords: [], view: "dashboard", period: "month", loading: false, activeRecordId: "", editingRecordId: "", pendingMutation: null, confirmResolver: null, team: { manager: "", assistant: "" } };
+const DAY_STATUS_KIND = "manager_daily_check";
+const DAY_STATUS_PREFIX = "__DAY_STATUS_V1__";
+const DAY_STATUS_SCORES = { priority_owner: "na", backlog_escalation: "na", customer_complaint: "na", team_resources: "na", status_report: "na" };
+const LEAVE_LABELS = { annual: "ลาพักร้อน", sick: "ลาป่วย", personal: "ลากิจ", other: "ลาอื่นๆ" };
+const state = { records: [], historyRecords: [], calendarRecords: [], statusMonths: {}, view: "dashboard", period: "month", loading: false, calendarLoading: false, activeRecordId: "", editingRecordId: "", pendingMutation: null, confirmResolver: null, team: { manager: "", assistant: "" } };
 const $ = (id) => document.getElementById(id);
 const now = new Date();
 const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -77,6 +81,25 @@ function escapeHtml(value) { return String(value ?? "").replace(/[&<>'"]/g, (cha
 function generateRequestId() { return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
 function refreshIcons() { if (globalThis.lucide) globalThis.lucide.createIcons(); }
 function visibleRecords(records = state.records) { return records.filter((record) => record.assessmentKind !== "manager_daily_check"); }
+function parseDayStatus(record) {
+  if (!record || record.assessmentKind !== DAY_STATUS_KIND || !String(record.evidence || "").startsWith(DAY_STATUS_PREFIX)) return null;
+  try {
+    const data = JSON.parse(String(record.evidence).slice(DAY_STATUS_PREFIX.length));
+    if (!["public_holiday", "leave"].includes(data.type)) return null;
+    return { ...data, record };
+  } catch (_) { return null; }
+}
+function dayStatusRecords(records = []) { return records.map(parseDayStatus).filter(Boolean); }
+function isWeekend(dateText) {
+  const date = new Date(`${dateText}T12:00:00`);
+  return Number.isFinite(date.getTime()) && (date.getDay() === 0 || date.getDay() === 6);
+}
+function statusForDate(dateText, employeeName = "", records = []) {
+  if (isWeekend(dateText)) return { type: "weekend", title: "วันหยุดประจำ (เสาร์–อาทิตย์)" };
+  const statuses = dayStatusRecords(records).filter((item) => item.record.assessmentDate === dateText);
+  return statuses.find((item) => item.type === "public_holiday") || statuses.find((item) => item.type === "leave" && item.record.employeeName === employeeName) || null;
+}
+function cacheStatusMonth(month, records) { if (/^\d{4}-\d{2}$/.test(month)) state.statusMonths[month] = records; }
 
 function showAlert(message, type = "success") {
   const element = $("alert");
@@ -122,19 +145,24 @@ async function loadRecords(month, notify = false, target = "both") {
     const data = await request("list", { month });
     if (!data.ok) throw new Error(data.error || "ไม่สามารถอ่านข้อมูลได้");
     const records = Array.isArray(data.records) ? data.records : [];
+    cacheStatusMonth(month, records);
     if (target === "dashboard" || target === "both") state.records = records;
     if (target === "history" || target === "both") state.historyRecords = records;
+    if (target === "calendar") state.calendarRecords = records;
     setConnection("online", "เชื่อมต่อ Google Sheets แล้ว");
     $("syncTime").textContent = `อัปเดตล่าสุด ${new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })} น.`;
     if (target === "dashboard" || target === "both") renderDashboard();
     if (target === "history" || target === "both") renderHistory();
+    if (target === "calendar") renderHolidayCalendar();
     if (notify) showAlert("อัปเดตข้อมูลแล้ว");
   } catch (error) {
     if (target === "dashboard" || target === "both") state.records = [];
     if (target === "history" || target === "both") state.historyRecords = [];
+    if (target === "calendar") state.calendarRecords = [];
     setConnection("offline", apiUrl() ? "เชื่อมต่อ Google Sheets ไม่สำเร็จ" : "รอตั้งค่า Google Apps Script");
     if (target === "dashboard" || target === "both") renderDashboard();
     if (target === "history" || target === "both") renderHistory();
+    if (target === "calendar") renderHolidayCalendar();
     if (notify || apiUrl()) showAlert(error.message, "error");
   } finally {
     state.loading = false;
@@ -191,12 +219,14 @@ function switchView(view) {
   const meta = {
     dashboard: ["Service KPI Manager", "ติดตามคุณภาพการบริหารงานบริการแบบรายเดือนและรายปี"],
     evaluation: ["ประเมินผลรายวัน", "บันทึกผลจากหลักฐานที่ตรวจสอบได้"],
+    calendar: ["วันหยุดและวันลา", "จัดการวันที่ไม่ต้องประเมินคะแนน"],
     history: ["ประวัติการประเมิน", "ค้นและตรวจสอบข้อมูลย้อนหลัง"],
     criteria: ["เกณฑ์การประเมิน", "มาตรฐานคะแนนและหลักฐานอ้างอิง"]
   }[view];
   $("pageTitle").textContent = meta[0];
   $("pageSubtitle").textContent = meta[1];
   closeSidebar();
+  if (view === "calendar") loadCalendarRecords($("holidayMonth").value || currentMonth);
   window.scrollTo({ top: 0, behavior: "smooth" });
   refreshIcons();
 }
@@ -468,6 +498,7 @@ function renderEvaluationForm() {
   document.querySelectorAll("#criteriaForm input").forEach((element) => element.addEventListener("change", calculateForm));
   updateEmployeeSelect();
   calculateForm();
+  checkEvaluationDayStatus();
 }
 
 function renderCriteriaReference() {
@@ -544,6 +575,170 @@ function resetForm() {
   $("assessmentDate").value = localDate;
   renderEvaluationForm();
   updateEditMode();
+  checkEvaluationDayStatus();
+}
+
+async function ensureStatusMonth(month) {
+  if (state.statusMonths[month]) return state.statusMonths[month];
+  try {
+    const data = await request("list", { month });
+    if (!data.ok) throw new Error(data.error || "ไม่สามารถอ่านข้อมูลวันหยุดได้");
+    const records = Array.isArray(data.records) ? data.records : [];
+    cacheStatusMonth(month, records);
+    return records;
+  } catch (_) { return []; }
+}
+
+async function checkEvaluationDayStatus() {
+  const dateText = $("assessmentDate").value;
+  if (!dateText) return;
+  const employeeName = $("employeeName").value;
+  const month = dateText.slice(0, 7);
+  const records = await ensureStatusMonth(month);
+  if ($("assessmentDate").value !== dateText || $("employeeName").value !== employeeName) return;
+  const status = statusForDate(dateText, employeeName, records);
+  const disabled = Boolean(status);
+  $("evaluationDayNotice").hidden = !disabled;
+  document.querySelector(".criteria-form-card").classList.toggle("day-disabled", disabled);
+  document.querySelector(".notes-card").classList.toggle("day-disabled", disabled);
+  document.querySelectorAll("#criteriaForm input").forEach((input) => { input.disabled = disabled; });
+  $("evidence").disabled = disabled;
+  $("submitButton").disabled = disabled;
+  if (!status) return;
+  const title = status.type === "weekend" ? "วันหยุดประจำ (เสาร์–อาทิตย์)" : status.title || (status.type === "public_holiday" ? "วันหยุดนักขัตฤกษ์" : LEAVE_LABELS[status.leaveType] || "วันลา");
+  $("evaluationDayNoticeTitle").textContent = title;
+  $("evaluationDayNoticeText").textContent = status.type === "leave" ? `${employeeName || "บุคคลที่เลือก"} มีวันลาในวันนี้ ระบบจึงปิดการให้คะแนน` : "ระบบกำหนดวันนี้เป็นวันหยุดและจะไม่นำไปคิดคะแนน";
+  refreshIcons();
+}
+
+function updateStatusEmployeeOptions() {
+  const select = $("statusEmployee");
+  const people = [[state.team.manager, "ผู้จัดการฝ่ายบริการ"], [state.team.assistant, "ผู้ช่วยผู้จัดการฝ่ายบริการ"]].filter(([name]) => name);
+  select.innerHTML = people.length ? people.map(([name, role]) => `<option value="${escapeHtml(name)}">${escapeHtml(name)} — ${role}</option>`).join("") : '<option value="">กรุณาบันทึกรายชื่อผู้จัดการก่อน</option>';
+}
+
+function updateDayStatusForm() {
+  const isLeave = $("statusType").value === "leave";
+  $("statusEmployeeWrap").hidden = !isLeave;
+  $("leaveTypeWrap").hidden = !isLeave;
+  $("statusEmployee").required = isLeave;
+  $("leaveType").required = isLeave;
+  $("statusTitle").placeholder = isLeave ? "เช่น ลาป่วยครึ่งวัน" : "เช่น วันจักรี";
+  updateStatusEmployeeOptions();
+}
+
+function resetDayStatusForm() {
+  $("dayStatusForm").reset();
+  const month = $("holidayMonth").value || currentMonth;
+  $("statusDate").value = month === currentMonth ? localDate : `${month}-01`;
+  $("statusType").value = "public_holiday";
+  updateDayStatusForm();
+}
+
+async function loadCalendarRecords(month, notify = false) {
+  if (state.calendarLoading || !/^\d{4}-\d{2}$/.test(month)) return;
+  state.calendarLoading = true;
+  $("refreshHolidayButton").classList.add("loading");
+  try {
+    const data = await request("list", { month });
+    if (!data.ok) throw new Error(data.error || "ไม่สามารถอ่านข้อมูลวันหยุดได้");
+    state.calendarRecords = Array.isArray(data.records) ? data.records : [];
+    cacheStatusMonth(month, state.calendarRecords);
+    renderHolidayCalendar();
+    if (notify) showAlert("อัปเดตปฏิทินแล้ว");
+  } catch (error) {
+    state.calendarRecords = [];
+    renderHolidayCalendar();
+    showAlert(error.message, "error");
+  } finally {
+    state.calendarLoading = false;
+    $("refreshHolidayButton").classList.remove("loading");
+  }
+}
+
+function renderHolidayCalendar() {
+  const month = $("holidayMonth").value || currentMonth;
+  const [year, monthNumber] = month.split("-").map(Number);
+  const daysInMonth = new Date(year, monthNumber, 0).getDate();
+  const firstDay = new Date(year, monthNumber - 1, 1).getDay();
+  const statuses = dayStatusRecords(state.calendarRecords);
+  const publicByDate = new Map();
+  const leavesByDate = new Map();
+  statuses.forEach((status) => {
+    const date = status.record.assessmentDate;
+    if (status.type === "public_holiday") publicByDate.set(date, status);
+    if (status.type === "leave") (leavesByDate.get(date) || leavesByDate.set(date, []).get(date)).push(status);
+  });
+  let weekendCount = 0;
+  let publicWeekdayCount = 0;
+  const dayCells = [];
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const date = `${month}-${String(day).padStart(2, "0")}`;
+    const weekend = isWeekend(date);
+    const publicHoliday = publicByDate.get(date);
+    const leaves = leavesByDate.get(date) || [];
+    if (weekend) weekendCount += 1;
+    if (publicHoliday && !weekend) publicWeekdayCount += 1;
+    const classes = ["calendar-day", weekend ? "weekend" : "", publicHoliday ? "public-holiday" : "", leaves.length ? "has-leave" : "", date === localDate ? "today" : ""].filter(Boolean).join(" ");
+    const detail = publicHoliday ? publicHoliday.title : leaves.length ? `ลา ${leaves.length} คน` : weekend ? "หยุดประจำ" : "";
+    dayCells.push(`<div class="${classes}" title="${escapeHtml(detail)}"><strong>${day}</strong>${detail ? `<small>${escapeHtml(detail)}</small>` : ""}</div>`);
+  }
+  const weekdays = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((label) => `<div class="calendar-weekday">${label}</div>`).join("");
+  $("holidayCalendar").innerHTML = `${weekdays}${Array.from({ length: firstDay }, () => '<div class="calendar-day empty"></div>').join("")}${dayCells.join("")}`;
+  $("calendarTitle").textContent = `ปฏิทิน ${formatMonth(month)}`;
+  $("weekendCount").textContent = weekendCount;
+  $("publicHolidayCount").textContent = publicByDate.size;
+  $("leaveCount").textContent = statuses.filter((status) => status.type === "leave").length;
+  $("workdayCount").textContent = Math.max(0, daysInMonth - weekendCount - publicWeekdayCount);
+  const ordered = [...statuses].sort((a, b) => `${a.record.assessmentDate}${a.record.employeeName}`.localeCompare(`${b.record.assessmentDate}${b.record.employeeName}`));
+  $("holidayRecords").innerHTML = ordered.length ? ordered.map((status) => {
+    const label = status.type === "public_holiday" ? "วันหยุดนักขัตฤกษ์ · ทั้งทีม" : `${LEAVE_LABELS[status.leaveType] || "วันลา"} · ${status.record.employeeName}`;
+    return `<div class="holiday-record"><time>${formatDate(status.record.assessmentDate)}</time><div><strong>${escapeHtml(status.title || label)}</strong><span>${escapeHtml(label)}${status.note ? ` · ${escapeHtml(status.note)}` : ""}</span></div><button type="button" class="row-action" data-day-status-id="${escapeHtml(status.record.id)}"><i data-lucide="trash-2"></i>ลบ</button></div>`;
+  }).join("") : emptyTable("ยังไม่มีวันหยุดนักขัตฤกษ์หรือวันลาในเดือนนี้");
+  refreshIcons();
+}
+
+async function submitDayStatus(event) {
+  event.preventDefault();
+  if (!$("dayStatusForm").checkValidity()) { $("dayStatusForm").reportValidity(); return; }
+  const type = $("statusType").value;
+  const assessmentDate = $("statusDate").value;
+  const employeeName = type === "leave" ? $("statusEmployee").value : "ทุกคน";
+  if (type === "leave" && !employeeName) { showAlert("กรุณาบันทึกรายชื่อผู้จัดการและเลือกผู้ลา", "error"); return; }
+  const existing = dayStatusRecords(state.calendarRecords).find((status) => status.record.assessmentDate === assessmentDate && status.type === type && (type !== "leave" || status.record.employeeName === employeeName));
+  if (existing) { showAlert(type === "leave" ? "บุคคลนี้มีรายการลาในวันที่เลือกแล้ว" : "มีวันหยุดนักขัตฤกษ์ในวันที่เลือกแล้ว", "error"); return; }
+  const detail = { type, title: $("statusTitle").value.trim(), note: $("statusNote").value.trim(), leaveType: type === "leave" ? $("leaveType").value : "" };
+  const button = $("saveDayStatus");
+  button.disabled = true;
+  button.innerHTML = '<span class="button-spinner"></span>กำลังบันทึก...';
+  try {
+    const result = await request("create", { requestId: generateRequestId(), assessmentKind: DAY_STATUS_KIND, assessmentDate, employeeName, evaluatorName: "ระบบวันหยุด", scores: DAY_STATUS_SCORES, evidence: `${DAY_STATUS_PREFIX}${JSON.stringify(detail)}` });
+    if (!result.ok) throw new Error(result.error || "บันทึกสถานะวันไม่สำเร็จ");
+    const month = assessmentDate.slice(0, 7);
+    $("holidayMonth").value = month;
+    delete state.statusMonths[month];
+    resetDayStatusForm();
+    await loadCalendarRecords(month);
+    showAlert(type === "leave" ? "บันทึกวันลาแล้ว" : "บันทึกวันหยุดนักขัตฤกษ์แล้ว");
+    checkEvaluationDayStatus();
+  } catch (error) { showAlert(error.message, "error"); }
+  finally { button.disabled = false; button.innerHTML = '<i data-lucide="save"></i>บันทึกสถานะวัน'; refreshIcons(); }
+}
+
+async function deleteDayStatus(recordId) {
+  const status = dayStatusRecords(state.calendarRecords).find((item) => String(item.record.id) === String(recordId));
+  if (!status) return;
+  const confirmed = await confirmAction({ title: "ยืนยันการลบสถานะวัน", message: `ต้องการลบ “${status.title || "รายการนี้"}” วันที่ ${formatDate(status.record.assessmentDate)} ใช่หรือไม่`, confirmLabel: "ลบรายการ", danger: true });
+  if (!confirmed) return;
+  try {
+    const result = await request("delete", { id: status.record.id, requestId: generateRequestId() });
+    if (!result.ok) throw new Error(result.error || "ลบสถานะวันไม่สำเร็จ");
+    const month = status.record.assessmentDate.slice(0, 7);
+    delete state.statusMonths[month];
+    await loadCalendarRecords(month);
+    showAlert("ลบสถานะวันแล้ว");
+    checkEvaluationDayStatus();
+  } catch (error) { showAlert(error.message, "error"); }
 }
 
 function readTeam() {
@@ -589,6 +784,7 @@ function saveTeam(event) {
   catch (_) { showAlert("อุปกรณ์นี้ไม่อนุญาตให้จดจำรายชื่อ", "error"); return; }
   updateTeamStatus();
   updateEmployeeSelect();
+  updateStatusEmployeeOptions();
   closeTeamModal();
   showAlert("บันทึกรายชื่อผู้จัดการแล้ว");
 }
@@ -603,12 +799,16 @@ function init() {
   $("dashboardYear").innerHTML = Array.from({ length: 7 }, (_, index) => Number(currentYear) + 1 - index).map((year) => `<option value="${year}">ค.ศ. ${year}</option>`).join("");
   $("dashboardYear").value = currentYear;
   $("historyMonth").value = currentMonth;
+  $("holidayMonth").value = currentMonth;
   $("assessmentDate").value = localDate;
+  $("statusDate").value = localDate;
   $("assessmentKind").innerHTML = Object.entries(KPI).map(([key, value]) => `<option value="${key}">${escapeHtml(value.label)}</option>`).join("");
   readTeam();
   document.querySelectorAll(".nav-item").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
   document.querySelectorAll("[data-go]").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.go)));
   $("assessmentKind").addEventListener("change", renderEvaluationForm);
+  $("assessmentDate").addEventListener("change", checkEvaluationDayStatus);
+  $("employeeName").addEventListener("change", checkEvaluationDayStatus);
   $("evaluationForm").addEventListener("submit", submitEvaluation);
   $("resetForm").addEventListener("click", resetForm);
   $("cancelEditMode").addEventListener("click", cancelEditMode);
@@ -618,6 +818,11 @@ function init() {
   $("dashboardMonth").addEventListener("change", (event) => { $("historyMonth").value = event.target.value; loadRecords(event.target.value, false, "dashboard"); });
   $("dashboardYear").addEventListener("change", (event) => loadYearRecords(event.target.value));
   $("historyMonth").addEventListener("change", (event) => loadRecords(event.target.value, false, "history"));
+  $("holidayMonth").addEventListener("change", (event) => { resetDayStatusForm(); loadCalendarRecords(event.target.value); });
+  $("refreshHolidayButton").addEventListener("click", () => loadCalendarRecords($("holidayMonth").value, true));
+  $("statusType").addEventListener("change", updateDayStatusForm);
+  $("dayStatusForm").addEventListener("submit", submitDayStatus);
+  $("resetDayStatus").addEventListener("click", (event) => { event.preventDefault(); resetDayStatusForm(); });
   $("trendChart").addEventListener("click", (event) => {
     const point = event.target.closest("[data-month]");
     if (!point) return;
@@ -633,7 +838,12 @@ function init() {
   $("cancelTeamSettings").addEventListener("click", closeTeamModal);
   $("teamForm").addEventListener("submit", saveTeam);
   $("teamModal").addEventListener("click", (event) => { if (event.target === $("teamModal")) closeTeamModal(); });
-  document.addEventListener("click", (event) => { const button = event.target.closest("[data-record-id]"); if (button) openRecordModal(button.dataset.recordId); });
+  document.addEventListener("click", (event) => {
+    const recordButton = event.target.closest("[data-record-id]");
+    if (recordButton) openRecordModal(recordButton.dataset.recordId);
+    const statusButton = event.target.closest("[data-day-status-id]");
+    if (statusButton) deleteDayStatus(statusButton.dataset.dayStatusId);
+  });
   $("closeRecordModal").addEventListener("click", closeRecordModal);
   $("dismissRecordModal").addEventListener("click", closeRecordModal);
   $("editRecordButton").addEventListener("click", beginEditRecord);
@@ -649,6 +859,8 @@ function init() {
     else if (!$("teamModal").hidden) closeTeamModal();
   });
   renderEvaluationForm();
+  resetDayStatusForm();
+  renderHolidayCalendar();
   renderCriteriaReference();
   setPeriod("month", false);
   refreshIcons();
